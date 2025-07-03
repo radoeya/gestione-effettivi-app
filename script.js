@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function generateReportHtml() {
-        // THIS IS THE MAIN FIX: A more robust check to prevent errors on an empty calendar.
+        // A more robust check to prevent errors on an empty calendar.
         if (!calendarEvents || calendarEvents.length === 0) {
             return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
         }
@@ -194,10 +194,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openModal() {
-        // This function will now work correctly even if the report is empty.
-        reportContent.innerHTML = generateReportHtml();
-        modal.classList.remove('hidden');
-        setTimeout(() => modal.querySelector('div').classList.remove('scale-95', 'opacity-0'), 10);
+        // NUOVO: Aggiunto un blocco try...catch per catturare qualsiasi errore imprevisto
+        // durante la generazione del report e mostrarlo all'utente.
+        try {
+            const reportHtml = generateReportHtml();
+            reportContent.innerHTML = reportHtml;
+
+            // Controlla se il modale esiste prima di provare a manipolarlo
+            if (modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    const modalContent = modal.querySelector('div');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                    }
+                }, 10);
+            } else {
+                console.error("Elemento modale non trovato!");
+            }
+        } catch (error) {
+            // Se si verifica un errore, lo mostriamo nel toast e nella console.
+            console.error("Errore dettagliato durante la generazione del report:", error);
+            showToast(`Errore: ${error.message}.`);
+        }
     }
 
     function closeModal() {
