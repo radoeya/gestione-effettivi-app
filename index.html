@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Turni e Congedi</title>
     
-    <!-- Librerie Esterne -->
+    <!-- Librerie Esterne (Senza Lucide Icons) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="https://unpkg.com/lucide-icons@0.378.0"></script>
 
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,7 +101,7 @@
                         </div>
                         
                         <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            <i data-lucide="plus-circle" class="mr-2 h-5 w-5"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
                             Aggiungi al Calendario
                         </button>
                     </form>
@@ -111,11 +110,11 @@
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-gray-800">Azioni</h3>
                     <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors">
-                        <i data-lucide="file-text" class="mr-2 h-5 w-5"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                         Genera Report
                     </button>
                      <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                        <i data-lucide="trash-2" class="mr-2 h-5 w-5"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         Pulisci Calendario
                     </button>
                 </div>
@@ -133,7 +132,7 @@
             <div class="flex justify-between items-center p-6 border-b border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-900">Report Stato Effettivi</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="h-6 w-6"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
                 </button>
             </div>
             <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50">
@@ -141,11 +140,11 @@
             </div>
             <div class="flex justify-end items-center p-6 border-t border-gray-200 bg-gray-100 rounded-b-2xl space-x-3">
                  <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <i data-lucide="copy" class="mr-2 h-4 w-4"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     Copia HTML
                 </button>
                 <a id="sendEmailBtn" href="#" class="flex items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <i data-lucide="mail" class="mr-2 h-4 w-4"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                     Invia via Email
                 </a>
             </div>
@@ -158,12 +157,9 @@
 
     <!-- JavaScript Interno -->
     <script>
-    // MODIFICA CHIAVE: Usiamo window.onload per assicurarci che TUTTO (inclusi gli script esterni) sia caricato.
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
         try {
             // --- INIZIALIZZAZIONE ---
-            lucide.createIcons();
-            
             const calendarEl = document.getElementById('calendar');
             const entryForm = document.getElementById('entryForm');
             const entryDateInput = document.getElementById('entryDate');
@@ -185,7 +181,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v5'; // Nuova chiave per partire puliti
+            const storageKey = 'calendarEvents_v6'; // Nuova chiave per partire puliti
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -381,7 +377,7 @@
             console.error("ERRORE FATALE in initializeApp:", error);
             alert("Errore critico: " + error.message);
         }
-    };
+    });
     </script>
 </body>
 </html>
