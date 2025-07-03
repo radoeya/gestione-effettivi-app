@@ -352,7 +352,7 @@
                         if (!hasNeeds && !hasLeaves) continue;
 
                         if (hasNeeds && hasLeaves) {
-                            let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                            let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;vertical-align:middle;">&#9650;</span>';
                             let needParts = [];
                             if (needs.early > 0) needParts.push(`${needs.early} presto`);
                             if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
@@ -360,7 +360,7 @@
                             let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
                             mainTableHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
 
-                            let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                            let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span>`;
                             let leaveParts = [];
                             if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
                             if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
@@ -368,7 +368,7 @@
                             let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
                             mainTableHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
                         } else if (hasNeeds) {
-                            let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                            let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;vertical-align:middle;">&#9650;</span>';
                             let needParts = [];
                             if (needs.early > 0) needParts.push(`${needs.early} presto`);
                             if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
@@ -376,7 +376,7 @@
                             let description = `Turni da coprire: ${needParts.join(' + ')}`;
                             mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
                         } else if (hasLeaves) {
-                            let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                            let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span>`;
                             let leaveParts = [];
                             if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
                             if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
@@ -394,7 +394,7 @@
                 const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
                 const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
 
-                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .summary-table th, .summary-table td { text-align: center; } .icon-cell { width: 40px; text-align: center; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2fr 1fr; align-items: start; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .summary-table th, .summary-table td { text-align: center; } .icon-cell { width: 40px; text-align: center; vertical-align: middle; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2fr 1fr; align-items: center; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 
                 return { html: fullHtml, stats };
             }
@@ -424,22 +424,27 @@
                     data: chartData,
                     options: {
                         responsive: true,
+                        layout: {
+                            padding: 20
+                        },
                         plugins: {
                             legend: {
                                 display: false
                             },
                             datalabels: {
                                 formatter: (value, ctx) => {
-                                    if (value === 0) return null;
-                                    return value;
+                                    if (value === 0) return null; // Non mostrare etichette per valori zero
+                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? (value / total * 100).toFixed(0) + '%' : '';
+                                    return `${value}\n(${percentage})`;
                                 },
                                 color: '#fff',
                                 font: {
                                     weight: 'bold',
-                                    size: 16
+                                    size: 14
                                 },
-                                textStrokeColor: 'black',
-                                textStrokeWidth: 2
+                                textStrokeColor: '#333',
+                                textStrokeWidth: 1.5
                             }
                         }
                     }
