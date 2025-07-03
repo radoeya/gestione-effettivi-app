@@ -85,6 +85,10 @@
                         <h2 class="text-xl font-semibold mb-4 text-gray-800">Aggiungi Voce</h2>
                         <form id="entryForm" class="space-y-4">
                             <div>
+                                <label for="reportMonth" class="block text-sm font-medium text-gray-700">Mese del Report</label>
+                                <select id="reportMonth" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
+                            <div>
                                 <label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label>
                                 <input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
                             </div>
@@ -188,14 +192,37 @@
             const reportContent = document.getElementById('reportContent');
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
+            const reportMonthSelect = document.getElementById('reportMonth');
 
-            if (!generateReportBtn || !modal || !calendarEl) {
+            if (!generateReportBtn || !modal || !calendarEl || !reportMonthSelect) {
                 throw new Error("Elemento HTML critico non trovato.");
             }
 
+            // --- POPOLAMENTO SELETTORE MESE ---
+            function populateMonthSelector() {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+
+                for (let y = currentYear; y <= currentYear + 1; y++) {
+                    for (let m = 0; m < 12; m++) {
+                        const monthValue = `${y}-${String(m + 1).padStart(2, '0')}`;
+                        const option = document.createElement('option');
+                        option.value = monthValue;
+                        option.textContent = `${months[m]} ${y}`;
+                        reportMonthSelect.appendChild(option);
+                        if (y === currentYear && m === currentMonth) {
+                            option.selected = true;
+                        }
+                    }
+                }
+            }
+            populateMonthSelector();
+
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v10'; // Nuova chiave per partire puliti
+            const storageKey = 'calendarEvents_v11'; // Nuova chiave
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -226,9 +253,8 @@
                     }
                 },
                 editable: false,
-                // MODIFICA: Impostazioni per mostrare più eventi
-                dayMaxEvents: 4, // Mostra fino a 4 eventi prima del link "+more"
-                height: 'auto'   // Permette al calendario di crescere in altezza
+                dayMaxEvents: 4,
+                height: 'auto'
             });
             calendar.render();
 
@@ -250,13 +276,22 @@
             }
 
             function generateReportHtml() {
-                if (!calendarEvents || calendarEvents.length === 0) {
-                    return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
+                const selectedMonthValue = reportMonthSelect.value;
+                const [year, month] = selectedMonthValue.split('-').map(Number);
+                
+                const firstDate = new Date(year, month - 1, 1);
+                const lastDate = new Date(year, month, 0); // Giorno 0 del mese successivo = ultimo giorno del mese corrente
+
+                const filteredEvents = calendarEvents.filter(event => {
+                    const eventDate = new Date(event.start);
+                    return eventDate.getFullYear() === year && eventDate.getMonth() === month - 1;
+                });
+
+                if (filteredEvents.length === 0) {
+                     return `<p class="text-center text-gray-500">Nessun dato da mostrare per il mese selezionato.</p>`;
                 }
 
-                const sortedEvents = [...calendarEvents].sort((a, b) => new Date(a.start) - new Date(b.start));
-                const firstDate = new Date(sortedEvents[0].start + 'T00:00:00');
-                const lastDate = new Date(sortedEvents[sortedEvents.length - 1].start + 'T00:00:00');
+                const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
                 const today = new Date();
                 const groupedData = {};
                 
@@ -293,10 +328,7 @@
                     
                     if (!hasNeeds && !hasLeaves) continue;
 
-                    // MODIFICA: Logica per separare le righe
                     if (hasNeeds && hasLeaves) {
-                        // Caso 1: Ci sono sia turni da coprire che congedi
-                        // Riga 1: Turni da coprire
                         let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
                         let needParts = [];
                         if (needs.early > 0) needParts.push(`${needs.early} presto`);
@@ -305,7 +337,6 @@
                         let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
                         reportHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
 
-                        // Riga 2: Congedi
                         let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
                         let leaveParts = [];
                         if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
@@ -315,7 +346,6 @@
                         reportHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
 
                     } else if (hasNeeds) {
-                        // Caso 2: Ci sono solo turni da coprire
                         let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
                         let needParts = [];
                         if (needs.early > 0) needParts.push(`${needs.early} presto`);
@@ -325,7 +355,6 @@
                         reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
 
                     } else if (hasLeaves) {
-                        // Caso 3: Ci sono solo congedi
                         let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
                         let leaveParts = [];
                         if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
@@ -383,7 +412,6 @@
 
                 const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
                 
-                // Cerca se un evento dello stesso tipo e turno esiste già per questa data
                 const existingEventIndex = calendarEvents.findIndex(
                     ev => ev.start === date && 
                           ev.extendedProps.type === type && 
@@ -391,7 +419,6 @@
                 );
 
                 if (existingEventIndex > -1) {
-                    // Se esiste, aggiorna la quantità e il titolo
                     const existingEvent = calendarEvents[existingEventIndex];
                     existingEvent.extendedProps.quantity += quantity;
                     
@@ -401,7 +428,6 @@
                         existingEvent.title = `Congedo: ${existingEvent.extendedProps.quantity} (${shiftInitial})`;
                     }
                 } else {
-                    // Se non esiste, crea un nuovo evento
                     let title = '', color = '', extendedProps = { type, quantity, shift };
 
                     if (type === 'need') {
@@ -413,7 +439,7 @@
                     }
                     
                     calendarEvents.push({ 
-                        id: `${date}-${type}-${shift}`, // Usa un ID composito per trovarlo facilmente
+                        id: `${date}-${type}-${shift}`,
                         title, 
                         start: date, 
                         allDay: true, 
@@ -426,6 +452,7 @@
                 showToast('Calendario aggiornato.');
                 entryForm.reset();
                 entryDateInput.value = new Date().toISOString().slice(0, 10);
+                populateMonthSelector(); // Ripopola per mantenere la selezione corretta
             });
             
             closeModalBtn.addEventListener('click', closeModal);
