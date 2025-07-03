@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Effettivi</title>
     
-    <!-- Librerie Esterne -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Stili CSS Interni -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -65,7 +62,6 @@
             
             <div class="w-full bg-white p-6 rounded-2xl shadow-lg">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-y-8 md:gap-x-8">
-                    <!-- Colonna 1: Impostazioni -->
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:pr-8">
                          <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report</h2>
                          <div class="space-y-4">
@@ -82,7 +78,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Colonna 2: Aggiungi Voce -->
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
                         <h2 class="text-xl font-semibold mb-4 text-gray-800">Aggiungi Voce</h2>
                         <form id="entryForm" class="space-y-4">
@@ -123,7 +118,6 @@
                             </button>
                         </form>
                     </div>
-                    <!-- Colonna 3: Statistiche -->
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
                          <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiche Richieste</h2>
                          <div class="space-y-4">
@@ -141,7 +135,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Colonna 4: Azioni -->
                     <div class="md:col-span-1 md:pl-8">
                         <h2 class="text-xl font-semibold mb-4 text-gray-800">Azioni</h2>
                         <div class="space-y-4">
@@ -164,7 +157,6 @@
         </div>
     </div>
 
-    <!-- Report Modal -->
     <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all scale-95 opacity-0">
             <div class="flex justify-between items-center p-6 border-b border-gray-200">
@@ -174,8 +166,7 @@
                 </button>
             </div>
             <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50">
-                <!-- Report table will be injected here -->
-            </div>
+                </div>
             <div class="flex justify-end items-center p-6 border-t border-gray-200 bg-gray-100 rounded-b-2xl space-x-3">
                  <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -193,7 +184,6 @@
         <p id="toastMessage"></p>
     </div>
 
-    <!-- JavaScript Interno -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         try {
@@ -350,9 +340,11 @@
                         const hasLeaves = Object.values(leaves).some(v => v > 0);
                         
                         if (!hasNeeds && !hasLeaves) continue;
+                        
+                        const needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;vertical-align:middle;">&#9650;</span>';
+                        const leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span>`;
 
                         if (hasNeeds && hasLeaves) {
-                            let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;vertical-align:middle;">&#9650;</span>';
                             let needParts = [];
                             if (needs.early > 0) needParts.push(`${needs.early} presto`);
                             if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
@@ -360,7 +352,6 @@
                             let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
                             mainTableHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
 
-                            let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span>`;
                             let leaveParts = [];
                             if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
                             if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
@@ -368,21 +359,19 @@
                             let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
                             mainTableHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
                         } else if (hasNeeds) {
-                            let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;vertical-align:middle;">&#9650;</span>';
                             let needParts = [];
                             if (needs.early > 0) needParts.push(`${needs.early} presto`);
                             if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
                             if (needs.late > 0) needParts.push(`${needs.late} tardi`);
                             let description = `Turni da coprire: ${needParts.join(' + ')}`;
-                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${description}</td><td></td></tr>`;
                         } else if (hasLeaves) {
-                            let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span>`;
                             let leaveParts = [];
                             if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
                             if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
                             if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
                             let description = `Congedi: ${leaveParts.join(' + ')}`;
-                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${leaveIcon}</td><td>${description}</td><td></td></tr>`;
                         }
                     }
                     mainTableHtml += `</tbody></table>`;
@@ -394,14 +383,15 @@
                 const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
                 const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
 
-                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .summary-table th, .summary-table td { text-align: center; } .icon-cell { width: 40px; text-align: center; vertical-align: middle; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2fr 1fr; align-items: center; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; table-layout: fixed; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .summary-table th, .summary-table td { text-align: center; } .icon-cell { width: 40px; text-align: center; vertical-align: middle; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2fr 1fr; align-items: center; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas><div id="chartLegend" style="margin-top: 10px; font-size: 12px; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;"></div></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 
                 return { html: fullHtml, stats };
             }
 
             function renderPieChart(stats) {
                 const chartEl = document.getElementById('leaveChart');
-                if (!chartEl || !stats) return;
+                const legendEl = document.getElementById('chartLegend');
+                if (!chartEl || !stats || !legendEl) return;
                 
                 if (window.myPieChart) {
                     window.myPieChart.destroy();
@@ -425,7 +415,12 @@
                     options: {
                         responsive: true,
                         layout: {
-                            padding: 20
+                            padding: {
+                                top: 30,
+                                bottom: 30,
+                                left: 30,
+                                right: 30
+                            }
                         },
                         plugins: {
                             legend: {
@@ -433,22 +428,33 @@
                             },
                             datalabels: {
                                 formatter: (value, ctx) => {
-                                    if (value === 0) return null; // Non mostrare etichette per valori zero
                                     const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? (value / total * 100).toFixed(0) + '%' : '';
-                                    return `${value}\n(${percentage})`;
+                                    if (value === 0) return null;
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${percentage}%`;
                                 },
-                                color: '#fff',
+                                color: '#333',
                                 font: {
                                     weight: 'bold',
-                                    size: 14
+                                    size: 12
                                 },
-                                textStrokeColor: '#333',
-                                textStrokeWidth: 1.5
+                                anchor: 'end',
+                                align: 'end',
+                                offset: 8,
+                                clamp: true
                             }
                         }
                     }
                 });
+                
+                // Genera legenda personalizzata
+                legendEl.innerHTML = chartData.labels.map((label, index) => {
+                    const color = chartData.datasets[0].backgroundColor[index];
+                    return `<div style="display: flex; align-items: center;">
+                                <span style="display: inline-block; width: 12px; height: 12px; background-color: ${color}; margin-right: 8px; border-radius: 2px;"></span>
+                                <span>${label}</span>
+                            </div>`;
+                }).join('');
             }
 
             function openModal() {
