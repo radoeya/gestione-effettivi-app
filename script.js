@@ -1,6 +1,6 @@
-// MODIFICA CHIAVE: Usiamo window.onload invece di DOMContentLoaded.
-// Questo evento attende che TUTTE le risorse della pagina (inclusi gli script come Lucide) siano caricate.
-window.onload = function() {
+// Funzione principale che avvia tutta l'applicazione.
+// Verrà chiamata solo quando saremo sicuri che tutte le librerie esterne sono state caricate.
+function initializeApp() {
     try {
         // --- INIZIALIZZAZIONE ---
         lucide.createIcons();
@@ -221,4 +221,20 @@ window.onload = function() {
         console.error("ERRORE FATALE DURANTE L'INIZIALIZZAZIONE:", error);
         alert("Si è verificato un errore critico all'avvio dello script. Controlla la console (F12) per i dettagli. Errore: " + error.message);
     }
-};
+}
+
+// Funzione di controllo che attende il caricamento delle librerie esterne.
+// Questo è il nuovo meccanismo di avvio.
+function checkLibrariesReady() {
+    // Controlla se le librerie FullCalendar e Lucide sono state caricate e sono pronte
+    if (typeof FullCalendar !== 'undefined' && typeof lucide !== 'undefined') {
+        // Se sono pronte, avvia l'applicazione principale
+        initializeApp();
+    } else {
+        // Se non sono ancora pronte, attende 100 millisecondi e controlla di nuovo.
+        setTimeout(checkLibrariesReady, 100);
+    }
+}
+
+// Avvia il processo di controllo appena lo script viene letto.
+checkLibrariesReady();
