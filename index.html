@@ -158,7 +158,8 @@
 
     <!-- JavaScript Interno -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // MODIFICA CHIAVE: Usiamo window.onload per assicurarci che TUTTO (inclusi gli script esterni) sia caricato.
+    window.onload = function() {
         try {
             // --- INIZIALIZZAZIONE ---
             lucide.createIcons();
@@ -380,7 +381,7 @@
             console.error("ERRORE FATALE in initializeApp:", error);
             alert("Errore critico: " + error.message);
         }
-    });
+    };
     </script>
 </body>
 </html>
