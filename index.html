@@ -245,7 +245,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v16'; // Nuova chiave
+            const storageKey = 'calendarEvents_v17'; // Nuova chiave
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -424,28 +424,22 @@
                     data: chartData,
                     options: {
                         responsive: true,
-                        layout: {
-                            padding: 20 // Aggiunge spazio per le etichette esterne
-                        },
                         plugins: {
                             legend: {
                                 display: false
                             },
                             datalabels: {
                                 formatter: (value, ctx) => {
-                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    if (value === 0) return '';
-                                    const percentage = total > 0 ? (value / total * 100).toFixed(0) + '%' : '';
-                                    return `${ctx.chart.data.labels[ctx.dataIndex]}\n${percentage}`;
+                                    if (value === 0) return null;
+                                    return value;
                                 },
-                                color: '#333',
+                                color: '#fff',
                                 font: {
                                     weight: 'bold',
+                                    size: 16
                                 },
-                                align: 'end',
-                                anchor: 'end',
-                                offset: 10,
-                                textAlign: 'center'
+                                textStrokeColor: 'black',
+                                textStrokeWidth: 2
                             }
                         }
                     }
