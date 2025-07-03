@@ -1,12 +1,10 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Questo blocco try...catch cattura qualsiasi errore grave durante l'inizializzazione.
+// MODIFICA CHIAVE: Usiamo window.onload invece di DOMContentLoaded.
+// Questo evento attende che TUTTE le risorse della pagina (inclusi gli script come Lucide) siano caricate.
+window.onload = function() {
     try {
-        console.log("1. Lo script sta iniziando.");
-
-        // --- INIZIALIZZAZIONE E CONTROLLO DEGLI ELEMENTI ---
+        // --- INIZIALIZZAZIONE ---
         lucide.createIcons();
-        console.log("2. Icone 'lucide' inizializzate.");
-
+        
         const calendarEl = document.getElementById('calendar');
         const entryForm = document.getElementById('entryForm');
         const entryDateInput = document.getElementById('entryDate');
@@ -22,13 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
 
-        // Controlliamo se gli elementi essenziali esistono
+        // Controllo per elementi critici
         if (!generateReportBtn || !modal || !calendarEl) {
-            console.error("ERRORE CRITICO: Uno o più elementi HTML essenziali (calendario, modale, pulsante genera) non sono stati trovati. Controlla gli ID nel file index.html.");
-            alert("Errore: Impossibile trovare un elemento essenziale della pagina.");
-            return; // Interrompe l'esecuzione
+            throw new Error("Elemento HTML critico non trovato. Controllare gli ID in index.html.");
         }
-        console.log("3. Tutti gli elementi HTML sono stati trovati correttamente.");
 
         entryDateInput.value = new Date().toISOString().slice(0, 10);
         
@@ -39,10 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 calendarEvents = JSON.parse(storedEvents);
             }
         } catch (e) {
-            console.error("Errore durante il caricamento degli eventi da localStorage", e);
+            console.error("Errore caricando eventi da localStorage", e);
             calendarEvents = [];
         }
-        console.log(`4. Caricati ${calendarEvents.length} eventi dal salvataggio locale.`);
 
         // --- IMPOSTAZIONE FULLCALENDAR ---
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -66,16 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
             dayMaxEvents: true,
         });
         calendar.render();
-        console.log("5. Calendario 'FullCalendar' renderizzato.");
 
         // --- FUNZIONI ---
         function showToast(message) {
-            if(toastMessage) {
+            if(toastMessage && toast) {
                 toastMessage.textContent = message;
                 toast.classList.remove('opacity-0', 'translate-y-10');
                 setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
             } else {
-                console.warn("Elemento toast non trovato, messaggio in console:", message);
+                alert(message); // Fallback se il toast non funziona
             }
         }
 
@@ -92,9 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function generateReportHtml() {
-            console.log("A. Dentro generateReportHtml().");
             if (!calendarEvents || calendarEvents.length === 0) {
-                console.log("B. Nessun evento da mostrare, ritorno il messaggio.");
                 return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
             }
 
@@ -119,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
             
-            console.log("C. Dati raggruppati, inizio a costruire l'HTML.");
             let reportHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table{border-collapse:collapse;width:100%;font-size:14px;}.report-table th,.report-table td{border:1px solid #000;padding:8px;text-align:left;vertical-align:middle;}.report-table th{background-color:#e0e0e0;font-weight:bold;}.icon-cell{width:40px;text-align:center;}</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table><table class="report-table"><thead><tr><th>Data</th><th class="icon-cell"></th><th>Nr. Turni / Nr. Congedi possibili</th><th>Osservazioni</th></tr></thead><tbody>`;
 
             for (const dateStr in groupedData) {
@@ -144,12 +134,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             reportHtml += `</tbody></table><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
-            console.log("D. HTML del report costruito.");
             return reportHtml;
         }
 
         function openModal() {
-            console.log("6. Funzione openModal() chiamata.");
             try {
                 const reportHtml = generateReportHtml();
                 reportContent.innerHTML = reportHtml;
@@ -160,9 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         modalContent.classList.remove('scale-95', 'opacity-0');
                     }
                 }, 10);
-                console.log("7. Modale aperto con successo.");
             } catch (error) {
-                console.error("ERRORE GRAVE in openModal:", error);
+                console.error("Errore in openModal:", error);
                 showToast(`Errore: ${error.message}.`);
             }
         }
@@ -176,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // --- EVENT LISTENERS ---
-        console.log("8. Aggiunta degli event listener.");
         generateReportBtn.addEventListener('click', openModal);
         clearAllBtn.addEventListener('click', () => {
             if (confirm('Sei sicuro di voler cancellare tutti i dati?')) {
@@ -222,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Codice HTML copiato!');
             } catch (err) { showToast('Errore durante la copia.'); }
             document.body.removeChild(textarea);
-        });
+});
         sendEmailBtn.addEventListener('click', () => {
             const subject = `Stato effettivi: ${document.getElementById('deposito').value}`;
             const body = reportContent.innerHTML;
@@ -230,10 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         toggleShiftInput();
-        console.log("9. Setup completato. L'app è pronta.");
 
     } catch (error) {
-        console.error("ERRORE FATALE INIZIALE:", error);
-        alert("Si è verificato un errore critico all'avvio dello script. Controlla la console per i dettagli (F12 o Ispeziona -> Console).");
+        console.error("ERRORE FATALE DURANTE L'INIZIALIZZAZIONE:", error);
+        alert("Si è verificato un errore critico all'avvio dello script. Controlla la console (F12) per i dettagli. Errore: " + error.message);
     }
-});
+};
