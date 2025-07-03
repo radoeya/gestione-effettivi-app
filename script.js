@@ -1,9 +1,9 @@
-// Funzione principale che avvia tutta l'applicazione.
-// Verrà chiamata solo quando saremo sicuri che tutte le librerie esterne sono state caricate.
 function initializeApp() {
+    console.log('initializeApp: Avvio in corso...');
     try {
         // --- INIZIALIZZAZIONE ---
         lucide.createIcons();
+        console.log('initializeApp: Icone Lucide create.');
         
         const calendarEl = document.getElementById('calendar');
         const entryForm = document.getElementById('entryForm');
@@ -20,21 +20,25 @@ function initializeApp() {
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
 
-        // Controllo per elementi critici
-        if (!generateReportBtn || !modal || !calendarEl) {
-            throw new Error("Elemento HTML critico non trovato. Controllare gli ID in index.html.");
+        if (!generateReportBtn) {
+            throw new Error("Pulsante 'generateReportBtn' non trovato.");
         }
+        console.log('initializeApp: Pulsante "Genera Report" trovato.');
 
         entryDateInput.value = new Date().toISOString().slice(0, 10);
         
         let calendarEvents = [];
+        // Utilizzo una nuova chiave per evitare dati corrotti
+        const storageKey = 'calendarEvents_v4'; 
         try {
-            const storedEvents = localStorage.getItem('calendarEvents_v3');
+            const storedEvents = localStorage.getItem(storageKey);
             if (storedEvents) {
                 calendarEvents = JSON.parse(storedEvents);
+                console.log(`initializeApp: Caricati ${calendarEvents.length} eventi da localStorage.`);
             }
         } catch (e) {
-            console.error("Errore caricando eventi da localStorage", e);
+            console.error("Errore caricando eventi da localStorage. Pulisco i dati.", e);
+            localStorage.removeItem(storageKey);
             calendarEvents = [];
         }
 
@@ -60,6 +64,7 @@ function initializeApp() {
             dayMaxEvents: true,
         });
         calendar.render();
+        console.log('initializeApp: Calendario renderizzato.');
 
         // --- FUNZIONI ---
         function showToast(message) {
@@ -68,14 +73,15 @@ function initializeApp() {
                 toast.classList.remove('opacity-0', 'translate-y-10');
                 setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
             } else {
-                alert(message); // Fallback se il toast non funziona
+                alert(message);
             }
         }
 
         function saveAndRerender() {
-            localStorage.setItem('calendarEvents_v3', JSON.stringify(calendarEvents));
+            localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
             calendar.removeAllEvents();
             calendar.addEventSource(calendarEvents);
+            console.log('saveAndRerender: Eventi salvati e calendario aggiornato.');
         }
 
         function toggleShiftInput() {
@@ -85,10 +91,13 @@ function initializeApp() {
         }
 
         function generateReportHtml() {
+            console.log('generateReportHtml: Inizio generazione HTML del report.');
             if (!calendarEvents || calendarEvents.length === 0) {
+                console.log('generateReportHtml: Nessun evento trovato.');
                 return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
             }
 
+            console.log(`generateReportHtml: Trovati ${calendarEvents.length} eventi.`);
             const sortedEvents = [...calendarEvents].sort((a, b) => new Date(a.start) - new Date(b.start));
             const firstDate = new Date(sortedEvents[0].start + 'T00:00:00');
             const lastDate = new Date(sortedEvents[sortedEvents.length - 1].start + 'T00:00:00');
@@ -101,9 +110,9 @@ function initializeApp() {
                     groupedData[date] = { needs: { early: 0, medium: 0, late: 0 }, leaves: 0 };
                 }
                 const props = event.extendedProps;
-                if (props.type === 'need') {
+                if (props && props.type === 'need') {
                     groupedData[date].needs[props.shift] += props.quantity;
-                } else if (props.type === 'leave') {
+                } else if (props && props.type === 'leave') {
                     groupedData[date].leaves += props.quantity;
                 }
             });
@@ -134,14 +143,17 @@ function initializeApp() {
                 }
             }
             reportHtml += `</tbody></table><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+            console.log('generateReportHtml: HTML del report generato con successo.');
             return reportHtml;
         }
 
         function openModal() {
+            console.log('openModal: Pulsante cliccato. Inizio processo.');
             try {
                 const reportHtml = generateReportHtml();
                 reportContent.innerHTML = reportHtml;
                 modal.classList.remove('hidden');
+                console.log('openModal: Modale reso visibile.');
                 setTimeout(() => {
                     const modalContent = modal.querySelector('div');
                     if (modalContent) {
@@ -149,7 +161,7 @@ function initializeApp() {
                     }
                 }, 10);
             } catch (error) {
-                console.error("Errore in openModal:", error);
+                console.error("ERRORE in openModal:", error);
                 showToast(`Errore: ${error.message}.`);
             }
         }
@@ -163,6 +175,7 @@ function initializeApp() {
         }
 
         // --- EVENT LISTENERS ---
+        console.log('initializeApp: Aggiunta degli event listener...');
         generateReportBtn.addEventListener('click', openModal);
         clearAllBtn.addEventListener('click', () => {
             if (confirm('Sei sicuro di voler cancellare tutti i dati?')) {
@@ -216,25 +229,20 @@ function initializeApp() {
         });
         
         toggleShiftInput();
+        console.log('initializeApp: Setup completato. App pronta.');
 
     } catch (error) {
-        console.error("ERRORE FATALE DURANTE L'INIZIALIZZAZIONE:", error);
-        alert("Si è verificato un errore critico all'avvio dello script. Controlla la console (F12) per i dettagli. Errore: " + error.message);
+        console.error("ERRORE FATALE in initializeApp:", error);
+        alert("Errore critico: " + error.message);
     }
 }
 
-// Funzione di controllo che attende il caricamento delle librerie esterne.
-// Questo è il nuovo meccanismo di avvio.
 function checkLibrariesReady() {
-    // Controlla se le librerie FullCalendar e Lucide sono state caricate e sono pronte
     if (typeof FullCalendar !== 'undefined' && typeof lucide !== 'undefined') {
-        // Se sono pronte, avvia l'applicazione principale
         initializeApp();
     } else {
-        // Se non sono ancora pronte, attende 100 millisecondi e controlla di nuovo.
         setTimeout(checkLibrariesReady, 100);
     }
 }
 
-// Avvia il processo di controllo appena lo script viene letto.
 checkLibrariesReady();
