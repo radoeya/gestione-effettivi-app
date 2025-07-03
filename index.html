@@ -282,31 +282,47 @@
                     
                     if (!hasNeeds && !hasLeaves) continue;
 
-                    let icon = '';
-                    let descriptionParts = [];
-
-                    if (hasNeeds) {
-                        icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                    // MODIFICA: Logica per separare le righe
+                    if (hasNeeds && hasLeaves) {
+                        // Caso 1: Ci sono sia turni da coprire che congedi
+                        // Riga 1: Turni da coprire
+                        let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
                         let needParts = [];
                         if (needs.early > 0) needParts.push(`${needs.early} presto`);
                         if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
                         if (needs.late > 0) needParts.push(`${needs.late} tardi`);
-                        descriptionParts.push(`Turni da coprire: ${needParts.join(' + ')}`);
-                    }
-                    
-                    if (hasLeaves) {
-                        if (!hasNeeds) {
-                            icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
-                        }
+                        let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
+                        reportHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
+
+                        // Riga 2: Congedi
+                        let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
                         let leaveParts = [];
                         if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
                         if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
                         if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
-                        descriptionParts.push(`Congedi: ${leaveParts.join(' + ')}`);
-                    }
+                        let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
+                        reportHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
 
-                    const fullDescription = descriptionParts.join('. ');
-                    reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${fullDescription}</td><td></td></tr>`;
+                    } else if (hasNeeds) {
+                        // Caso 2: Ci sono solo turni da coprire
+                        let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                        let needParts = [];
+                        if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                        if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                        if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                        let description = `Turni da coprire: ${needParts.join(' + ')}`;
+                        reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+
+                    } else if (hasLeaves) {
+                        // Caso 3: Ci sono solo congedi
+                        let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                        let leaveParts = [];
+                        if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                        if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                        if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                        let description = `Congedi: ${leaveParts.join(' + ')}`;
+                        reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                    }
                 }
                 reportHtml += `</tbody></table><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 return reportHtml;
