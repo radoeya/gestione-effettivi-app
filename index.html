@@ -181,7 +181,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v7'; // Nuova chiave per partire puliti
+            const storageKey = 'calendarEvents_v8'; // Nuova chiave per partire puliti
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -349,17 +349,20 @@
                 const type = formData.get('entryType');
                 const shift = formData.get('shiftType');
                 const quantity = parseInt(formData.get('quantity'), 10);
-                let title = '', color = '', extendedProps = { type, quantity, shift }; // Salva sempre il turno
+                let title = '', color = '', extendedProps = { type, quantity, shift };
+
+                const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
 
                 if (type === 'need') {
-                    const shiftText = { early: 'Presto', medium: 'Medio', late: 'Tardi' }[shift];
-                    title = `Turno da coprire: ${quantity} (${shiftText})`;
+                    // MODIFICA: Mostra solo la quantità e l'iniziale del turno. Es: "1 P"
+                    title = `${quantity} ${shiftInitial}`;
                     color = '#ef4444';
                 } else if (type === 'leave') {
-                    const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
-                    title = `Congedo/Disp: ${quantity} (${shiftInitial})`;
+                    // MODIFICA: Testo più pulito per i congedi. Es: "Congedo: 1 (P)"
+                    title = `Congedo: ${quantity} (${shiftInitial})`;
                     color = '#22c55e';
                 }
+                
                 calendarEvents.push({ id: Date.now().toString(), title, start: date, allDay: true, color, extendedProps });
                 saveAndRerender();
                 showToast('Voce aggiunta al calendario.');
@@ -367,9 +370,6 @@
                 entryDateInput.value = new Date().toISOString().slice(0, 10);
             });
             
-            // Rimosso il listener per 'toggleShiftInput' perché non è più necessario
-            // entryTypeInput.addEventListener('change', toggleShiftInput);
-
             closeModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
             copyHtmlBtn.addEventListener('click', () => {
