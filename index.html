@@ -181,7 +181,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v8'; // Nuova chiave per partire puliti
+            const storageKey = 'calendarEvents_v9'; // Nuova chiave per partire puliti
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -204,12 +204,11 @@
                     right: 'dayGridMonth,dayGridWeek'
                 },
                 events: calendarEvents,
-                eventDidMount: (info) => info.el.setAttribute('title', info.event.title),
                 eventClick: (info) => {
-                    if (confirm(`Vuoi eliminare l'evento: "${info.event.title}"?`)) {
+                    if (confirm(`Vuoi eliminare questo gruppo di eventi?\n\nEvento: "${info.event.title}"`)) {
                         calendarEvents = calendarEvents.filter(event => event.id !== info.event.id);
                         saveAndRerender();
-                        showToast('Evento eliminato con successo.');
+                        showToast('Gruppo di eventi eliminato.');
                     }
                 },
                 editable: false,
@@ -349,23 +348,50 @@
                 const type = formData.get('entryType');
                 const shift = formData.get('shiftType');
                 const quantity = parseInt(formData.get('quantity'), 10);
-                let title = '', color = '', extendedProps = { type, quantity, shift };
 
                 const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
+                
+                // Cerca se un evento dello stesso tipo e turno esiste già per questa data
+                const existingEventIndex = calendarEvents.findIndex(
+                    ev => ev.start === date && 
+                          ev.extendedProps.type === type && 
+                          ev.extendedProps.shift === shift
+                );
 
-                if (type === 'need') {
-                    // MODIFICA: Mostra solo la quantità e l'iniziale del turno. Es: "1 P"
-                    title = `${quantity} ${shiftInitial}`;
-                    color = '#ef4444';
-                } else if (type === 'leave') {
-                    // MODIFICA: Testo più pulito per i congedi. Es: "Congedo: 1 (P)"
-                    title = `Congedo: ${quantity} (${shiftInitial})`;
-                    color = '#22c55e';
+                if (existingEventIndex > -1) {
+                    // Se esiste, aggiorna la quantità e il titolo
+                    const existingEvent = calendarEvents[existingEventIndex];
+                    existingEvent.extendedProps.quantity += quantity;
+                    
+                    if (type === 'need') {
+                        existingEvent.title = `Turno: ${existingEvent.extendedProps.quantity} ${shiftInitial}`;
+                    } else if (type === 'leave') {
+                        existingEvent.title = `Congedo: ${existingEvent.extendedProps.quantity} (${shiftInitial})`;
+                    }
+                } else {
+                    // Se non esiste, crea un nuovo evento
+                    let title = '', color = '', extendedProps = { type, quantity, shift };
+
+                    if (type === 'need') {
+                        title = `Turno: ${quantity} ${shiftInitial}`;
+                        color = '#ef4444';
+                    } else if (type === 'leave') {
+                        title = `Congedo: ${quantity} (${shiftInitial})`;
+                        color = '#22c55e';
+                    }
+                    
+                    calendarEvents.push({ 
+                        id: `${date}-${type}-${shift}`, // Usa un ID composito per trovarlo facilmente
+                        title, 
+                        start: date, 
+                        allDay: true, 
+                        color, 
+                        extendedProps 
+                    });
                 }
                 
-                calendarEvents.push({ id: Date.now().toString(), title, start: date, allDay: true, color, extendedProps });
                 saveAndRerender();
-                showToast('Voce aggiunta al calendario.');
+                showToast('Calendario aggiornato.');
                 entryForm.reset();
                 entryDateInput.value = new Date().toISOString().slice(0, 10);
             });
