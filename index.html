@@ -128,15 +128,15 @@
                          <div class="space-y-4">
                             <div>
                                 <label for="statsAccepted" class="block text-sm font-medium text-gray-700">Richieste Accettate</label>
-                                <input type="number" id="statsAccepted" value="45" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                <input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
                             <div>
                                 <label for="statsPending" class="block text-sm font-medium text-gray-700">Richieste in Sospeso</label>
-                                <input type="number" id="statsPending" value="7" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                <input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
                              <div>
                                 <label for="statsRejected" class="block text-sm font-medium text-gray-700">Richieste Respinte</label>
-                                <input type="number" id="statsRejected" value="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                <input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
                         </div>
                     </div>
@@ -244,7 +244,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v14'; // Nuova chiave
+            const storageKey = 'calendarEvents_v15'; // Nuova chiave
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -298,6 +298,8 @@
             }
 
             function generateReportData() {
+                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
                 const selectedMonthValue = reportMonthSelect.value;
                 const [year, month] = selectedMonthValue.split('-').map(Number);
                 
@@ -385,7 +387,6 @@
                     mainTableHtml += `</tbody></table>`;
                 }
 
-                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const today = new Date();
                 const totalRequests = stats.approved + stats.pending + stats.rejected;
                 const percApproved = totalRequests > 0 ? ((stats.approved / totalRequests) * 100).toFixed(0) : 0;
