@@ -17,8 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const toastMessage = document.getElementById('toastMessage');
 
     entryDateInput.value = new Date().toISOString().slice(0, 10);
-    // Using a new key for local storage to avoid conflicts with previous versions
-    let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents_v3')) || [];
+    
+    let calendarEvents = [];
+    try {
+        // More robust way to load from localStorage
+        const storedEvents = localStorage.getItem('calendarEvents_v3');
+        if (storedEvents) {
+            calendarEvents = JSON.parse(storedEvents);
+        }
+    } catch (e) {
+        console.error("Error parsing events from localStorage", e);
+        calendarEvents = []; // Start fresh if data is corrupted
+    }
+
 
     // --- FULLCALENDAR SETUP ---
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -42,3 +53,232 @@ document.addEventListener('DOMContentLoaded', function() {
         dayMaxEvents: true,
     });
     calendar.render();
+
+    // --- FUNCTIONS ---
+    function showToast(message) {
+        toastMessage.textContent = message;
+        toast.classList.remove('opacity-0', 'translate-y-10');
+        setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
+    }
+
+    function saveAndRerender() {
+        localStorage.setItem('calendarEvents_v3', JSON.stringify(calendarEvents));
+        calendar.removeAllEvents();
+        calendar.addEventSource(calendarEvents);
+    }
+
+    function toggleShiftInput() {
+        const selectedType = entryTypeInput.value;
+        if (selectedType === 'need') {
+            shiftWrapper.style.display = 'block';
+        } else { // 'leave'
+            shiftWrapper.style.display = 'none';
+        }
+    }
+
+    function generateReportHtml() {
+        // THIS IS THE MAIN FIX: A more robust check to prevent errors on an empty calendar.
+        if (!calendarEvents || calendarEvents.length === 0) {
+            return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
+        }
+
+        const sortedEvents = [...calendarEvents].sort((a, b) => new Date(a.start) - new Date(b.start));
+        const firstDate = new Date(sortedEvents[0].start + 'T00:00:00');
+        const lastDate = new Date(sortedEvents[sortedEvents.length - 1].start + 'T00:00:00');
+        const today = new Date();
+
+        const groupedData = {};
+        
+        sortedEvents.forEach(event => {
+            const date = event.start.split('T')[0];
+            if (!groupedData[date]) {
+                groupedData[date] = {
+                    needs: { early: 0, medium: 0, late: 0 },
+                    leaves: 0,
+                };
+            }
+            const props = event.extendedProps;
+            if (props.type === 'need') {
+                groupedData[date].needs[props.shift] += props.quantity;
+            } else if (props.type === 'leave') {
+                groupedData[date].leaves += props.quantity;
+            }
+        });
+
+        const formatDate = (date) => date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const formatPeriod = (date) => date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        let reportHtml = `
+            <div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;">
+                <style>
+                    .report-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+                    .report-table th, .report-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle;}
+                    .report-table th { background-color: #e0e0e0; font-weight: bold; }
+                    .icon-cell { width: 40px; text-align: center; }
+                </style>
+                
+                <h2 style="text-align: center; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">
+                    Stato degli effettivi: dal ${formatPeriod(firstDate)} al ${formatPeriod(lastDate)}
+                </h2>
+
+                <table style="width: 100%; margin-bottom: 20px; font-size: 14px; border: none;">
+                    <tr>
+                        <td style="border: none; padding: 2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
+                        <td style="border: none; padding: 2px; text-align: right;"><strong>Disponibilità di congedi =</strong> <span style="display: inline-block; width: 15px; height: 15px; background-color: #22c55e; border: 1px solid #000; vertical-align: middle;"></span></td>
+                    </tr>
+                    <tr>
+                        <td style="border: none; padding: 2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td>
+                        <td style="border: none; padding: 2px; text-align: right;"><strong>Mancanza di personale =</strong> <span style="color: #ef4444; font-size: 20px; vertical-align: middle;">&#9650;</span></td>
+                    </tr>
+                </table>
+
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th class="icon-cell"></th>
+                            <th>Nr. Turni / Nr. Congedi possibili</th>
+                            <th>Osservazioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        for (const dateStr in groupedData) {
+            const data = groupedData[dateStr];
+            const date = new Date(dateStr + 'T00:00:00');
+            const needs = data.needs;
+            const hasNeeds = needs.early > 0 || needs.medium > 0 || needs.late > 0;
+            
+            let icon = '';
+            let description = '';
+
+            if (hasNeeds) {
+                icon = '<span style="color: #ef4444; font-size: 24px; line-height: 1;">&#9650;</span>';
+                let parts = [];
+                if(needs.early > 0) parts.push(`${needs.early} presto`);
+                if(needs.medium > 0) parts.push(`${needs.medium} medio`);
+                if(needs.late > 0) parts.push(`${needs.late} tardi`);
+                description = parts.join(' + ');
+            } else if (data.leaves > 0) {
+                icon = '<span style="display: inline-block; width: 18px; height: 18px; background-color: #22c55e; border: 1px solid #000;"></span>';
+                description = `${data.leaves} congedi`;
+            }
+            
+            if (icon) { // Only add row if there is something to show
+                reportHtml += `
+                    <tr>
+                        <td>${date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                        <td class="icon-cell">${icon}</td>
+                        <td>${description}</td>
+                        <td></td>
+                    </tr>
+                `;
+            }
+        }
+
+        reportHtml += `
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
+                
+                <p style="margin-top: 20px; font-size: 12px;">
+                    Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>
+                    Eventualmente contattare: Distributore mensile, +41 51 285 11 11.
+                </p>
+                <p style="font-size: 12px;">Vi ringraziamo per la vostra collaborazione.</p>
+            </div>
+        `;
+        return reportHtml;
+    }
+
+    function openModal() {
+        // This function will now work correctly even if the report is empty.
+        reportContent.innerHTML = generateReportHtml();
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.querySelector('div').classList.remove('scale-95', 'opacity-0'), 10);
+    }
+
+    function closeModal() {
+         modal.querySelector('div').classList.add('scale-95', 'opacity-0');
+         setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // --- EVENT LISTENERS ---
+    entryTypeInput.addEventListener('change', toggleShiftInput);
+
+    entryForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(entryForm);
+        const date = formData.get('entryDate');
+        const type = formData.get('entryType');
+        const shift = formData.get('shiftType');
+        const quantity = parseInt(formData.get('quantity'), 10);
+
+        let title = '';
+        let color = '';
+        let extendedProps = { type, quantity };
+
+        if (type === 'need') {
+            const shiftText = { early: 'Presto', medium: 'Medio', late: 'Tardi' }[shift];
+            title = `Turno da coprire: ${quantity} (${shiftText})`;
+            color = '#ef4444'; // red-500
+            extendedProps.shift = shift;
+        } else if (type === 'leave') {
+            title = `Congedo/Disponibilità: ${quantity}`;
+            color = '#22c55e'; // green-500
+        }
+
+        calendarEvents.push({
+            id: Date.now().toString(),
+            title,
+            start: date,
+            allDay: true,
+            color,
+            extendedProps
+        });
+        
+        saveAndRerender();
+        showToast('Voce aggiunta al calendario.');
+        entryForm.reset();
+        entryDateInput.value = new Date().toISOString().slice(0, 10);
+        toggleShiftInput();
+    });
+
+    generateReportBtn.addEventListener('click', openModal);
+    clearAllBtn.addEventListener('click', () => {
+        if (confirm('Sei sicuro di voler cancellare tutti i dati?')) {
+            calendarEvents = [];
+            saveAndRerender();
+            showToast('Tutti i dati sono stati cancellati.');
+        }
+    });
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => e.target === modal && closeModal());
+    
+    copyHtmlBtn.addEventListener('click', () => {
+        const htmlToCopy = reportContent.innerHTML;
+        const textarea = document.createElement('textarea');
+        textarea.value = htmlToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast('Codice HTML copiato!');
+        } catch (err) {
+            showToast('Errore durante la copia.');
+        }
+        document.body.removeChild(textarea);
+    });
+
+    sendEmailBtn.addEventListener('click', () => {
+        const subject = `Stato effettivi: ${document.getElementById('deposito').value}`;
+        const body = reportContent.innerHTML;
+        sendEmailBtn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+
+    // Initial setup
+    toggleShiftInput();
+});
