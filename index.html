@@ -39,6 +39,15 @@
         .fc-event { cursor: pointer; transition: opacity 0.2s; }
         .fc-event:hover { opacity: 0.8; }
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+        /* Stile per i campi di input "inscatolati" */
+        .form-input-box {
+            background-color: #f9fafb; /* gray-50 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .form-input-box:focus {
+            --tw-ring-color: rgb(59 130 246 / 0.5); /* blue-500 with opacity */
+            border-color: #3b82f6; /* blue-500 */
+        }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -60,14 +69,14 @@
                          <div class="space-y-4">
                             <div>
                                 <label for="deposito" class="block text-sm font-medium text-gray-700">Deposito</label>
-                                <select id="deposito" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <select id="deposito" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
                                     <option>Chiasso P</option>
                                     <option>Bellinzona P</option>
                                 </select>
                             </div>
                             <div>
                                 <label for="particolarita" class="block text-sm font-medium text-gray-700">Particolarità del mese</label>
-                                <input type="text" id="particolarita" value="Moon & Stars" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <input type="text" id="particolarita" placeholder="Es: Evento speciale, Note..." class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
                         </div>
                     </div>
@@ -77,12 +86,12 @@
                         <form id="entryForm" class="space-y-4">
                             <div>
                                 <label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label>
-                                <input type="date" id="entryDate" name="entryDate" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                <input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
                             </div>
 
                             <div>
                                 <label for="entryType" class="block text-sm font-medium text-gray-700">Tipo</label>
-                                <select id="entryType" name="entryType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <select id="entryType" name="entryType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
                                     <option value="need">Turni da coprire</option>
                                     <option value="leave">Congedi / Disponibilità</option>
                                 </select>
@@ -90,7 +99,7 @@
                             
                             <div id="shiftWrapper">
                                 <label for="shiftType" class="block text-sm font-medium text-gray-700">Turno</label>
-                                <select id="shiftType" name="shiftType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <select id="shiftType" name="shiftType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
                                     <option value="early">Presto (mattina)</option>
                                     <option value="medium">Medio</option>
                                     <option value="late">Tardi (pomeriggio/sera)</option>
@@ -99,7 +108,7 @@
 
                             <div>
                                 <label for="quantity" class="block text-sm font-medium text-gray-700">Quantità</label>
-                                <input type="number" id="quantity" name="quantity" min="1" value="1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                <input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
                             </div>
                             
                             <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
