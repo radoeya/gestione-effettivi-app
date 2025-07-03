@@ -5,21 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Turni e Congedi</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Librerie CSS e JS esterne -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FullCalendar JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide-icons@0.378.0"></script>
 
-    <!-- Google Fonts: Inter -->
+    <!-- Font e Stili personalizzati -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="antialiased text-gray-800">
@@ -136,8 +130,7 @@
         <p id="toastMessage"></p>
     </div>
 
-    <!-- Custom Script -->
-    <!-- LA MODIFICA CHIAVE È QUI: "defer" dice al browser di aspettare che la pagina sia pronta prima di eseguire lo script. -->
-    <script src="script.js" defer></script>
+    <!-- MODIFICA CHIAVE: Lo script personalizzato viene caricato per ULTIMO, alla fine del body. -->
+    <script src="script.js"></script>
 </body>
 </html>
