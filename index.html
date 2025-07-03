@@ -181,7 +181,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v6'; // Nuova chiave per partire puliti
+            const storageKey = 'calendarEvents_v7'; // Nuova chiave per partire puliti
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -234,12 +234,6 @@
                 calendar.addEventSource(calendarEvents);
             }
 
-            function toggleShiftInput() {
-                if(entryTypeInput && shiftWrapper) {
-                    shiftWrapper.style.display = (entryTypeInput.value === 'need') ? 'block' : 'none';
-                }
-            }
-
             function generateReportHtml() {
                 if (!calendarEvents || calendarEvents.length === 0) {
                     return '<p class="text-center text-gray-500">Nessun dato da mostrare. Aggiungi prima una voce al calendario.</p>';
@@ -254,13 +248,18 @@
                 sortedEvents.forEach(event => {
                     const date = event.start.split('T')[0];
                     if (!groupedData[date]) {
-                        groupedData[date] = { needs: { early: 0, medium: 0, late: 0 }, leaves: 0 };
+                        groupedData[date] = { 
+                            needs: { early: 0, medium: 0, late: 0 }, 
+                            leaves: { early: 0, medium: 0, late: 0 } 
+                        };
                     }
                     const props = event.extendedProps;
                     if (props && props.type === 'need') {
                         groupedData[date].needs[props.shift] += props.quantity;
                     } else if (props && props.type === 'leave') {
-                        groupedData[date].leaves += props.quantity;
+                        if (props.shift) {
+                            groupedData[date].leaves[props.shift] += props.quantity;
+                        }
                     }
                 });
 
@@ -272,22 +271,38 @@
                     const data = groupedData[dateStr];
                     const date = new Date(dateStr + 'T00:00:00');
                     const needs = data.needs;
+                    const leaves = data.leaves;
+
                     const hasNeeds = needs.early > 0 || needs.medium > 0 || needs.late > 0;
-                    let icon = '', description = '';
+                    const hasLeaves = leaves.early > 0 || leaves.medium > 0 || leaves.late > 0;
+                    
+                    if (!hasNeeds && !hasLeaves) continue;
+
+                    let icon = '';
+                    let descriptionParts = [];
+
                     if (hasNeeds) {
                         icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
-                        let parts = [];
-                        if (needs.early > 0) parts.push(`${needs.early} presto`);
-                        if (needs.medium > 0) parts.push(`${needs.medium} medio`);
-                        if (needs.late > 0) parts.push(`${needs.late} tardi`);
-                        description = parts.join(' + ');
-                    } else if (data.leaves > 0) {
-                        icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
-                        description = `${data.leaves} congedi`;
+                        let needParts = [];
+                        if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                        if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                        if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                        descriptionParts.push(`Turni da coprire: ${needParts.join(' + ')}`);
                     }
-                    if (icon) {
-                        reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                    
+                    if (hasLeaves) {
+                        if (!hasNeeds) {
+                            icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                        }
+                        let leaveParts = [];
+                        if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                        if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                        if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                        descriptionParts.push(`Congedi: ${leaveParts.join(' + ')}`);
                     }
+
+                    const fullDescription = descriptionParts.join('. ');
+                    reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${fullDescription}</td><td></td></tr>`;
                 }
                 reportHtml += `</tbody></table><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 return reportHtml;
@@ -334,14 +349,15 @@
                 const type = formData.get('entryType');
                 const shift = formData.get('shiftType');
                 const quantity = parseInt(formData.get('quantity'), 10);
-                let title = '', color = '', extendedProps = { type, quantity };
+                let title = '', color = '', extendedProps = { type, quantity, shift }; // Salva sempre il turno
+
                 if (type === 'need') {
                     const shiftText = { early: 'Presto', medium: 'Medio', late: 'Tardi' }[shift];
                     title = `Turno da coprire: ${quantity} (${shiftText})`;
                     color = '#ef4444';
-                    extendedProps.shift = shift;
                 } else if (type === 'leave') {
-                    title = `Congedo/Disponibilità: ${quantity}`;
+                    const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
+                    title = `Congedo/Disp: ${quantity} (${shiftInitial})`;
                     color = '#22c55e';
                 }
                 calendarEvents.push({ id: Date.now().toString(), title, start: date, allDay: true, color, extendedProps });
@@ -349,9 +365,11 @@
                 showToast('Voce aggiunta al calendario.');
                 entryForm.reset();
                 entryDateInput.value = new Date().toISOString().slice(0, 10);
-                toggleShiftInput();
             });
-            entryTypeInput.addEventListener('change', toggleShiftInput);
+            
+            // Rimosso il listener per 'toggleShiftInput' perché non è più necessario
+            // entryTypeInput.addEventListener('change', toggleShiftInput);
+
             closeModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
             copyHtmlBtn.addEventListener('click', () => {
@@ -370,8 +388,6 @@
                 const body = reportContent.innerHTML;
                 sendEmailBtn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             });
-            
-            toggleShiftInput();
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
