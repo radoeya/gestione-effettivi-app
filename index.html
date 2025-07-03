@@ -10,6 +10,8 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- NUOVA LIBRERIA PER IL PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" xintegrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,10 +183,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     Copia HTML
                 </button>
-                <a id="sendEmailBtn" href="#" class="flex items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    Invia via Email
-                </a>
+                <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    Scarica PDF
+                </button>
             </div>
         </div>
     </div>
@@ -208,7 +210,7 @@
             const modal = document.getElementById('reportModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const copyHtmlBtn = document.getElementById('copyHtmlBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
             const reportContent = document.getElementById('reportContent');
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -551,10 +553,20 @@
                 } catch (err) { showToast('Errore durante la copia.'); }
                 document.body.removeChild(textarea);
             });
-            sendEmailBtn.addEventListener('click', () => {
-                const subject = `Stato effettivi: ${document.getElementById('deposito').value}`;
-                const body = reportContent.innerHTML;
-                sendEmailBtn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            downloadPdfBtn.addEventListener('click', function() {
+                const element = document.getElementById('reportContent');
+                const selectedMonthText = reportMonthSelect.options[reportMonthSelect.selectedIndex].text;
+                const filename = `Report Effettivi - ${selectedMonthText.replace(' ', '_')}.pdf`;
+                
+                const opt = {
+                  margin:       0.5,
+                  filename:     filename,
+                  image:        { type: 'jpeg', quality: 0.98 },
+                  html2canvas:  { scale: 2, useCORS: true },
+                  jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save();
             });
 
         } catch (error) {
