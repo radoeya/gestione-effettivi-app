@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Effettivi</title>
     
-    <!-- Librerie Esterne (Senza Lucide Icons) -->
+    <!-- Librerie Esterne -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,7 +63,7 @@
         <div class="flex flex-col gap-8">
             
             <div class="w-full bg-white p-6 rounded-2xl shadow-lg">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-y-8 md:gap-x-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-y-8 md:gap-x-8">
                     <!-- Colonna 1: Impostazioni -->
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:pr-8">
                          <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report</h2>
@@ -121,7 +122,25 @@
                             </button>
                         </form>
                     </div>
-                    <!-- Colonna 3: Azioni -->
+                    <!-- Colonna 3: Statistiche -->
+                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
+                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiche Richieste</h2>
+                         <div class="space-y-4">
+                            <div>
+                                <label for="statsAccepted" class="block text-sm font-medium text-gray-700">Richieste Accettate</label>
+                                <input type="number" id="statsAccepted" value="45" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="statsPending" class="block text-sm font-medium text-gray-700">Richieste in Sospeso</label>
+                                <input type="number" id="statsPending" value="7" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                             <div>
+                                <label for="statsRejected" class="block text-sm font-medium text-gray-700">Richieste Respinte</label>
+                                <input type="number" id="statsRejected" value="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Colonna 4: Azioni -->
                     <div class="md:col-span-1 md:pl-8">
                         <h2 class="text-xl font-semibold mb-4 text-gray-800">Azioni</h2>
                         <div class="space-y-4">
@@ -193,6 +212,9 @@
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             const reportMonthSelect = document.getElementById('reportMonth');
+            const statsAcceptedInput = document.getElementById('statsAccepted');
+            const statsPendingInput = document.getElementById('statsPending');
+            const statsRejectedInput = document.getElementById('statsRejected');
 
             if (!generateReportBtn || !modal || !calendarEl || !reportMonthSelect) {
                 throw new Error("Elemento HTML critico non trovato.");
@@ -222,7 +244,7 @@
 
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
-            const storageKey = 'calendarEvents_v11'; // Nuova chiave
+            const storageKey = 'calendarEvents_v14'; // Nuova chiave
             let calendarEvents = [];
             try {
                 const storedEvents = localStorage.getItem(storageKey);
@@ -275,110 +297,149 @@
                 calendar.addEventSource(calendarEvents);
             }
 
-            function generateReportHtml() {
+            function generateReportData() {
                 const selectedMonthValue = reportMonthSelect.value;
                 const [year, month] = selectedMonthValue.split('-').map(Number);
                 
                 const firstDate = new Date(year, month - 1, 1);
-                const lastDate = new Date(year, month, 0); // Giorno 0 del mese successivo = ultimo giorno del mese corrente
+                const lastDate = new Date(year, month, 0);
 
                 const filteredEvents = calendarEvents.filter(event => {
                     const eventDate = new Date(event.start);
                     return eventDate.getFullYear() === year && eventDate.getMonth() === month - 1;
                 });
+                
+                const stats = {
+                    approved: parseInt(statsAcceptedInput.value, 10) || 0,
+                    pending: parseInt(statsPendingInput.value, 10) || 0,
+                    rejected: parseInt(statsRejectedInput.value, 10) || 0
+                };
 
+                let mainTableHtml = '';
                 if (filteredEvents.length === 0) {
-                     return `<p class="text-center text-gray-500">Nessun dato da mostrare per il mese selezionato.</p>`;
+                     mainTableHtml = `<p class="text-center text-gray-500">Nessun evento da mostrare per il mese selezionato.</p>`;
+                } else {
+                    const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+                    const groupedData = {};
+                    sortedEvents.forEach(event => {
+                        const date = event.start.split('T')[0];
+                        if (!groupedData[date]) {
+                            groupedData[date] = { 
+                                needs: { early: 0, medium: 0, late: 0 }, 
+                                leaves: { early: 0, medium: 0, late: 0 } 
+                            };
+                        }
+                        const props = event.extendedProps;
+                        if (props.type === 'need') {
+                            groupedData[date].needs[props.shift] += props.quantity;
+                        } else if (props.type === 'leave') {
+                            groupedData[date].leaves[props.shift] += props.quantity;
+                        }
+                    });
+
+                    mainTableHtml = `<table class="report-table"><thead><tr><th>Data</th><th class="icon-cell"></th><th>Nr. Turni / Nr. Congedi possibili</th><th>Osservazioni</th></tr></thead><tbody>`;
+                    for (const dateStr in groupedData) {
+                        const data = groupedData[dateStr];
+                        const date = new Date(dateStr + 'T00:00:00');
+                        const needs = data.needs;
+                        const leaves = data.leaves;
+                        const hasNeeds = Object.values(needs).some(v => v > 0);
+                        const hasLeaves = Object.values(leaves).some(v => v > 0);
+                        
+                        if (!hasNeeds && !hasLeaves) continue;
+
+                        if (hasNeeds && hasLeaves) {
+                            let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                            let needParts = [];
+                            if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                            if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                            if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                            let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
+
+                            let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                            let leaveParts = [];
+                            if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                            if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                            if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                            let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
+                        } else if (hasNeeds) {
+                            let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
+                            let needParts = [];
+                            if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                            if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                            if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                            let description = `Turni da coprire: ${needParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                        } else if (hasLeaves) {
+                            let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
+                            let leaveParts = [];
+                            if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                            if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                            if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                            let description = `Congedi: ${leaveParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
+                        }
+                    }
+                    mainTableHtml += `</tbody></table>`;
                 }
 
-                const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const today = new Date();
-                const groupedData = {};
+                const totalRequests = stats.approved + stats.pending + stats.rejected;
+                const percApproved = totalRequests > 0 ? ((stats.approved / totalRequests) * 100).toFixed(0) : 0;
+                const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
+                const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
+
+                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .summary-table th, .summary-table td { text-align: center; } .icon-cell { width: 40px; text-align: center; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table>${mainTableHtml}<br><div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;"><div style="flex: 1; min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}<br>100%</td><td>${stats.approved}<br>${percApproved}%</td><td>${stats.rejected}<br>${percRejected}%</td><td>${stats.pending}<br>${percPending}%</td></tr></tbody></table></div><div style="flex: 1; max-width: 200px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 
-                sortedEvents.forEach(event => {
-                    const date = event.start.split('T')[0];
-                    if (!groupedData[date]) {
-                        groupedData[date] = { 
-                            needs: { early: 0, medium: 0, late: 0 }, 
-                            leaves: { early: 0, medium: 0, late: 0 } 
-                        };
-                    }
-                    const props = event.extendedProps;
-                    if (props && props.type === 'need') {
-                        groupedData[date].needs[props.shift] += props.quantity;
-                    } else if (props && props.type === 'leave') {
-                        if (props.shift) {
-                            groupedData[date].leaves[props.shift] += props.quantity;
+                return { html: fullHtml, stats };
+            }
+
+            function renderPieChart(stats) {
+                const chartEl = document.getElementById('leaveChart');
+                if (!chartEl || !stats) return;
+                // Distruggi il grafico esistente se c'è
+                if (window.myPieChart) {
+                    window.myPieChart.destroy();
+                }
+                window.myPieChart = new Chart(chartEl, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Accettate', 'In Sospeso', 'Respinte'],
+                        datasets: [{
+                            label: 'Stato Richieste',
+                            data: [stats.approved, stats.pending, stats.rejected],
+                            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
                         }
                     }
                 });
-
-                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                
-                let reportHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table{border-collapse:collapse;width:100%;font-size:14px;}.report-table th,.report-table td{border:1px solid #000;padding:8px;text-align:left;vertical-align:middle;}.report-table th{background-color:#e0e0e0;font-weight:bold;}.icon-cell{width:40px;text-align:center;}</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block;width:15px;height:15px;background-color:#22c55e;border:1px solid #000;vertical-align:middle;"></span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="color:#ef4444;font-size:20px;vertical-align:middle;">&#9650;</span></td></tr></table><table class="report-table"><thead><tr><th>Data</th><th class="icon-cell"></th><th>Nr. Turni / Nr. Congedi possibili</th><th>Osservazioni</th></tr></thead><tbody>`;
-
-                for (const dateStr in groupedData) {
-                    const data = groupedData[dateStr];
-                    const date = new Date(dateStr + 'T00:00:00');
-                    const needs = data.needs;
-                    const leaves = data.leaves;
-
-                    const hasNeeds = needs.early > 0 || needs.medium > 0 || needs.late > 0;
-                    const hasLeaves = leaves.early > 0 || leaves.medium > 0 || leaves.late > 0;
-                    
-                    if (!hasNeeds && !hasLeaves) continue;
-
-                    if (hasNeeds && hasLeaves) {
-                        let needIcon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
-                        let needParts = [];
-                        if (needs.early > 0) needParts.push(`${needs.early} presto`);
-                        if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
-                        if (needs.late > 0) needParts.push(`${needs.late} tardi`);
-                        let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
-                        reportHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
-
-                        let leaveIcon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
-                        let leaveParts = [];
-                        if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
-                        if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
-                        if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
-                        let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
-                        reportHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
-
-                    } else if (hasNeeds) {
-                        let icon = '<span style="color:#ef4444;font-size:24px;line-height:1;">&#9650;</span>';
-                        let needParts = [];
-                        if (needs.early > 0) needParts.push(`${needs.early} presto`);
-                        if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
-                        if (needs.late > 0) needParts.push(`${needs.late} tardi`);
-                        let description = `Turni da coprire: ${needParts.join(' + ')}`;
-                        reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
-
-                    } else if (hasLeaves) {
-                        let icon = `<span style="display:inline-block;width:18px;height:18px;background-color:#22c55e;border:1px solid #000;"></span>`;
-                        let leaveParts = [];
-                        if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
-                        if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
-                        if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
-                        let description = `Congedi: ${leaveParts.join(' + ')}`;
-                        reportHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${icon}</td><td>${description}</td><td></td></tr>`;
-                    }
-                }
-                reportHtml += `</tbody></table><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
-                return reportHtml;
             }
 
             function openModal() {
                 try {
-                    const reportHtml = generateReportHtml();
-                    reportContent.innerHTML = reportHtml;
+                    const reportData = generateReportData();
+                    reportContent.innerHTML = reportData.html;
                     modal.classList.remove('hidden');
                     setTimeout(() => {
                         const modalContent = modal.querySelector('div');
                         if (modalContent) {
                             modalContent.classList.remove('scale-95', 'opacity-0');
                         }
-                    }, 10);
+                        if (reportData.stats) {
+                            renderPieChart(reportData.stats);
+                        }
+                    }, 100);
                 } catch (error) {
                     console.error("ERRORE in openModal:", error);
                     showToast(`Errore: ${error.message}.`);
@@ -425,7 +486,7 @@
                     if (type === 'need') {
                         existingEvent.title = `Turno: ${existingEvent.extendedProps.quantity} ${shiftInitial}`;
                     } else if (type === 'leave') {
-                        existingEvent.title = `Congedo: ${existingEvent.extendedProps.quantity} (${shiftInitial})`;
+                         existingEvent.title = `Congedo: ${existingEvent.extendedProps.quantity} (${shiftInitial})`;
                     }
                 } else {
                     let title = '', color = '', extendedProps = { type, quantity, shift };
@@ -452,7 +513,7 @@
                 showToast('Calendario aggiornato.');
                 entryForm.reset();
                 entryDateInput.value = new Date().toISOString().slice(0, 10);
-                populateMonthSelector(); // Ripopola per mantenere la selezione corretta
+                populateMonthSelector();
             });
             
             closeModalBtn.addEventListener('click', closeModal);
