@@ -64,20 +64,20 @@
             <div class="w-full bg-white p-6 rounded-2xl shadow-lg">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-y-8 md:gap-x-8">
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:pr-8">
-                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report Mensile</h2>
-                         <div class="space-y-4">
-                             <div>
-                                 <label for="deposito" class="block text-sm font-medium text-gray-700">Deposito</label>
-                                 <select id="deposito" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                     <option>Chiasso P</option>
-                                     <option>Bellinzona P</option>
-                                 </select>
-                             </div>
-                             <div>
-                                 <label for="particolarita" class="block text-sm font-medium text-gray-700">Particolarità del mese</label>
-                                 <input type="text" id="particolarita" placeholder="Es: Evento speciale, Note..." class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                             </div>
-                        </div>
+                          <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report Mensile</h2>
+                          <div class="space-y-4">
+                              <div>
+                                  <label for="deposito" class="block text-sm font-medium text-gray-700">Deposito</label>
+                                  <select id="deposito" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
+                                      <option>Chiasso P</option>
+                                      <option>Bellinzona P</option>
+                                  </select>
+                              </div>
+                              <div>
+                                  <label for="particolarita" class="block text-sm font-medium text-gray-700">Particolarità del mese</label>
+                                  <input type="text" id="particolarita" placeholder="Es: Evento speciale, Note..." class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                              </div>
+                          </div>
 
                         <h2 class="text-xl font-semibold mb-4 text-gray-800 mt-8">Aggiungi Voce al Calendario</h2>
                         <form id="entryForm" class="space-y-4">
@@ -110,6 +110,7 @@
                             </button>
                         </form>
                     </div>
+
                     <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazione Report Annuncio</h2>
                         <div class="space-y-4">
@@ -123,23 +124,9 @@
                                     <input type="date" id="endDate" name="endDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-x-4">
-                                <div>
-                                    <label for="shiftNumber" class="block text-sm font-medium text-gray-700">Numero Turno</label>
-                                    <input type="text" id="shiftNumber" placeholder="Es: 40123" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="shiftDate" class="block text-sm font-medium text-gray-700">Data Turno</label>
-                                    <input type="date" id="shiftDate" name="shiftDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="startTime" class="block text-sm font-medium text-gray-700">Inizio Turno</label>
-                                <input type="time" id="startTime" name="startTime" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="endTime" class="block text-sm font-medium text-gray-700">Fine Turno</label>
-                                <input type="time" id="endTime" name="endTime" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                             <div>
+                                <label for="shiftDate" class="block text-sm font-medium text-gray-700">Oppure Data Unica Turno</label>
+                                <input type="date" id="shiftDate" name="shiftDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
                             <div>
                                 <label for="depositoReport" class="block text-sm font-medium text-gray-700">Deposito</label>
@@ -147,6 +134,28 @@
                                     <option>Chiasso P</option>
                                     <option>Bellinzona P</option>
                                 </select>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h3 class="text-md font-semibold text-gray-700">Turni da Aggiungere</h3>
+                            <div id="turniContainer" class="space-y-3">
+                                </div>
+                            <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed border-gray-400 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                                Aggiungi Turno
+                            </button>
+
+                            <hr class="my-4">
+
+                             <div class="relative flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input id="includeCongedi" name="includeCongedi" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="includeCongedi" class="font-medium text-gray-700">Includi nota sui congedi</label>
+                                    <p class="text-gray-500">Aggiunge una nota sulla possibilità di scambio congedi.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,7 +174,7 @@
                                  <label for="statsRejected" class="block text-sm font-medium text-gray-700">Richieste Respinte</label>
                                  <input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                              </div>
-                        </div>
+                         </div>
                     </div>
                     <div class="md:col-span-1 md:pl-8">
                         <h2 class="text-xl font-semibold mb-4 text-gray-800">Azioni</h2>
@@ -249,6 +258,10 @@
             const statsRejectedInput = document.getElementById('statsRejected');
             let currentReportGenerator = null;
 
+            // --- NUOVI ELEMENTI PER I TURNI MULTIPLI ---
+            const addTurnoBtn = document.getElementById('addTurnoBtn');
+            const turniContainer = document.getElementById('turniContainer');
+
             entryDateInput.value = new Date().toISOString().slice(0, 10);
             
             const storageKey = 'calendarEvents_v20';
@@ -323,7 +336,7 @@
 
                 let mainTableHtml = '';
                 if (filteredEvents.length === 0) {
-                     mainTableHtml = `<p class="text-center text-gray-500">Nessun evento da mostrare per il mese selezionato.</p>`;
+                        mainTableHtml = `<p class="text-center text-gray-500">Nessun evento da mostrare per il mese selezionato.</p>`;
                 } else {
                     const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
                     const groupedData = {};
@@ -403,47 +416,65 @@
                 return { html: fullHtml, stats };
             }
 
+            // --- FUNZIONE MODIFICATA PER GENERARE L'ANNUNCIO ---
             function generateShiftAnnouncementData() {
                 const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const shiftDate = document.getElementById('shiftDate').value;
-                const shiftNumber = document.getElementById('shiftNumber').value;
-                const startTime = document.getElementById('startTime').value;
-                const endTime = document.getElementById('endTime').value;
                 const deposito = document.getElementById('depositoReport').value;
+                const includeCongedi = document.getElementById('includeCongedi').checked;
 
                 if (!shiftDate && (!startDate || !endDate)) {
-                    showToast('Compilare la "Data Turno" o l\'intervallo di date "Da/A".');
+                    showToast('Compilare la "Data Unica Turno" o l\'intervallo di date "Da/A".');
                     return null;
                 }
+
+                const turniRighe = turniContainer.querySelectorAll('.turno-riga');
+                if (turniRighe.length === 0) {
+                     showToast('Aggiungere almeno un turno da annunciare.');
+                     return null;
+                }
+
+                let turniHtmlRows = '';
+                turniRighe.forEach(riga => {
+                    const numero = riga.querySelector('.numero-turno-input').value || 'Non spec.';
+                    const inizio = riga.querySelector('.inizio-turno-input').value || 'N/A';
+                    const fine = riga.querySelector('.fine-turno-input').value || 'N/A';
+                    turniHtmlRows += `<tr>
+                        <td style="padding: 5px; border: 1px solid #000;">${numero}</td>
+                        <td style="padding: 5px; border: 1px solid #000;">${inizio} - ${fine}</td>
+                    </tr>`;
+                });
 
                 const titleDateString = shiftDate 
                     ? `del ${formatDate(shiftDate)}` 
                     : `dal ${formatDate(startDate)} al ${formatDate(endDate)}`;
 
+                let congediHtml = '';
+                if(includeCongedi) {
+                    congediHtml = `<p style="font-size: 14px; margin-top: 15px;">È anche possibile annunciarsi per scambiare un giorno di congedo con uno dei turni sopra elencati.</p>`;
+                }
+
                 let reportHtml = `
                     <div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;">
                         <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">
-                            Copertura Turno ${titleDateString}
+                            Copertura Turni ${titleDateString}
                         </h2>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                            <tr>
-                                <td style="padding: 5px; border: 1px solid #000;"><strong>Numero del Turno:</strong></td>
-                                <td style="padding: 5px; border: 1px solid #000;">${shiftNumber || 'Non specificato'}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px; border: 1px solid #000;"><strong>Orario:</strong></td>
-                                <td style="padding: 5px; border: 1px solid #000;">${startTime || 'N/A'} - ${endTime || 'N/A'}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px; border: 1px solid #000;"><strong>Deposito:</strong></td>
-                                <td style="padding: 5px; border: 1px solid #000;">${deposito}</td>
-                            </tr>
+                        <p style="font-size:14px; margin-bottom: 15px;">I seguenti turni devono essere coperti da un macchinista presso il deposito di <strong>${deposito}</strong>:</p>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;">
+                            <thead style="background-color: #e0e0e0; font-weight: bold;">
+                                <tr>
+                                    <th style="padding: 5px; border: 1px solid #000;">Numero Turno</th>
+                                    <th style="padding: 5px; border: 1px solid #000;">Orario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${turniHtmlRows}
+                            </tbody>
                         </table>
-                        <br>
-                        <p style="font-size: 14px;">Il turno menzionato deve essere coperto da un macchinista.</p>
-                        <p style="font-size: 14px;">In caso di interesse, vogliate annunciarvi al più presto al numero di telefono:</p>
+                        ${congediHtml}
+                        <p style="font-size: 14px; margin-top: 15px;">In caso di interesse, vogliate annunciarvi al più presto al numero di telefono:</p>
                         <p style="font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0;">+41 51 285 11 11</p>
                         <p style="font-size: 14px;">Cordiali saluti e grazie per la collaborazione.</p>
                     </div>`;
@@ -612,6 +643,40 @@
 
                 html2pdf().from(element).set(opt).save();
             });
+
+            // --- NUOVO EVENT LISTENER PER AGGIUNGERE TURNI ---
+            addTurnoBtn.addEventListener('click', function() {
+                const rigaDiv = document.createElement('div');
+                rigaDiv.className = 'turno-riga p-3 border rounded-lg space-y-2 bg-gray-50 relative';
+                
+                rigaDiv.innerHTML = `
+                    <div class="grid grid-cols-3 gap-x-2">
+                         <div>
+                            <label class="block text-xs font-medium text-gray-600">Numero</label>
+                            <input type="text" placeholder="Es: 40123" class="numero-turno-input form-input-box mt-1 block w-full px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Inizio</label>
+                            <input type="time" class="inizio-turno-input form-input-box mt-1 block w-full px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Fine</label>
+                            <input type="time" class="fine-turno-input form-input-box mt-1 block w-full px-2 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                        </div>
+                    </div>
+                    <button type="button" class="absolute top-1 right-1 text-red-400 hover:text-red-600" title="Rimuovi turno">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </button>
+                `;
+                
+                // Aggiungo la funzione per rimuovere la riga
+                rigaDiv.querySelector('button').addEventListener('click', function() {
+                    rigaDiv.remove();
+                });
+
+                turniContainer.appendChild(rigaDiv);
+            });
+
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
