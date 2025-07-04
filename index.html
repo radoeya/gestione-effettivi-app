@@ -5,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Effettivi</title>
     
-    <!-- Librerie Esterne -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" xintegrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Stili CSS Interni -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -65,138 +62,126 @@
         <div class="flex flex-col gap-8">
             
             <div class="w-full bg-white p-6 rounded-2xl shadow-lg">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-y-8 md:gap-x-8">
-                    <!-- Colonna 1: Impostazioni & Aggiungi Voce Singola -->
-                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:pr-8 space-y-6">
-                        <div>
-                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report</h2>
-                             <div class="space-y-4">
-                                <div>
-                                    <label for="deposito" class="block text-sm font-medium text-gray-700">Deposito</label>
-                                    <select id="deposito" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                        <option>Chiasso P</option>
-                                        <option>Bellinzona P</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="particolarita" class="block text-sm font-medium text-gray-700">Particolarità del mese</label>
-                                    <input type="text" id="particolarita" placeholder="Es: Evento speciale, Note..." class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="reportMonth" class="block text-sm font-medium text-gray-700">Mese del Report Mensile</label>
-                                    <select id="reportMonth" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md"></select>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-y-8 md:gap-x-8">
+                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:pr-8">
+                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Impostazioni Report</h2>
+                         <div class="space-y-4">
+                             <div>
+                                 <label for="deposito" class="block text-sm font-medium text-gray-700">Deposito</label>
+                                 <select id="deposito" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
+                                     <option>Chiasso P</option>
+                                     <option>Bellinzona P</option>
+                                 </select>
+                             </div>
+                             <div>
+                                 <label for="particolarita" class="block text-sm font-medium text-gray-700">Particolarità del mese</label>
+                                 <input type="text" id="particolarita" placeholder="Es: Evento speciale, Note..." class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                             </div>
+                        </div>
+
+                        <h2 class="text-xl font-semibold text-gray-800 my-4">Impostazione Report Periodico</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="startDate" class="block text-sm font-medium text-gray-700">Da (data)</label>
+                                <input type="date" id="startDate" name="startDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
                             </div>
-                        </div>
-                        <hr>
-                        <div>
-                            <h2 class="text-xl font-semibold mb-4 text-gray-800">Aggiungi Voce al Calendario</h2>
-                            <form id="entryForm" class="space-y-4">
-                                <div>
-                                    <label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label>
-                                    <input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
-                                </div>
-                                <div>
-                                    <label for="entryType" class="block text-sm font-medium text-gray-700">Tipo</label>
-                                    <select id="entryType" name="entryType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                        <option value="need">Turni da coprire</option>
-                                        <option value="leave">Congedi / Disponibilità</option>
-                                    </select>
-                                </div>
-                                <div id="shiftWrapper">
-                                    <label for="shiftType" class="block text-sm font-medium text-gray-700">Turno</label>
-                                    <select id="shiftType" name="shiftType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                        <option value="early">Presto (mattina)</option>
-                                        <option value="medium">Medio</option>
-                                        <option value="late">Tardi (pomeriggio/sera)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="quantity" class="block text-sm font-medium text-gray-700">Quantità</label>
-                                    <input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
-                                </div>
-                                <button type="submit" class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                    Aggiungi Voce
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <!-- Colonna 2: Report Periodico & Statistiche -->
-                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8 space-y-6">
-                        <div>
-                            <h2 class="text-xl font-semibold mb-4 text-gray-800">Impostazione Report Periodico</h2>
-                            <form id="periodicForm" class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="periodicStartDate" class="block text-sm font-medium text-gray-700">Da (data)</label>
-                                        <input type="date" id="periodicStartDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
-                                    </div>
-                                    <div>
-                                        <label for="periodicEndDate" class="block text-sm font-medium text-gray-700">A (data)</label>
-                                        <input type="date" id="periodicEndDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="periodicShiftNumber" class="block text-sm font-medium text-gray-700">Numero del Turno</label>
-                                    <input type="text" id="periodicShiftNumber" placeholder="Es: 40123" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="periodicStartTime" class="block text-sm font-medium text-gray-700">Inizio Turno</label>
-                                        <input type="time" id="periodicStartTime" value="06:00" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label for="periodicEndTime" class="block text-sm font-medium text-gray-700">Fine Turno</label>
-                                        <input type="time" id="periodicEndTime" value="14:00" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="periodicDeposit" class="block text-sm font-medium text-gray-700">Deposito</label>
-                                    <select id="periodicDeposit" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                        <option>Chiasso P</option>
-                                        <option>Bellinzona P</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                    Aggiungi Turni al Calendario
-                                </button>
-                            </form>
-                        </div>
-                        <hr>
-                         <div>
-                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiche Richieste</h2>
-                             <div class="space-y-4">
-                                <div>
-                                    <label for="statsAccepted" class="block text-sm font-medium text-gray-700">Richieste Accettate</label>
-                                    <input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="statsPending" class="block text-sm font-medium text-gray-700">Richieste in Sospeso</label>
-                                    <input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
-                                 <div>
-                                    <label for="statsRejected" class="block text-sm font-medium text-gray-700">Richieste Respinte</label>
-                                    <input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                </div>
+                            <div>
+                                <label for="endDate" class="block text-sm font-medium text-gray-700">A (data)</label>
+                                <input type="date" id="endDate" name="endDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="shiftNumber" class="block text-sm font-medium text-gray-700">Numero del Turno</label>
+                                <input type="text" id="shiftNumber" placeholder="Es: 40123" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="startTime" class="block text-sm font-medium text-gray-700">Inizio Turno</label>
+                                <input type="time" id="startTime" name="startTime" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="endTime" class="block text-sm font-medium text-gray-700">Fine Turno</label>
+                                <input type="time" id="endTime" name="endTime" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="depositoReport" class="block text-sm font-medium text-gray-700">Deposito</label>
+                                <select id="depositoReport" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
+                                    <option>Chiasso P</option>
+                                    <option>Bellinzona P</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <!-- Colonna 3: Azioni -->
+                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Aggiungi Voce</h2>
+                        <form id="entryForm" class="space-y-4">
+                            <div>
+                                <label for="reportMonth" class="block text-sm font-medium text-gray-700">Mese del Report</label>
+                                <select id="reportMonth" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md"></select>
+                            </div>
+                            <div>
+                                <label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label>
+                                <input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
+                            </div>
+
+                            <div>
+                                <label for="entryType" class="block text-sm font-medium text-gray-700">Tipo</label>
+                                <select id="entryType" name="entryType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
+                                    <option value="need">Turni da coprire</option>
+                                    <option value="leave">Congedi / Disponibilità</option>
+                                </select>
+                            </div>
+                            
+                            <div id="shiftWrapper">
+                                <label for="shiftType" class="block text-sm font-medium text-gray-700">Turno</label>
+                                <select id="shiftType" name="shiftType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
+                                    <option value="early">Presto (mattina)</option>
+                                    <option value="medium">Medio</option>
+                                    <option value="late">Tardi (pomeriggio/sera)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700">Quantità</label>
+                                <input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm" required>
+                            </div>
+                            
+                            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                                Aggiungi al Calendario
+                            </button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-1 md:border-r md:border-gray-200 md:px-8">
+                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiche Richieste</h2>
+                         <div class="space-y-4">
+                             <div>
+                                 <label for="statsAccepted" class="block text-sm font-medium text-gray-700">Richieste Accettate</label>
+                                 <input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                             </div>
+                             <div>
+                                 <label for="statsPending" class="block text-sm font-medium text-gray-700">Richieste in Sospeso</label>
+                                 <input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                             </div>
+                             <div>
+                                 <label for="statsRejected" class="block text-sm font-medium text-gray-700">Richieste Respinte</label>
+                                 <input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 sm:text-sm">
+                             </div>
+                        </div>
+                    </div>
                     <div class="md:col-span-1 md:pl-8">
-                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Azioni Finali</h2>
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Azioni</h2>
                         <div class="space-y-4">
                             <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                                Genera Report Mensile
+                                Genera Report
                             </button>
-                            <button id="generatePeriodicReportBtn" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                Genera Report Periodico
+                            <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                                Genera Report Breve
                             </button>
                              <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                                Pulisci Calendario
-                            </button>
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                 Pulisci Calendario
+                             </button>
                         </div>
                     </div>
                 </div>
@@ -208,7 +193,6 @@
         </div>
     </div>
 
-    <!-- Modale per Report Mensile -->
     <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all scale-95 opacity-0">
             <div class="flex justify-between items-center p-6 border-b border-gray-200">
@@ -222,12 +206,13 @@
                     </button>
                 </div>
             </div>
-            <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50"></div>
+            <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50">
+                </div>
             <div class="flex justify-end items-center p-6 border-t border-gray-200 bg-gray-100 rounded-b-2xl space-x-3">
                  <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                    Copia HTML
-                </button>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                     Copia HTML
+                 </button>
                 <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                     Scarica PDF
@@ -236,29 +221,486 @@
         </div>
     </div>
     
-    <!-- Modale per Report Periodico -->
-    <div id="periodicReportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col transform transition-all scale-95 opacity-0">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-900">Report Periodico di Breve Termine</h3>
-                <button id="closePeriodicModalBtn" class="text-gray-400 hover:text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-                </button>
-            </div>
-            <div class="p-6 overflow-y-auto bg-gray-50">
-                <div id="periodicCalendar"></div>
-            </div>
-        </div>
-    </div>
-
     <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all duration-300">
         <p id="toastMessage"></p>
     </div>
 
-    <!-- JavaScript Interno -->
     <script>
-    // Il codice JS è stato omesso da questa visualizzazione per brevità,
-    // ma è incluso nel file completo e gestisce tutte le nuove funzionalità.
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // --- INIZIALIZZAZIONE ---
+            const calendarEl = document.getElementById('calendar');
+            const entryForm = document.getElementById('entryForm');
+            const entryDateInput = document.getElementById('entryDate');
+            const entryTypeInput = document.getElementById('entryType');
+            const shiftWrapper = document.getElementById('shiftWrapper');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const generateShortReportBtn = document.getElementById('generateShortReportBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const modal = document.getElementById('reportModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const openNewTabBtn = document.getElementById('openNewTabBtn');
+            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            const reportContent = document.getElementById('reportContent');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const reportMonthSelect = document.getElementById('reportMonth');
+            const statsAcceptedInput = document.getElementById('statsAccepted');
+            const statsPendingInput = document.getElementById('statsPending');
+            const statsRejectedInput = document.getElementById('statsRejected');
+
+            if (!generateReportBtn || !generateShortReportBtn || !modal || !calendarEl || !reportMonthSelect) {
+                throw new Error("Elemento HTML critico non trovato.");
+            }
+
+            // --- POPOLAMENTO SELETTORE MESE ---
+            function populateMonthSelector() {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+
+                for (let y = currentYear; y <= currentYear + 1; y++) {
+                    for (let m = 0; m < 12; m++) {
+                        const monthValue = `${y}-${String(m + 1).padStart(2, '0')}`;
+                        const option = document.createElement('option');
+                        option.value = monthValue;
+                        option.textContent = `${months[m]} ${y}`;
+                        reportMonthSelect.appendChild(option);
+                        if (y === currentYear && m === currentMonth) {
+                            option.selected = true;
+                        }
+                    }
+                }
+            }
+            populateMonthSelector();
+
+            entryDateInput.value = new Date().toISOString().slice(0, 10);
+            
+            const storageKey = 'calendarEvents_v18'; // Nuova chiave
+            let calendarEvents = [];
+            try {
+                const storedEvents = localStorage.getItem(storageKey);
+                if (storedEvents) {
+                    calendarEvents = JSON.parse(storedEvents);
+                }
+            } catch (e) {
+                console.error("Errore caricando eventi da localStorage", e);
+                localStorage.removeItem(storageKey);
+                calendarEvents = [];
+            }
+
+            // --- IMPOSTAZIONE FULLCALENDAR ---
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'it',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek'
+                },
+                events: calendarEvents,
+                eventClick: (info) => {
+                    if (confirm(`Vuoi eliminare questo gruppo di eventi?\n\nEvento: "${info.event.title}"`)) {
+                        calendarEvents = calendarEvents.filter(event => event.id !== info.event.id);
+                        saveAndRerender();
+                        showToast('Gruppo di eventi eliminato.');
+                    }
+                },
+                editable: false,
+                dayMaxEvents: 4,
+                height: 'auto'
+            });
+            calendar.render();
+
+            // --- FUNZIONI ---
+            function showToast(message) {
+                if(toastMessage && toast) {
+                    toastMessage.textContent = message;
+                    toast.classList.remove('opacity-0', 'translate-y-10');
+                    setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
+                } else {
+                    alert(message);
+                }
+            }
+
+            function saveAndRerender() {
+                localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
+                calendar.removeAllEvents();
+                calendar.addEventSource(calendarEvents);
+            }
+
+            function generateReportData() {
+                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                const selectedMonthValue = reportMonthSelect.value;
+                const [year, month] = selectedMonthValue.split('-').map(Number);
+                
+                const firstDate = new Date(year, month - 1, 1);
+                const lastDate = new Date(year, month, 0);
+
+                const filteredEvents = calendarEvents.filter(event => {
+                    const eventDate = new Date(event.start);
+                    return eventDate.getFullYear() === year && eventDate.getMonth() === month - 1;
+                });
+                
+                const stats = {
+                    approved: parseInt(statsAcceptedInput.value, 10) || 0,
+                    pending: parseInt(statsPendingInput.value, 10) || 0,
+                    rejected: parseInt(statsRejectedInput.value, 10) || 0
+                };
+
+                let mainTableHtml = '';
+                if (filteredEvents.length === 0) {
+                     mainTableHtml = `<p class="text-center text-gray-500">Nessun evento da mostrare per il mese selezionato.</p>`;
+                } else {
+                    const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+                    const groupedData = {};
+                    sortedEvents.forEach(event => {
+                        const date = event.start.split('T')[0];
+                        if (!groupedData[date]) {
+                            groupedData[date] = { 
+                                needs: { early: 0, medium: 0, late: 0 }, 
+                                leaves: { early: 0, medium: 0, late: 0 } 
+                            };
+                        }
+                        const props = event.extendedProps;
+                        if (props.type === 'need') {
+                            groupedData[date].needs[props.shift] += props.quantity;
+                        } else if (props.type === 'leave') {
+                            groupedData[date].leaves[props.shift] += props.quantity;
+                        }
+                    });
+
+                    mainTableHtml = `<table class="report-table"><thead><tr><th>Data</th><th class="icon-cell"></th><th>Nr. Turni / Nr. Congedi possibili</th><th>Osservazioni</th></tr></thead><tbody>`;
+                    for (const dateStr in groupedData) {
+                        const data = groupedData[dateStr];
+                        const date = new Date(dateStr + 'T00:00:00');
+                        const needs = data.needs;
+                        const leaves = data.leaves;
+                        const hasNeeds = Object.values(needs).some(v => v > 0);
+                        const hasLeaves = Object.values(leaves).some(v => v > 0);
+                        
+                        if (!hasNeeds && !hasLeaves) continue;
+                        
+                        const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+                        const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+
+                        if (hasNeeds && hasLeaves) {
+                            let needParts = [];
+                            if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                            if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                            if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                            let needDescription = `Turni da coprire: ${needParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td rowspan="2" style="vertical-align: middle;">${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${needDescription}</td><td></td></tr>`;
+
+                            let leaveParts = [];
+                            if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                            if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                            if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                            let leaveDescription = `Congedi: ${leaveParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td class="icon-cell">${leaveIcon}</td><td>${leaveDescription}</td><td></td></tr>`;
+                        } else if (hasNeeds) {
+                            let needParts = [];
+                            if (needs.early > 0) needParts.push(`${needs.early} presto`);
+                            if (needs.medium > 0) needParts.push(`${needs.medium} medio`);
+                            if (needs.late > 0) needParts.push(`${needs.late} tardi`);
+                            let description = `Turni da coprire: ${needParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${needIcon}</td><td>${description}</td><td></td></tr>`;
+                        } else if (hasLeaves) {
+                            let leaveParts = [];
+                            if (leaves.early > 0) leaveParts.push(`${leaves.early} presto`);
+                            if (leaves.medium > 0) leaveParts.push(`${leaves.medium} medio`);
+                            if (leaves.late > 0) leaveParts.push(`${leaves.late} tardi`);
+                            let description = `Congedi: ${leaveParts.join(' + ')}`;
+                            mainTableHtml += `<tr><td>${formatDate(date)}</td><td class="icon-cell">${leaveIcon}</td><td>${description}</td><td></td></tr>`;
+                        }
+                    }
+                    mainTableHtml += `</tbody></table>`;
+                }
+
+                const today = new Date();
+                const totalRequests = stats.approved + stats.pending + stats.rejected;
+                const percApproved = totalRequests > 0 ? ((stats.approved / totalRequests) * 100).toFixed(0) : 0;
+                const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
+                const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
+                
+                const legendIconLeave = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+                const legendIconNeed = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+
+                let fullHtml = `<div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.report-table, .summary-table { border-collapse: collapse; width: 100%; font-size: 14px; table-layout: fixed; } .report-table th, .report-table td, .summary-table th, .summary-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; } .report-table th, .report-table td:nth-child(3) { text-align: left; } .report-table th { background-color: #e0e0e0; font-weight: bold; } .icon-cell { width: 40px; text-align: center; vertical-align: middle; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${legendIconLeave}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${formatDate(today)}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${legendIconNeed}</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2.5fr 1fr; align-items: start; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale dal ${formatDate(firstDate)} - ${formatDate(lastDate)}</p><table class="summary-table"><thead><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+                
+                return { html: fullHtml, stats };
+            }
+
+            function renderPieChart(stats) {
+                const chartEl = document.getElementById('leaveChart');
+                if (!chartEl || !stats) return;
+                
+                if (window.myPieChart) {
+                    window.myPieChart.destroy();
+                }
+
+                const chartData = {
+                    labels: ['Accettate', 'In Sospeso', 'Respinte'],
+                    datasets: [{
+                        data: [stats.approved, stats.pending, stats.rejected],
+                        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                };
+
+                window.myPieChart = new Chart(chartEl, {
+                    type: 'pie',
+                    plugins: [ChartDataLabels],
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        layout: {
+                            padding: 30
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            datalabels: {
+                                formatter: (value, ctx) => {
+                                    if (value === 0) return null;
+                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
+                                    return percentage;
+                                },
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold',
+                                    size: 16
+                                },
+                                textStrokeColor: '#333',
+                                textStrokeWidth: 1.5
+                            }
+                        }
+                    }
+                });
+            }
+
+            function openModal() {
+                try {
+                    const reportData = generateReportData();
+                    reportContent.innerHTML = reportData.html;
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        const modalContent = modal.querySelector('div');
+                        if (modalContent) {
+                            modalContent.classList.remove('scale-95', 'opacity-0');
+                        }
+                        if (reportData.stats) {
+                            renderPieChart(reportData.stats);
+                        }
+                    }, 100);
+                } catch (error) {
+                    console.error("ERRORE in openModal:", error);
+                    showToast(`Errore: ${error.message}.`);
+                }
+            }
+
+            function closeModal() {
+                const modalContent = modal.querySelector('div');
+                if (modalContent) {
+                    modalContent.classList.add('scale-95', 'opacity-0');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            generateReportBtn.addEventListener('click', openModal);
+
+            generateShortReportBtn.addEventListener('click', function() {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const shiftNumber = document.getElementById('shiftNumber').value;
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+                const deposito = document.getElementById('depositoReport').value;
+
+                if (!startDate || !endDate) {
+                    showToast('Per favore, seleziona un intervallo di date.');
+                    return;
+                }
+
+                let reportHtml = `
+                    <div style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;">
+                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">
+                            Report Periodico ${startDate} - ${endDate}
+                        </h2>
+                        <p><strong>Numero del Turno:</strong> ${shiftNumber}</p>
+                        <p><strong>Orario:</strong> ${startTime} - ${endTime}</p>
+                        <p><strong>Deposito:</strong> ${deposito}</p>
+                    </div>
+                `;
+                
+                reportContent.innerHTML = reportHtml;
+                modal.classList.remove('hidden');
+                 setTimeout(() => {
+                    const modalContent = modal.querySelector('div');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                    }
+                }, 100);
+            });
+
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Sei sicuro di voler cancellare tutti i dati?')) {
+                    calendarEvents = [];
+                    saveAndRerender();
+                    showToast('Tutti i dati sono stati cancellati.');
+                }
+            });
+            entryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(entryForm);
+                const date = formData.get('entryDate');
+                const type = formData.get('entryType');
+                const shift = formData.get('shiftType');
+                const quantity = parseInt(formData.get('quantity'), 10);
+
+                const shiftInitial = { early: 'P', medium: 'M', late: 'T' }[shift];
+                
+                const existingEventIndex = calendarEvents.findIndex(
+                    ev => ev.start === date && 
+                          ev.extendedProps.type === type && 
+                          ev.extendedProps.shift === shift
+                );
+
+                if (existingEventIndex > -1) {
+                    const existingEvent = calendarEvents[existingEventIndex];
+                    existingEvent.extendedProps.quantity += quantity;
+                    
+                    if (type === 'need') {
+                        existingEvent.title = `Turno: ${existingEvent.extendedProps.quantity} ${shiftInitial}`;
+                    } else if (type === 'leave') {
+                         existingEvent.title = `Congedo: ${existingEvent.extendedProps.quantity} ${shiftInitial}`;
+                    }
+                } else {
+                    let title = '', color = '', extendedProps = { type, quantity, shift };
+
+                    if (type === 'need') {
+                        title = `Turno: ${quantity} ${shiftInitial}`;
+                        color = '#ef4444';
+                    } else if (type === 'leave') {
+                        title = `Congedo: ${quantity} ${shiftInitial}`;
+                        color = '#22c55e';
+                    }
+                    
+                    calendarEvents.push({ 
+                        id: `${date}-${type}-${shift}`,
+                        title, 
+                        start: date, 
+                        allDay: true, 
+                        color, 
+                        extendedProps 
+                    });
+                }
+                
+                saveAndRerender();
+                showToast('Calendario aggiornato.');
+                entryForm.reset();
+                entryDateInput.value = new Date().toISOString().slice(0, 10);
+                populateMonthSelector();
+            });
+            
+            closeModalBtn.addEventListener('click', closeModal);
+            openNewTabBtn.addEventListener('click', () => {
+                const reportData = generateReportData();
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Report Effettivi</title>
+                            <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+                            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"><\/script>
+                        </head>
+                        <body>
+                            ${reportData.html}
+                            <script>
+                                window.onload = () => {
+                                    const stats = ${JSON.stringify(reportData.stats)};
+                                    const chartEl = document.getElementById('leaveChart');
+                                    if (chartEl && stats) {
+                                        new Chart(chartEl, {
+                                            type: 'pie',
+                                            plugins: [ChartDataLabels],
+                                            data: {
+                                                labels: ['Accettate', 'In Sospeso', 'Respinte'],
+                                                datasets: [{
+                                                    data: [stats.approved, stats.pending, stats.rejected],
+                                                    backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+                                                    borderColor: '#ffffff',
+                                                    borderWidth: 2
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                layout: { padding: 30 },
+                                                plugins: {
+                                                    legend: { display: false },
+                                                    datalabels: {
+                                                        formatter: (value, ctx) => {
+                                                            if (value === 0) return null;
+                                                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                            const percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
+                                                            return percentage;
+                                                        },
+                                                        color: '#fff',
+                                                        font: { weight: 'bold', size: 16 },
+                                                        textStrokeColor: '#333',
+                                                        textStrokeWidth: 1.5
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            });
+            copyHtmlBtn.addEventListener('click', () => {
+                const textarea = document.createElement('textarea');
+                textarea.value = reportContent.innerHTML;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Codice HTML copiato!');
+                } catch (err) { showToast('Errore durante la copia.'); }
+                document.body.removeChild(textarea);
+            });
+            downloadPdfBtn.addEventListener('click', function() {
+                const element = document.getElementById('reportContent');
+                const selectedMonthText = reportMonthSelect.options[reportMonthSelect.selectedIndex].text;
+                const filename = `Report Effettivi - ${selectedMonthText.replace(' ', '_')}.pdf`;
+                
+                const opt = {
+                  margin:       0.5,
+                  filename:     filename,
+                  image:        { type: 'jpeg', quality: 0.98 },
+                  html2canvas:  { scale: 2, useCORS: true },
+                  jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save();
+            });
+
+        } catch (error) {
+            console.error("ERRORE FATALE in initializeApp:", error);
+            alert("Errore critico: " + error.message);
+        }
+    });
     </script>
 </body>
 </html>
