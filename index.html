@@ -329,7 +329,7 @@
                         </div>
                     </div>
                     <button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi congedo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                     </button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 congediContainer.appendChild(rigaDiv);
@@ -360,7 +360,6 @@
 
             // --- FUNZIONI DI GENERAZIONE REPORT ---
             
-            // FUNZIONE CORRETTA E COMPLETA PER IL REPORT MENSILE
             function generateMonthlyReportData() {
                 const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
@@ -434,7 +433,33 @@
                 const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
                 const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
                 
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2.5fr 1fr; align-items: start; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold;">Stato delle richieste dal personale</p><table style="width:100%; border-collapse:collapse; font-size:14px;"><thead><tr style="background-color:#e0e0e0;"><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;">
+                                    <style>.summary-table { border-collapse: collapse; width: 100%; } .summary-table th, .summary-table td { border: 1px solid black; padding: 8px; text-align: center; }</style>
+                                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
+                                    <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
+                                        <tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr>
+                                        <tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr>
+                                    </table>
+                                    ${mainTableHtml}<br>
+                                    <div style="display: grid; grid-template-columns: 2.5fr 1fr; align-items: start; gap: 20px;">
+                                        <div style="min-width: 300px;">
+                                            <p style="font-weight: bold; margin-bottom: 5px;">Stato delle richieste dal personale</p>
+                                            <table class="summary-table">
+                                                <thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
+                                                    <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div style="max-width: 250px; margin: auto;">
+                                            <canvas id="leaveChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
+                                    <p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
+                                    <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
+                                </div>`;
                 
                 return { html: fullHtml, stats };
             }
