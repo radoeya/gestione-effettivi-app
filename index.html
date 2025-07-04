@@ -73,9 +73,9 @@
                             <div>
                                 <label for="shiftType" class="block text-sm font-medium text-gray-700">Turno</label>
                                 <select id="shiftType" name="shiftType" class="form-input-box mt-1 block w-full pl-3 pr-10 py-2 text-base border focus:outline-none focus:ring-blue-500 sm:text-sm rounded-md">
-                                    <option value="early">Presto (mattina)</option>
+                                    <option value="early">Presto</option>
                                     <option value="medium">Medio</option>
-                                    <option value="late">Tardi (pomeriggio/sera)</option>
+                                    <option value="late">Tardi</option>
                                 </select>
                             </div>
                             <div>
@@ -437,8 +437,8 @@
                 return { html: reportHtml, stats: null };
             }
 
-            function generateMonthlyReportData() { /* Funzione invariata */ return { html: "<p>Report mensile non implementato in questo esempio.</p>", stats: null }; }
-            function renderPieChart(stats) { /* Funzione invariata */ }
+            function generateMonthlyReportData() { /* Funzione non utilizzata attivamente per ora */ return { html: "<p>Funzionalità non richiesta.</p>", stats: null }; }
+            function renderPieChart(stats) { /* Funzione non utilizzata attivamente per ora */ }
             function openModal(reportGenerator, title) {
                 try {
                     const reportData = reportGenerator();
@@ -472,15 +472,70 @@
                 }
             });
 
+            // LOGICA CORRETTA PER IL FORM DEL CALENDARIO
             entryForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                // ... logica form calendario (invariata)
+                const formData = new FormData(entryForm);
+                const date = formData.get('entryDate');
+                const type = formData.get('entryType');
+                const shift = formData.get('shiftType');
+                const quantity = parseInt(formData.get('quantity'), 10);
+
+                if (!date || !type || !shift || isNaN(quantity)) {
+                    showToast("Per favore, compila tutti i campi del calendario.");
+                    return;
+                }
+
+                const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
+                const eventId = `${date}-${type}-${shift}`;
+                const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
+
+                if (existingEventIndex > -1) {
+                    calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
+                    calendarEvents[existingEventEventIndex].title = `${type === 'need' ? 'Turni' : 'Congedi'}: ${calendarEvents[existingEventIndex].extendedProps.quantity} ${shiftTranslations[shift]}`;
+                } else {
+                    let title = `${type === 'need' ? 'Turni' : 'Congedi'}: ${quantity} ${shiftTranslations[shift]}`;
+                    let color = type === 'need' ? '#ef4444' : '#22c55e';
+                    let extendedProps = { type, quantity, shift };
+                    
+                    calendarEvents.push({ 
+                        id: eventId, title: title, start: date, allDay: true, 
+                        color: color, extendedProps: extendedProps 
+                    });
+                }
+                saveAndRerender();
+                showToast('Calendario aggiornato.');
             });
             
             closeModalBtn.addEventListener('click', closeModal);
-            openNewTabBtn.addEventListener('click', () => { /* ... */ });
-            copyHtmlBtn.addEventListener('click', () => { /* ... */ });
-            downloadPdfBtn.addEventListener('click', function() { /* ... */ });
+
+            openNewTabBtn.addEventListener('click', () => {
+                if (!currentReportGenerator) return;
+                const reportData = currentReportGenerator();
+                if(!reportData) return;
+                const newWindow = window.open();
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);
+                newWindow.document.close();
+            });
+
+            copyHtmlBtn.addEventListener('click', () => {
+                const reportHtmlElement = document.getElementById('pdf-content');
+                if(!reportHtmlElement) return;
+                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.'));
+            });
+
+            downloadPdfBtn.addEventListener('click', function() {
+                const element = document.getElementById('pdf-content');
+                 if(!element) return;
+                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_')}.pdf`;
+                const opt = {
+                  margin: [0.5, 0.5, 0.5, 0.5], filename: filename,
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas:  { scale: 2, useCORS: true, logging: false },
+                  jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().from(element).set(opt).save();
+            });
             
             depositoReportSelect.addEventListener('change', (e) => {
                 salvaTurni(depositoPrecedente);
