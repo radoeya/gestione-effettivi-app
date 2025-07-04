@@ -437,7 +437,9 @@
                             datalabels: {
                                 formatter: (value, ctx) => {
                                     if (value === 0) return null;
-                                    return value;
+                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
+                                    return percentage;
                                 },
                                 color: '#fff',
                                 font: {
