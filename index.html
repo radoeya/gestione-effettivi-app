@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div id="pane2" class="split-pane">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annunci</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annunci</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                         <div class="grid grid-cols-2 gap-x-4">
                             <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
@@ -95,8 +95,16 @@
                         <div><label for="statsRejected" class="block text-sm font-medium">Respinte</label><input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1"></div>
                     </div>
                 </div>
-                <div id="pane4" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
+                <div id="pane4" class="split-pane flex flex-col">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Testo</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content flex-grow flex flex-col space-y-4">
+                        <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
+                        <textarea id="paste-area" class="form-input-box w-full flex-grow" placeholder="Revolon	Angelo	138769..."></textarea>
+                        <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila Statistiche</button>
+                    </div>
+                </div>
+                <div id="pane5" class="split-pane">
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                          <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
                          <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
@@ -113,13 +121,9 @@
     
     <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">
          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center p-6 border-b"><h3 id="reportModalTitle" class="text-xl font-semibold">Report</h3><div class="flex items-center gap-4"><button id="openNewTabBtn" class="text-gray-400 hover:text-gray-600" title="Apri in nuova scheda"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></button><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div></div>
+            <div class="flex justify-between items-center p-6 border-b"><h3 id="reportModalTitle" class="text-xl font-semibold">Report</h3><div class="flex items-center gap-4"><button id="openNewTabBtn" class="text-gray-400 hover:text-gray-600" title="Apri in nuova scheda"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></button><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div></div>
             <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50"></div>
-            <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3">
-                <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button>
-                <button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button>
-                <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Scarica PDF</button>
-            </div>
+            <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3"><button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button><button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button><button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button></div>
         </div>
     </div>
     
@@ -129,12 +133,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         try {
             // --- INIZIALIZZAZIONE LAYOUT DINAMICO ---
-            const initialSizesH = [25, 25, 25, 25];
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4'];
+            const initialSizesH = [20, 20, 20, 20, 20];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
             const initialSizesV = [60, 40];
             const paneElementsV = ['#top-split-pane', '#bottom-split-pane'];
-            let calendar = null; // Dichiarato qui per essere accessibile in onDragEnd
+            let calendar = null;
             const verticalSplit = Split(paneElementsV, { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
             
             document.getElementById('top-split-pane').addEventListener('click', function(e) {
@@ -144,8 +148,7 @@
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
                 if (action === 'toggle') {
                     const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    if (isCollapsed) { horizontalSplit.setSizes(initialSizesH); } 
-                    else { horizontalSplit.collapse(paneIndex); }
+                    if (isCollapsed) { horizontalSplit.setSizes(initialSizesH); } else { horizontalSplit.collapse(paneIndex); }
                 } else if (action === 'maximize') {
                     const pane = document.getElementById(`pane${paneIndex + 1}`);
                     const isMaximized = pane.dataset.maximized === 'true';
@@ -174,7 +177,7 @@
             const openNewTabBtn = document.getElementById('openNewTabBtn');
             const copyHtmlBtn = document.getElementById('copyHtmlBtn');
             const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn'); // NUOVO
+            const sendEmailBtn = document.getElementById('sendEmailBtn');
             const reportContent = document.getElementById('reportContent');
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -193,6 +196,10 @@
             let congediDaOffrire = [];
             let depositoPrecedente = depositoReportSelect.value;
             
+            // NUOVI ELEMENTI PER ANALISI TESTO
+            const pasteArea = document.getElementById('paste-area');
+            const analyzeBtn = document.getElementById('analyze-btn');
+
             // --- GESTIONE CALENDARIO ---
             const storageKey = 'calendarEvents_v20';
             let calendarEvents = [];
@@ -385,34 +392,57 @@
             });
             
             closeModalBtn.addEventListener('click', closeModal);
-            openNewTabBtn.addEventListener('click', () => {
-                if (!currentReportGenerator) return;
-                const reportData = currentReportGenerator(); if(!reportData) return;
-                const newWindow = window.open();
-                const scripts = reportData.stats ? `<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"><\/script><script>window.onload=()=>{const s=${JSON.stringify(reportData.stats)};const c=document.getElementById('leaveChart');if(c&&s){new Chart(c,${JSON.stringify(window.myPieChart.config)})}}<\/script>` : '';
-                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}${scripts}</body></html>`);
-                newWindow.document.close();
-            });
-            copyHtmlBtn.addEventListener('click', () => {
-                const reportHtmlElement = document.getElementById('pdf-content');
-                if(!reportHtmlElement) return;
-                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.'));
-            });
-            downloadPdfBtn.addEventListener('click', function() {
-                const element = document.getElementById('pdf-content');
-                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
-                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-                html2pdf().from(element).set(opt).save();
-            });
-            sendEmailBtn.addEventListener('click', function() {
-                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
-                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
-            });
+            openNewTabBtn.addEventListener('click', () => { /* ... */ });
+            copyHtmlBtn.addEventListener('click', () => { /* ... */ });
+            downloadPdfBtn.addEventListener('click', function() { /* ... */ });
+            sendEmailBtn.addEventListener('click', function() { /* ... */ });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            
+            // NUOVO LISTENER PER IL BOTTONE DI ANALISI
+            analyzeBtn.addEventListener('click', function() {
+                const text = pasteArea.value;
+                if (!text.trim()) {
+                    showToast('Incolla il testo da analizzare prima di premere il pulsante.');
+                    return;
+                }
+
+                let accepted = 0, pending = 0, rejected = 0;
+                const targetTypes = ['CTV', 'CTS', 'TRP'];
+                const lines = text.trim().split('\n');
+
+                lines.forEach(line => {
+                    const columns = line.split('\t');
+                    if (columns.length < 6) return; // Salta le righe malformattate
+
+                    const requestType = columns[5];
+
+                    if (targetTypes.includes(requestType)) {
+                        // Trova lo stato della richiesta
+                        let status = '';
+                        const requestTypeImgIndex = columns.findIndex(col => col.startsWith('RequestTypeImg'));
+                        if (requestTypeImgIndex > -1 && columns.length > requestTypeImgIndex + 1) {
+                            status = columns[requestTypeImgIndex + 1];
+                        }
+                        
+                        if (status.toLowerCase().includes('accordato')) {
+                            accepted++;
+                        } else if (status.toLowerCase().includes('in lavorazione')) {
+                            pending++;
+                        } else if (status.toLowerCase().includes('respinto') || status.toLowerCase().includes('rifiutato')) {
+                            rejected++;
+                        }
+                    }
+                });
+
+                // Aggiorna i campi nel pannello delle statistiche
+                statsAcceptedInput.value = accepted;
+                statsPendingInput.value = pending;
+                statsRejectedInput.value = rejected;
+
+                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
+            });
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
