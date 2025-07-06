@@ -76,8 +76,9 @@
                         <div class="mt-2 space-y-2">
                             <label for="depositoReport" class="block text-sm font-medium">Deposito</label>
                             <select id="depositoReport" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select>
+                            <div class="mt-4"><label for="quick-add-turno" class="block text-sm font-medium">Aggiunta Rapida da Testo</label><input type="text" id="quick-add-turno" placeholder="Incolla qui la riga del turno..." class="form-input-box mt-1"></div>
                             <div id="turniContainer" class="space-y-3 pt-2"></div>
-                            <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Turno</button>
+                            <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Turno Manuale</button>
                         </div>
                         <hr><h3 class="text-lg font-semibold">Congedi Disponibili</h3>
                         <div class="mt-2 space-y-2">
@@ -195,6 +196,7 @@
             let depositoPrecedente = depositoReportSelect.value;
             const pasteArea = document.getElementById('paste-area');
             const analyzeBtn = document.getElementById('analyze-btn');
+            const quickAddTurnoInput = document.getElementById('quick-add-turno');
 
             // --- GESTIONE CALENDARIO ---
             const storageKey = 'calendarEvents_v20';
@@ -244,7 +246,7 @@
             function creaRigaCongedo(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 congediContainer.appendChild(rigaDiv);
             }
