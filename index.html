@@ -186,7 +186,6 @@
             const statsRejectedInput = document.getElementById('statsRejected');
             document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
             let currentReportGenerator = null;
-
             const depositoReportSelect = document.getElementById('depositoReport');
             const addTurnoBtn = document.getElementById('addTurnoBtn');
             const turniContainer = document.getElementById('turniContainer');
@@ -195,7 +194,6 @@
             let turniPerDeposito = {};
             let congediDaOffrire = [];
             let depositoPrecedente = depositoReportSelect.value;
-            
             const pasteArea = document.getElementById('paste-area');
             const analyzeBtn = document.getElementById('analyze-btn');
 
@@ -407,7 +405,7 @@
                 const text = pasteArea.value;
                 if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
                 let accepted = 0, pending = 0, rejected = 0;
-                const targetTypes = ['CTV', 'CTS', 'TRP'];
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV']; // AGGIUNTO RTV
                 const lines = text.trim().split('\n');
                 lines.forEach(line => {
                     const columns = line.split('\t');
