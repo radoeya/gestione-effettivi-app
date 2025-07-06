@@ -405,9 +405,10 @@
                 const lines = text.trim().split('\n');
                 lines.forEach(line => {
                     const columns = line.split('\t');
-                    if (columns.length < 6) return;
-                    const requestType = columns[5];
-                    if (targetTypes.includes(requestType)) {
+                    // Ricerca flessibile del tipo di richiesta
+                    let requestType = columns.find(col => targetTypes.includes(col.trim()));
+                    
+                    if (requestType) {
                         let status = '';
                         const requestTypeImgIndex = columns.findIndex(col => col.startsWith('RequestTypeImg'));
                         if (requestTypeImgIndex > -1 && columns.length > requestTypeImgIndex + 1) {
