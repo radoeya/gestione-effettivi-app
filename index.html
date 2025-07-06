@@ -99,7 +99,7 @@
                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Testo</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content flex-grow flex flex-col space-y-4">
                         <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
-                        <textarea id="paste-area" class="form-input-box w-full flex-grow" placeholder="Revolon	Angelo	138769..."></textarea>
+                        <textarea id="paste-area" class="form-input-box w-full flex-grow"></textarea>
                         <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila Statistiche</button>
                     </div>
                 </div>
@@ -196,7 +196,6 @@
             let congediDaOffrire = [];
             let depositoPrecedente = depositoReportSelect.value;
             
-            // NUOVI ELEMENTI PER ANALISI TESTO
             const pasteArea = document.getElementById('paste-area');
             const analyzeBtn = document.getElementById('analyze-btn');
 
@@ -395,52 +394,39 @@
             openNewTabBtn.addEventListener('click', () => { /* ... */ });
             copyHtmlBtn.addEventListener('click', () => { /* ... */ });
             downloadPdfBtn.addEventListener('click', function() { /* ... */ });
-            sendEmailBtn.addEventListener('click', function() { /* ... */ });
+            sendEmailBtn.addEventListener('click', function() {
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
+                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
             
-            // NUOVO LISTENER PER IL BOTTONE DI ANALISI
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
-                if (!text.trim()) {
-                    showToast('Incolla il testo da analizzare prima di premere il pulsante.');
-                    return;
-                }
-
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP'];
                 const lines = text.trim().split('\n');
-
                 lines.forEach(line => {
                     const columns = line.split('\t');
-                    if (columns.length < 6) return; // Salta le righe malformattate
-
+                    if (columns.length < 6) return;
                     const requestType = columns[5];
-
                     if (targetTypes.includes(requestType)) {
-                        // Trova lo stato della richiesta
                         let status = '';
                         const requestTypeImgIndex = columns.findIndex(col => col.startsWith('RequestTypeImg'));
                         if (requestTypeImgIndex > -1 && columns.length > requestTypeImgIndex + 1) {
                             status = columns[requestTypeImgIndex + 1];
                         }
-                        
-                        if (status.toLowerCase().includes('accordato')) {
-                            accepted++;
-                        } else if (status.toLowerCase().includes('in lavorazione')) {
-                            pending++;
-                        } else if (status.toLowerCase().includes('respinto') || status.toLowerCase().includes('rifiutato')) {
-                            rejected++;
-                        }
+                        if (status.toLowerCase().includes('accordato')) { accepted++; } 
+                        else if (status.toLowerCase().includes('in lavorazione')) { pending++; }
+                        else if (status.toLowerCase().includes('respinto') || status.toLowerCase().includes('rifiutato')) { rejected++; }
                     }
                 });
-
-                // Aggiorna i campi nel pannello delle statistiche
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
-
                 showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
             });
 
