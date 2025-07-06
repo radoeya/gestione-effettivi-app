@@ -471,18 +471,28 @@
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
                 if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
-
                 const columns = text.split('\t').filter(Boolean);
-                if (columns.length < 8) { showToast('Testo incollato non valido.'); return; }
-                
-                const [dateStr, numero, , , , depotCode, inizio, fine] = columns;
+                if (columns.length < 3) { showToast('Testo non valido.'); return; }
+                const dateStr = columns[0];
+                const numero = columns[1];
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                let depotCode = null, depotIndex = -1;
+                for (let i = 0; i < columns.length; i++) {
+                    if (depotMap[columns[i].trim()]) {
+                        depotCode = columns[i].trim();
+                        depotIndex = i;
+                        break;
+                    }
+                }
+                if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; }
+                const inizio = columns[depotIndex + 1];
+                const fine = columns[depotIndex + 2];
+                if(!inizio || !fine) { showToast('Formato orario non trovato dopo il codice deposito.'); return; }
+
                 const dateParts = dateStr.split('.');
                 if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
                 const depotName = depotMap[depotCode];
-
-                if (!depotName) { showToast(`Deposito "${depotCode}" non riconosciuto.`); return; }
                 
                 if (depositoReportSelect.value !== depotName) {
                     depositoReportSelect.value = depotName;
@@ -518,7 +528,7 @@
                     if (hasTargetType) {
                         const recordLC = record.toLowerCase();
                         if (recordLC.includes('annullato')) {
-                            // Ignora gli annullati
+                            // Non contare gli annullati
                         } else if (recordLC.includes('accordato')) {
                             accepted++;
                         } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
@@ -528,7 +538,6 @@
                         }
                     }
                 });
-
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
