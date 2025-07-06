@@ -239,7 +239,7 @@
             function creaRigaTurno(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 turniContainer.appendChild(rigaDiv);
             }
@@ -391,20 +391,45 @@
             });
             
             closeModalBtn.addEventListener('click', closeModal);
-            openNewTabBtn.addEventListener('click', () => { /* ... */ });
-            copyHtmlBtn.addEventListener('click', () => { /* ... */ });
-            downloadPdfBtn.addEventListener('click', function() { /* ... */ });
-            sendEmailBtn.addEventListener('click', function() { /* ... */ });
+            openNewTabBtn.addEventListener('click', () => {
+                if (!currentReportGenerator) return;
+                const reportData = currentReportGenerator(); if(!reportData) return;
+                const newWindow = window.open();
+                const scripts = reportData.stats ? `<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"><\/script><script>window.onload=()=>{const s=${JSON.stringify(reportData.stats)};const c=document.getElementById('leaveChart');if(c&&s){new Chart(c,${JSON.stringify(window.myPieChart.config)})}}<\/script>` : '';
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}${scripts}</body></html>`);
+                newWindow.document.close();
+            });
+            copyHtmlBtn.addEventListener('click', () => {
+                const reportHtmlElement = document.getElementById('pdf-content');
+                if(!reportHtmlElement) return;
+                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.'));
+            });
+            downloadPdfBtn.addEventListener('click', function() {
+                const element = document.getElementById('pdf-content');
+                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
+                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
+                const opt = { margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+                html2pdf().from(element).set(opt).save();
+            });
+            sendEmailBtn.addEventListener('click', function() {
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
+                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
                 if (!text) return;
 
                 const columns = text.split('\t').filter(Boolean);
                 
-                if (columns.length < 8) { showToast('Testo non valido.'); return; }
+                if (columns.length < 8) {
+                    showToast('Testo incollato non valido. Formato non riconosciuto.');
+                    return;
+                }
 
                 const dateStr = columns[0];
                 const numero = columns[1];
@@ -416,7 +441,7 @@
                 if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-                const depotMap = { 'CHI': 'Chiasso P', 'BELL': 'Bellinzona P' };
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
                 const depotName = depotMap[depotCode];
 
                 if (!depotName) { showToast(`Deposito "${depotCode}" non riconosciuto.`); return; }
@@ -436,14 +461,11 @@
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
                 if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
-
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
-                
                 const records = [];
                 let currentRecordLines = [];
-
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -458,12 +480,10 @@
                 
                 records.forEach(record => {
                     const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));
-                    
                     if (hasTargetType) {
                         const recordLC = record.toLowerCase();
-                        // Ignora gli annullati prima di contare gli altri stati
                         if (recordLC.includes('annullato')) {
-                            // Non fare niente
+                            // Non contare gli annullati
                         } else if (recordLC.includes('accordato')) {
                             accepted++;
                         } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
