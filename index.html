@@ -300,7 +300,7 @@
             function creaRigaCongedo(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 congediContainer.appendChild(rigaDiv);
             }
@@ -456,7 +456,7 @@
                 const element = document.getElementById('pdf-content');
                 if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
                 const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
                 html2pdf().from(element).set(opt).save();
             });
             sendEmailBtn.addEventListener('click', function() {
@@ -470,25 +470,15 @@
             
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
-                if (!text) return;
+                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
 
                 const columns = text.split('\t').filter(Boolean);
+                if (columns.length < 8) { showToast('Testo incollato non valido.'); return; }
                 
-                if (columns.length < 8) {
-                    showToast('Testo incollato non valido. Formato non riconosciuto.');
-                    return;
-                }
-
-                const dateStr = columns[0];
-                const numero = columns[1];
-                const depotCode = columns[5];
-                const inizio = columns[6];
-                const fine = columns[7];
-
+                const [dateStr, numero, , , , depotCode, inizio, fine] = columns;
                 const dateParts = dateStr.split('.');
                 if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-
                 const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
                 const depotName = depotMap[depotCode];
 
@@ -501,25 +491,18 @@
                 } else {
                     creaRigaTurno({ data: formattedDate, numero, inizio, fine });
                 }
-
                 quickAddTurnoInput.value = '';
                 showToast(`Turno ${numero} aggiunto a ${depotName}!`);
             });
             
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
-                if (!text.trim()) {
-                    showToast('Incolla il testo da analizzare.');
-                    return;
-                }
-
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
-                
                 const records = [];
                 let currentRecordLines = [];
-
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -528,17 +511,14 @@
                     }
                     currentRecordLines.push(line);
                 });
-                if (currentRecordLines.length > 0) {
-                    records.push(currentRecordLines.join(' '));
-                }
+                if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); }
                 
                 records.forEach(record => {
                     const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));
-                    
                     if (hasTargetType) {
                         const recordLC = record.toLowerCase();
                         if (recordLC.includes('annullato')) {
-                            // Non contare gli annullati
+                            // Ignora gli annullati
                         } else if (recordLC.includes('accordato')) {
                             accepted++;
                         } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
