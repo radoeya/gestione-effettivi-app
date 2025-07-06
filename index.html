@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div id="pane2" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annunci</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Aggiunta Rapida</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                         <div class="grid grid-cols-2 gap-x-4">
                             <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
@@ -76,13 +76,7 @@
                         <div class="mt-2 space-y-2">
                             <label for="depositoReport" class="block text-sm font-medium">Deposito</label>
                             <select id="depositoReport" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select>
-                            <div class="mt-4">
-                                <label for="quick-add-turno" class="block text-sm font-medium">Aggiunta Rapida da Testo</label>
-                                <div class="flex gap-2">
-                                    <input type="text" id="quick-add-turno" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow">
-                                    <button id="quick-add-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
-                                </div>
-                            </div>
+                            <div class="mt-4"><label for="quick-add-turno" class="block text-sm font-medium">Incolla Turno</label><div class="flex gap-2"><input type="text" id="quick-add-turno" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow"><button id="quick-add-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button></div></div>
                             <div id="turniContainer" class="space-y-3 pt-2"></div>
                             <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Turno Manuale</button>
                         </div>
@@ -103,7 +97,7 @@
                     </div>
                 </div>
                 <div id="pane4" class="split-pane flex flex-col">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Testo</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content flex-grow flex flex-col space-y-4">
                         <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
                         <textarea id="paste-area" class="form-input-box w-full flex-grow"></textarea>
@@ -253,7 +247,7 @@
             function creaRigaCongedo(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 congediContainer.appendChild(rigaDiv);
             }
@@ -404,13 +398,44 @@
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            quickAddBtn.addEventListener('click', function() {
+                const text = quickAddTurnoInput.value;
+                if (!text) return;
+
+                const columns = text.split('\t').filter(Boolean);
+                
+                if (columns.length < 8) { showToast('Testo non valido.'); return; }
+
+                const dateStr = columns[0];
+                const numero = columns[1];
+                const depotCode = columns[5];
+                const inizio = columns[6];
+                const fine = columns[7];
+
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
+                const depotMap = { 'CHI': 'Chiasso P', 'BELL': 'Bellinzona P' };
+                const depotName = depotMap[depotCode];
+
+                if (!depotName) { showToast(`Deposito "${depotCode}" non riconosciuto.`); return; }
+                
+                if (depositoReportSelect.value !== depotName) {
+                    depositoReportSelect.value = depotName;
+                    depositoReportSelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
+                } else {
+                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
+                }
+
+                quickAddTurnoInput.value = '';
+                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
+            });
             
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
-                if (!text.trim()) {
-                    showToast('Incolla il testo da analizzare.');
-                    return;
-                }
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
 
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
@@ -436,7 +461,10 @@
                     
                     if (hasTargetType) {
                         const recordLC = record.toLowerCase();
-                        if (recordLC.includes('accordato')) {
+                        // Ignora gli annullati prima di contare gli altri stati
+                        if (recordLC.includes('annullato')) {
+                            // Non fare niente
+                        } else if (recordLC.includes('accordato')) {
                             accepted++;
                         } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
                             pending++;
@@ -450,52 +478,6 @@
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
                 showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
-            });
-
-            quickAddBtn.addEventListener('click', function() {
-                const text = quickAddTurnoInput.value;
-                if (!text) return;
-
-                const columns = text.split('\t').filter(Boolean);
-                
-                if (columns.length < 8) {
-                    showToast('Testo incollato non valido. Formato non riconosciuto.');
-                    return;
-                }
-
-                const dateStr = columns[0];
-                const numero = columns[1];
-                const depotCode = columns[5];
-                const inizio = columns[6];
-                const fine = columns[7];
-
-                const dateParts = dateStr.split('.');
-                if (dateParts.length !== 3) {
-                    showToast('Formato data non valido (richiesto: GG.MM.AAAA).');
-                    return;
-                }
-                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-
-                const depotMap = { 'CHI': 'Chiasso P', 'BELL': 'Bellinzona P' };
-                const depotName = depotMap[depotCode];
-
-                if (!depotName) {
-                    showToast(`Deposito "${depotCode}" non riconosciuto.`);
-                    return;
-                }
-                
-                if (depositoReportSelect.value !== depotName) {
-                    depositoReportSelect.value = depotName;
-                    depositoReportSelect.dispatchEvent(new Event('change'));
-                    setTimeout(() => {
-                        creaRigaTurno({ data: formattedDate, numero, inizio, fine });
-                    }, 100);
-                } else {
-                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
-                }
-
-                quickAddTurnoInput.value = '';
-                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
             });
 
         } catch (error) {
