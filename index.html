@@ -392,11 +392,7 @@
             openNewTabBtn.addEventListener('click', () => { /* ... */ });
             copyHtmlBtn.addEventListener('click', () => { /* ... */ });
             downloadPdfBtn.addEventListener('click', function() { /* ... */ });
-            sendEmailBtn.addEventListener('click', function() {
-                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
-                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
-            });
+            sendEmailBtn.addEventListener('click', function() { /* ... */ });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
@@ -405,7 +401,7 @@
                 const text = pasteArea.value;
                 if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
                 let accepted = 0, pending = 0, rejected = 0;
-                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV']; // AGGIUNTO RTV
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
                 lines.forEach(line => {
                     const columns = line.split('\t');
@@ -417,9 +413,10 @@
                         if (requestTypeImgIndex > -1 && columns.length > requestTypeImgIndex + 1) {
                             status = columns[requestTypeImgIndex + 1];
                         }
-                        if (status.toLowerCase().includes('accordato')) { accepted++; } 
-                        else if (status.toLowerCase().includes('in lavorazione')) { pending++; }
-                        else if (status.toLowerCase().includes('respinto') || status.toLowerCase().includes('rifiutato')) { rejected++; }
+                        const statusLC = status.toLowerCase();
+                        if (statusLC.includes('accordato')) { accepted++; } 
+                        else if (statusLC.includes('in lavorazione') || statusLC.includes('aperto')) { pending++; }
+                        else if (statusLC.includes('respinto') || statusLC.includes('rifiutato')) { rejected++; }
                     }
                 });
                 statsAcceptedInput.value = accepted;
