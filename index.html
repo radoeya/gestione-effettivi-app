@@ -398,7 +398,11 @@
             
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
-                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
+                if (!text.trim()) {
+                    showToast('Incolla il testo da analizzare.');
+                    return;
+                }
+
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
@@ -420,6 +424,7 @@
                 
                 records.forEach(record => {
                     const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));
+                    
                     if (hasTargetType) {
                         const recordLC = record.toLowerCase();
                         if (recordLC.includes('accordato')) {
