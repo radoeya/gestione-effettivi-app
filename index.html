@@ -392,16 +392,11 @@
             openNewTabBtn.addEventListener('click', () => { /* ... */ });
             copyHtmlBtn.addEventListener('click', () => { /* ... */ });
             downloadPdfBtn.addEventListener('click', function() { /* ... */ });
-            sendEmailBtn.addEventListener('click', function() {
-                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
-                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
-            });
+            sendEmailBtn.addEventListener('click', function() { /* ... */ });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
             
-            // LISTENER ANALISI TESTO CON LOGICA CORRETTA E ROBUSTA
             analyzeBtn.addEventListener('click', function() {
                 const text = pasteArea.value;
                 if (!text.trim()) {
