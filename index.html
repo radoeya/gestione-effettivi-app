@@ -300,7 +300,7 @@
             function creaRigaCongedo(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 congediContainer.appendChild(rigaDiv);
             }
@@ -443,8 +443,7 @@
                 if (!currentReportGenerator) return;
                 const reportData = currentReportGenerator(); if(!reportData) return;
                 const newWindow = window.open();
-                const scripts = reportData.stats ? `<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"><\/script><script>window.onload=()=>{const s=${JSON.stringify(reportData.stats)};const c=document.getElementById('leaveChart');if(c&&s){new Chart(c,${JSON.stringify(window.myPieChart.config)})}}<\/script>` : '';
-                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}${scripts}</body></html>`);
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);
                 newWindow.document.close();
             });
             copyHtmlBtn.addEventListener('click', () => {
@@ -471,28 +470,31 @@
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
                 if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
+
                 const columns = text.split('\t').filter(Boolean);
-                if (columns.length < 3) { showToast('Testo non valido.'); return; }
-                const dateStr = columns[0];
-                const numero = columns[1];
                 const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
-                let depotCode = null, depotIndex = -1;
+                let depotCode = null, depotIndex = -1, depotName = null;
+
                 for (let i = 0; i < columns.length; i++) {
                     if (depotMap[columns[i].trim()]) {
                         depotCode = columns[i].trim();
+                        depotName = depotMap[depotCode];
                         depotIndex = i;
                         break;
                     }
                 }
-                if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; }
+                
+                if (!depotName) { showToast('Nessun deposito valido (CHI/BEL) trovato nel testo.'); return; }
+                if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; }
+
+                const dateStr = columns[0];
+                const numero = columns[1];
                 const inizio = columns[depotIndex + 1];
                 const fine = columns[depotIndex + 2];
-                if(!inizio || !fine) { showToast('Formato orario non trovato dopo il codice deposito.'); return; }
 
                 const dateParts = dateStr.split('.');
-                if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
+                if (dateParts.length !== 3) { showToast('Formato data non valido (richiesto: GG.MM.AAAA).'); return; }
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                const depotName = depotMap[depotCode];
                 
                 if (depositoReportSelect.value !== depotName) {
                     depositoReportSelect.value = depotName;
@@ -511,10 +513,12 @@
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
+                
                 const records = [];
                 let currentRecordLines = [];
+
                 lines.forEach((line, index) => {
-                    const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
+                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
                         records.push(currentRecordLines.join(' '));
                         currentRecordLines = [];
@@ -538,6 +542,7 @@
                         }
                     }
                 });
+
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
