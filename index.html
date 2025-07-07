@@ -91,7 +91,7 @@
                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                         <h3 class="text-lg font-semibold">Stato Richieste (Manuale)</h3>
-                        <p class="text-xs text-gray-500">I valori inseriti qui (o popolati dall'analisi) vengono usati nel grafico del report mensile.</p>
+                        <p class="text-xs text-gray-500">I valori qui vengono usati nel grafico del report mensile e popolati dall'analisi testo.</p>
                         <div><label for="statsAccepted" class="block text-sm font-medium">Accettate</label><input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1"></div>
                         <div><label for="statsPending" class="block text-sm font-medium">In Sospeso</label><input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1"></div>
                         <div><label for="statsRejected" class="block text-sm font-medium">Respinte</label><input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1"></div>
@@ -184,9 +184,10 @@
                         pane.dataset.maximized = 'false';
                         horizontalSplit.setSizes(initialSizesH);
                     } else {
-                        document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
+                        document.querySelectorAll('.split-pane').forEach(p => p.dataset.maximized = 'false');
                         const newSizes = Array(paneElementsH.length).fill(0);
                         newSizes[paneIndex] = 100;
+                        pane.dataset.maximized = 'true';
                         horizontalSplit.setSizes(newSizes);
                     }
                 }
@@ -373,7 +374,7 @@
                 }
                 const totalRequests=stats.approved+stats.pending+stats.rejected;
                 const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; height: 100%;"><style>.summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } .page-break-avoid { page-break-inside: avoid !important; }</style><div><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table></div><div style="flex-grow: 1;">${mainTableHtml}</div><div class="page-break-avoid"><table style="width: 100%; margin-top: 15px;"><tr><td style="width: 65%; vertical-align: top; padding-right: 20px;"><p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></td><td style="width: 35%; vertical-align: top;"><div style="max-width: 180px; margin: 0 auto;"><canvas id="leaveChart"></canvas></div></td></tr></table><p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div></div>`;
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; height: 100%;"><style>.summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } .page-break-avoid { page-break-inside: avoid !important; }</style><div><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table></div><div style="flex-grow: 1;">${mainTableHtml}</div><div class="page-break-avoid"><table style="width: 100%; margin-top: 15px;"><tbody><tr><td style="width: 70%; vertical-align: top; padding-right: 20px;"><p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></td><td style="width: 30%; vertical-align: top;"><div style="max-width: 180px; margin: 0 auto;"><canvas id="leaveChart"></canvas></div></td></tr></tbody></table><p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div></div>`;
                 return { html: fullHtml, stats };
             }
 
@@ -412,7 +413,7 @@
 
             function renderPieChart(stats) {
                 const chartEl = document.getElementById('leaveChart');
-                if (!chartEl || !stats) { if(chartEl) chartEl.style.display = 'none'; return; };
+                if (!chartEl || !stats ) { if(chartEl) chartEl.style.display = 'none'; return; };
                 const hasData = Object.values(stats).some(v => v > 0);
                 if (!hasData) { if(chartEl) chartEl.style.display = 'none'; return; }
                 
@@ -534,6 +535,7 @@
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
+                
                 const records = [];
                 let currentRecordLines = [];
                 lines.forEach((line, index) => {
