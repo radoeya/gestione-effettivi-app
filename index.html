@@ -522,8 +522,10 @@
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
+                
                 const records = [];
                 let currentRecordLines = [];
+
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -549,6 +551,7 @@
                         }
                     }
                 });
+
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
@@ -577,7 +580,8 @@
                         const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                         const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
                         
-                        const emailBody = `Buongiorno,\n
+                        const emailBody = `Buongiorno,
+
 vi scriviamo per chiedere se fosse possibile attendere l’assegnazione
 del turno previsto per il giorno ${date}, in modo da poter garantire una
 prestazione lavorativa da parte nostra, vista la situazione di esubero del
