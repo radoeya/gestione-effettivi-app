@@ -522,10 +522,8 @@
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
-                
                 const records = [];
                 let currentRecordLines = [];
-
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -551,7 +549,6 @@
                         }
                     }
                 });
-
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
@@ -579,7 +576,23 @@
 
                         const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                         const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
-                        const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile posticipare l’assegnazione del turno previsto per il giorno ${date}, in modo da poter garantire una prestazione lavorativa da parte nostra, vista la situazione di esubero del personale prevista per quella giornata.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nPianificazione del personale – Bellinzona`;
+                        
+                        const emailBody = `Buongiorno,\n
+vi scriviamo per chiedere se fosse possibile attendere l’assegnazione
+del turno previsto per il giorno ${date}, in modo da poter garantire una
+prestazione lavorativa da parte nostra, vista la situazione di esubero del
+personale prevista per quella data.
+
+Ringraziandovi per l’attenzione, porgiamo cordiali saluti.
+
+Ripartizione del personale
+P-O-BP-ZFR-MSD-EIN
+
+Ferrovie Federali Svizzere - FFS
+Produzione ferroviaria,
+Condotta dei treni e manovra,
+Ripartizione del personale,
+6500 Bellinzona`;
 
                         const resultDiv = document.createElement('div');
                         resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
