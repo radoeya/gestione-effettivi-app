@@ -305,7 +305,7 @@
             function creaRigaTurno(data = {}) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 turniContainer.appendChild(rigaDiv);
             }
@@ -522,8 +522,10 @@
                 let accepted = 0, pending = 0, rejected = 0;
                 const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
                 const lines = text.trim().split('\n');
+                
                 const records = [];
                 let currentRecordLines = [];
+
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -549,41 +551,55 @@
                         }
                     }
                 });
+
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
                 showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
             });
-            
+
             processStandbyBtn.addEventListener('click', function() {
                 const text = standbyPasteArea.value;
-                if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; }
-                standbyResultsContainer.innerHTML = '';
+                if (!text.trim()) {
+                    showToast('Incolla il testo da elaborare.');
+                    return;
+                }
+                standbyResultsContainer.innerHTML = ''; 
                 const lines = text.trim().split('\n');
                 lines.forEach(line => {
-                    const columns = line.split('\t').filter(Boolean);
-                    if (columns.length < 6) return;
-                    const date = columns[1];
-                    const surname = columns[4];
-                    const name = columns[5];
-                    if(date && surname && name) {
-                        const emailAddress = `${name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}.${surname.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}@sbb.ch`;
+                    if (line.trim().length === 0) return; 
+
+                    const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/);
+                    const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
+                    
+                    if (dateMatch && nameMatch) {
+                        const date = dateMatch[0];
+                        const surname = nameMatch[1];
+                        const name = nameMatch[2];
+
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
                         const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile posticipare l’assegnazione del turno previsto per il giorno ${date}, in modo da poter garantire una prestazione lavorativa da parte nostra, vista la situazione di esubero del personale prevista per quella giornata.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nPianificazione del personale – Bellinzona`;
+
                         const resultDiv = document.createElement('div');
                         resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
-                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;
                         standbyResultsContainer.appendChild(resultDiv);
                     }
                 });
                 standbyPasteArea.value = '';
-                showToast('Lista elaborata!');
+                if(standbyResultsContainer.children.length > 0){
+                    showToast('Lista elaborata!');
+                } else {
+                    showToast('Nessun dato valido trovato nel testo.');
+                }
             });
 
             standbyResultsContainer.addEventListener('click', function(e){
                 if(e.target.classList.contains('send-standby-email-btn')) {
                     const button = e.target;
                     const email = button.dataset.email;
-                    const subject = encodeURIComponent("Posticipo assegnazione turno");
+                    const subject = button.dataset.subject;
                     const body = button.dataset.body;
                     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
                 }
