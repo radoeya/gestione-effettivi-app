@@ -66,7 +66,7 @@
                     </div>
                 </div>
                 <div id="pane2" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Aggiunta Rapida</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annuncio Effettivi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                         <div class="grid grid-cols-2 gap-x-4">
                             <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
@@ -514,7 +514,7 @@
                 let currentRecordLines = [];
 
                 lines.forEach((line, index) => {
-                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0;
+                    const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
                         records.push(currentRecordLines.join(' '));
                         currentRecordLines = [];
