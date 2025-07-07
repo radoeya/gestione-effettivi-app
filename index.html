@@ -104,8 +104,18 @@
                         <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila Statistiche</button>
                     </div>
                 </div>
-                <div id="pane5" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
+                <div id="pane5" class="split-pane flex flex-col">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content flex-grow flex flex-col space-y-4">
+                        <label for="standby-paste-area" class="block text-sm font-medium">Incolla qui la lista del personale:</label>
+                        <textarea id="standby-paste-area" class="form-input-box w-full flex-grow" rows="5"></textarea>
+                        <button id="process-standby-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-orange-600 hover:bg-orange-700">Elabora Lista</button>
+                        <hr>
+                        <div id="standby-results-container" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div id="pane6" class="split-pane">
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                          <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
                          <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
@@ -151,8 +161,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         try {
             // --- INIZIALIZZAZIONE LAYOUT DINAMICO ---
-            const initialSizesH = [20, 20, 20, 20, 20];
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
+            const initialSizesH = [16.6, 16.6, 16.6, 16.6, 16.6, 16.6];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
             const initialSizesV = [60, 40];
             let calendar = null;
@@ -218,6 +228,9 @@
             const addEventModal = document.getElementById('addEventModal');
             const modalEntryForm = document.getElementById('modalEntryForm');
             const closeAddEventModalBtn = document.getElementById('closeAddEventModalBtn');
+            const standbyPasteArea = document.getElementById('standby-paste-area');
+            const processStandbyBtn = document.getElementById('process-standby-btn');
+            const standbyResultsContainer = document.getElementById('standby-results-container');
 
             // --- GESTIONE CALENDARIO ---
             const storageKey = 'calendarEvents_v20';
