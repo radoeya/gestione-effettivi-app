@@ -69,8 +69,8 @@
                      <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annuncio Effettivi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
                         <div class="grid grid-cols-2 gap-x-4">
-                            <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
-                            <div><label for="endDate" class="block text-sm font-medium">A (data)</label><input type="date" id="endDate" name="endDate" class="form-input-box mt-1"></div>
+                            <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" class="form-input-box mt-1"></div>
+                            <div><label for="endDate" class="block text-sm font-medium">A (data)</label><input type="date" id="endDate" class="form-input-box mt-1"></div>
                         </div>
                         <hr><h3 class="text-lg font-semibold">Turni da Coprire</h3>
                         <div class="mt-2 space-y-2">
@@ -90,7 +90,7 @@
                 <div id="pane3" class="split-pane">
                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
                     <div class="pane-content space-y-4">
-                        <h3 class="text-lg font-semibold">Stato Richieste per Report</h3>
+                        <h3 class="text-lg font-semibold">Stato Richieste (Manuale)</h3>
                         <div><label for="statsAccepted" class="block text-sm font-medium">Accettate</label><input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1"></div>
                         <div><label for="statsPending" class="block text-sm font-medium">In Sospeso</label><input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1"></div>
                         <div><label for="statsRejected" class="block text-sm font-medium">Respinte</label><input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1"></div>
@@ -101,7 +101,7 @@
                     <div class="pane-content flex-grow flex flex-col space-y-4">
                         <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
                         <textarea id="paste-area" class="form-input-box w-full flex-grow"></textarea>
-                        <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila Statistiche</button>
+                        <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila</button>
                     </div>
                 </div>
                 <div id="pane5" class="split-pane flex flex-col">
@@ -360,19 +360,19 @@
                         const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
                         const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
                         if (needParts.length>0 && leaveParts.length>0){
-                            mainTableHtml += `<tr><td rowspan="2" style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
-                            mainTableHtml += `<tr><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
+                            mainTableHtml += `<tr class="page-break-avoid"><td rowspan="2" style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
+                            mainTableHtml += `<tr class="page-break-avoid"><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
                         } else if (needParts.length > 0) {
-                             mainTableHtml += `<tr><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
+                             mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
                         } else if (leaveParts.length > 0) {
-                            mainTableHtml += `<tr><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
+                            mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
                         }
                     }
                     mainTableHtml += `</tbody></table>`;
                 }
                 const totalRequests=stats.approved+stats.pending+stats.rejected;
                 const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.summary-table { border-collapse: collapse; width: 100%; } .summary-table th, .summary-table td { border: 1px solid black; padding: 8px; text-align: center; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2.5fr 1fr; align-items: start; gap: 20px;"><div style="min-width: 300px;"><p style="font-weight: bold; margin-bottom: 5px;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 250px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><style>.summary-table { border-collapse: collapse; width: 100%; font-size: 12px; } .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } .page-break-avoid { page-break-inside: avoid !important; }</style><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table>${mainTableHtml}<br><div style="display: grid; grid-template-columns: 2.5fr 1.5fr; align-items: start; gap: 20px;" class="page-break-avoid"><div style="min-width: 300px;"><p style="font-weight: bold; margin-bottom: 5px;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div><div style="max-width: 180px; margin: auto;"><canvas id="leaveChart"></canvas></div></div><p style="margin-top:20px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:20px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div>`;
                 return { html: fullHtml, stats };
             }
 
@@ -411,9 +411,12 @@
 
             function renderPieChart(stats) {
                 const chartEl = document.getElementById('leaveChart');
-                if (!chartEl || !stats || (stats.approved === 0 && stats.pending === 0 && stats.rejected === 0)) { if (chartEl) chartEl.style.display = 'none'; return; };
-                if (window.myPieChart) window.myPieChart.destroy();
+                if (!chartEl || !stats) { if(chartEl) chartEl.style.display = 'none'; return; };
+                const hasData = Object.values(stats).some(v => v > 0);
+                if (!hasData) { if(chartEl) chartEl.style.display = 'none'; return; }
+                
                 chartEl.style.display = 'block';
+                if (window.myPieChart) window.myPieChart.destroy();
                 window.myPieChart = new Chart(chartEl, {
                     type: 'pie', plugins: [ChartDataLabels], data: { labels: ['Accettate', 'In Sospeso', 'Respinte'], datasets: [{ data: [stats.approved, stats.pending, stats.rejected], backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], borderColor: '#ffffff', borderWidth: 2, hoverOffset: 4 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { formatter: (v,c) => { if(v===0) return null; const t=c.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return t>0?Math.round(v/t*100)+'%':'0%'; }, color: '#fff', font: { weight: 'bold', size: 14 } } } }
@@ -469,7 +472,7 @@
                 const element = document.getElementById('pdf-content');
                 if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
                 const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
                 html2pdf().from(element).set(opt).save();
             });
             sendEmailBtn.addEventListener('click', function() {
@@ -525,7 +528,6 @@
                 
                 const records = [];
                 let currentRecordLines = [];
-
                 lines.forEach((line, index) => {
                     const isNewRecordStart = (lines[index - 1] && lines[index - 1].includes('Monatsplan-EP')) || index === 0;
                     if (isNewRecordStart && currentRecordLines.length > 0) {
@@ -551,7 +553,6 @@
                         }
                     }
                 });
-
                 statsAcceptedInput.value = accepted;
                 statsPendingInput.value = pending;
                 statsRejectedInput.value = rejected;
@@ -560,44 +561,20 @@
 
             processStandbyBtn.addEventListener('click', function() {
                 const text = standbyPasteArea.value;
-                if (!text.trim()) {
-                    showToast('Incolla il testo da elaborare.');
-                    return;
-                }
+                if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; }
                 standbyResultsContainer.innerHTML = ''; 
                 const lines = text.trim().split('\n');
                 lines.forEach(line => {
                     if (line.trim().length === 0) return; 
-
                     const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/);
                     const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
-                    
                     if (dateMatch && nameMatch) {
                         const date = dateMatch[0];
                         const surname = nameMatch[1];
                         const name = nameMatch[2];
-
                         const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                         const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
-                        
-                        const emailBody = `Buongiorno,
-
-vi scriviamo per chiedere se fosse possibile attendere l’assegnazione
-del turno previsto per il giorno ${date}, in modo da poter garantire una
-prestazione lavorativa da parte nostra, vista la situazione di esubero del
-personale prevista per quella data.
-
-Ringraziandovi per l’attenzione, porgiamo cordiali saluti.
-
-Ripartizione del personale
-P-O-BP-ZFR-MSD-EIN
-
-Ferrovie Federali Svizzere - FFS
-Produzione ferroviaria,
-Condotta dei treni e manovra,
-Ripartizione del personale,
-6500 Bellinzona`;
-
+                        const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`;
                         const resultDiv = document.createElement('div');
                         resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
                         resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;
