@@ -373,7 +373,6 @@
      const totalRequests=stats.approved+stats.pending+stats.rejected;
      const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
      
-     // HTML con le modifiche richieste
      let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
         <style>
             .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
@@ -396,7 +395,7 @@
         <div style="flex-grow: 1;">${mainTableHtml}</div>
         <div class="page-break-avoid">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; width: 100%;">
-                <div style="width: 60%; flex-shrink: 0; margin-top: 15px;">
+                <div style="width: 60%; flex-shrink: 0; margin-top: 30px;">
                     <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
                     <table class="summary-table">
                         <thead style="background-color:#e0e0e0;">
@@ -449,12 +448,11 @@
         plugins: { 
             legend: { display: false }, 
             datalabels: { 
-                // MODIFICA 2: Cambiato il formatter per mostrare solo il numero della percentuale
                 formatter: (value, context) => {
                     if (value === 0) return null;
                     const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                     const percentage = total > 0 ? Math.round(value / total * 100) : 0;
-                    return percentage; // Restituisce solo il numero
+                    return percentage;
                 },
                 color: '#fff',
                 textAlign: 'center',
