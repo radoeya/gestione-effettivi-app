@@ -1,618 +1,618 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Effettivi Dinamica</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Effettivi Dinamica</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow: hidden; }
-        .main-container { display: flex; flex-direction: column; height: 100vh; padding: 1rem 2rem 2rem 2rem; }
-        header { flex-shrink: 0; padding-bottom: 1rem;}
-        .content-wrapper { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
-        #vertical-split-container { display: flex; flex-direction: column; height: 100%; }
-        #top-split-pane, #bottom-split-pane { overflow: hidden; }
-        #top-split-pane { display: flex; flex-direction: row; background-color: #fff; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
-        .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
-        .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
-        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bM/5+BgoEZZzBgRLMAwko5I0ZpBCGAo5EBAAXpSB6snyftAAAAAElFTkSuQmCC'); }
-        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
-        .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
-        .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
-        .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
-        #bottom-split-pane { display: flex; flex-direction: column; background-color: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
-        .fc-event { cursor: pointer; }
-    </style>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow: hidden; }
+        .main-container { display: flex; flex-direction: column; height: 100vh; padding: 1rem 2rem 2rem 2rem; }
+        header { flex-shrink: 0; padding-bottom: 1rem;}
+        .content-wrapper { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
+        #vertical-split-container { display: flex; flex-direction: column; height: 100%; }
+        #top-split-pane, #bottom-split-pane { overflow: hidden; }
+        #top-split-pane { display: flex; flex-direction: row; background-color: #fff; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
+        .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
+        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bM/5+BgoEZZzBgRLMAwko5I0ZpBCGAo5EBAAXpSB6snyftAAAAAElFTkSuQmCC'); }
+        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
+        .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
+        .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
+        #bottom-split-pane { display: flex; flex-direction: column; background-color: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .fc-event { cursor: pointer; }
+    </style>
 </head>
 <body class="antialiased text-gray-800">
 
 <div class="main-container">
-    <header>
-        <h1 class="text-4xl font-bold text-gray-800 tracking-tight text-center">Gestione Effettivi</h1>
-        <p class="text-lg text-gray-500 mt-2 text-center">Strumento per la pianificazione e la comunicazione dello stato degli effettivi.</p>
-    </header>
+    <header>
+        <h1 class="text-4xl font-bold text-gray-800 tracking-tight text-center">Gestione Effettivi</h1>
+        <p class="text-lg text-gray-500 mt-2 text-center">Strumento per la pianificazione e la comunicazione dello stato degli effettivi.</p>
+    </header>
 
-    <div class="content-wrapper">
-        <div id="vertical-split-container">
-            <div id="top-split-pane">
-                <div id="pane1" class="split-pane">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Impostazioni e Calendario</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="0" title="Massimizza">□</button><button data-action="toggle" data-pane-index="0" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-700">Report Mensile</h3>
-                        <div><label for="deposito" class="block text-sm font-medium">Deposito</label><select id="deposito" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select></div>
-                        <div><label for="particolarita" class="block text-sm font-medium">Particolarità del mese</label><input type="text" id="particolarita" placeholder="Es: Evento speciale..." class="form-input-box mt-1"></div>
-                        <hr>
-                        <form id="entryForm" class="space-y-4">
-                             <h3 class="text-lg font-semibold text-gray-700">Aggiungi Voce al Calendario</h3>
-                             <div><label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1" required></div>
-                            <div class="grid grid-cols-3 gap-x-2">
-                                <div><label for="entryType" class="block text-sm font-medium">Tipo</label><select id="entryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
-                                <div><label for="shiftType" class="block text-sm font-medium">Turno</label><select id="shiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
-                                <div><label for="quantity" class="block text-sm font-medium">Qtà</label><input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
-                            </div>
-                            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Aggiungi al Calendario</button>
-                        </form>
-                    </div>
-                </div>
-                <div id="pane2" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annuncio Effettivi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content space-y-4">
-                        <div class="grid grid-cols-2 gap-x-4">
-                            <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
-                            <div><label for="endDate" class="block text-sm font-medium">A (data)</label><input type="date" id="endDate" name="endDate" class="form-input-box mt-1"></div>
-                        </div>
-                        <hr><h3 class="text-lg font-semibold">Turni da Coprire</h3>
-                        <div class="mt-2 space-y-2">
-                            <label for="depositoReport" class="block text-sm font-medium">Deposito</label>
-                            <select id="depositoReport" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select>
-                            <div class="mt-4"><label for="quick-add-turno" class="block text-sm font-medium">Incolla Turno</label><div class="flex gap-2"><input type="text" id="quick-add-turno" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow"><button id="quick-add-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button></div></div>
-                            <div id="turniContainer" class="space-y-3 pt-2"></div>
-                            <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Turno Manuale</button>
-                        </div>
-                        <hr><h3 class="text-lg font-semibold">Congedi Disponibili</h3>
-                        <div class="mt-2 space-y-2">
-                            <div id="congediContainer" class="space-y-3 pt-2"></div>
-                            <button id="addCongedoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Congedo</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="pane3" class="split-pane">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content space-y-4">
-                        <h3 class="text-lg font-semibold">Stato Richieste (Manuale)</h3>
-                        <p class="text-xs text-gray-500">I valori qui vengono usati nel grafico del report mensile e popolati dall'analisi testo.</p>
-                        <div><label for="statsAccepted" class="block text-sm font-medium">Accettate</label><input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1"></div>
-                        <div><label for="statsPending" class="block text-sm font-medium">In Sospeso</label><input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1"></div>
-                        <div><label for="statsRejected" class="block text-sm font-medium">Respinte</label><input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1"></div>
-                    </div>
-                </div>
-                <div id="pane4" class="split-pane flex flex-col">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content flex-grow flex flex-col space-y-4">
-                        <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
-                        <textarea id="paste-area" class="form-input-box w-full flex-grow"></textarea>
-                        <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila</button>
-                    </div>
-                </div>
-                <div id="pane5" class="split-pane flex flex-col">
-                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content flex-grow flex flex-col space-y-4">
-                        <label for="standby-paste-area" class="block text-sm font-medium">Incolla qui la lista del personale:</label>
-                        <textarea id="standby-paste-area" class="form-input-box w-full flex-grow" rows="5"></textarea>
-                        <button id="process-standby-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-orange-600 hover:bg-orange-700">Elabora Lista</button>
-                        <hr>
-                        <div id="standby-results-container" class="space-y-2"></div>
-                    </div>
-                </div>
-                <div id="pane6" class="split-pane">
-                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
-                    <div class="pane-content space-y-4">
-                         <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
-                         <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
-                         <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg text-red-600 bg-white hover:bg-red-50">Pulisci Dati Annuncio</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="bottom-split-pane">
-                <div id="calendar" class="h-full"></div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="addEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">
-         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
-            <div class="flex justify-between items-center p-6 border-b"><h3 class="text-xl font-semibold">Aggiungi Voce per il Giorno</h3><button id="closeAddEventModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div>
-            <div class="p-6">
-                <form id="modalEntryForm" class="space-y-4">
-                     <div><label for="modalEntryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="modalEntryDate" name="entryDate" class="form-input-box mt-1 bg-gray-200" readonly></div>
-                    <div class="grid grid-cols-3 gap-x-2">
-                        <div><label for="modalEntryType" class="block text-sm font-medium">Tipo</label><select id="modalEntryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
-                        <div><label for="modalShiftType" class="block text-sm font-medium">Turno</label><select id="modalShiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
-                        <div><label for="modalQuantity" class="block text-sm font-medium">Qtà</label><input type="number" id="modalQuantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
-                    </div>
-                    <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Aggiungi</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="content-wrapper">
+        <div id="vertical-split-container">
+            <div id="top-split-pane">
+                <div id="pane1" class="split-pane">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Impostazioni e Calendario</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="0" title="Massimizza">□</button><button data-action="toggle" data-pane-index="0" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-700">Report Mensile</h3>
+                        <div><label for="deposito" class="block text-sm font-medium">Deposito</label><select id="deposito" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select></div>
+                        <div><label for="particolarita" class="block text-sm font-medium">Particolarità del mese</label><input type="text" id="particolarita" placeholder="Es: Evento speciale..." class="form-input-box mt-1"></div>
+                        <hr>
+                        <form id="entryForm" class="space-y-4">
+                             <h3 class="text-lg font-semibold text-gray-700">Aggiungi Voce al Calendario</h3>
+                             <div><label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1" required></div>
+                            <div class="grid grid-cols-3 gap-x-2">
+                _                <div><label for="entryType" class="block text-sm font-medium">Tipo</label><select id="entryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
+                                <div><label for="shiftType" class="block text-sm font-medium">Turno</label><select id="shiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
+                                <div><label for="quantity" class="block text-sm font-medium">Qtà</label><input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
+                            </div>
+                            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Aggiungi al Calendario</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="pane2" class="split-pane">
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annuncio Effettivi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content space-y-4">
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <div><label for="startDate" class="block text-sm font-medium">Da (data)</label><input type="date" id="startDate" name="startDate" class="form-input-box mt-1"></div>
+                            <div><label for="endDate" class="block text-sm font-medium">A (data)</label><input type="date" id="endDate" name="endDate" class="form-input-box mt-1"></div>
+                        </div>
+                        <hr><h3 class="text-lg font-semibold">Turni da Coprire</h3>
+                        <div class="mt-2 space-y-2">
+                            <label for="depositoReport" class="block text-sm font-medium">Deposito</label>
+                            <select id="depositoReport" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select>
+                            <div class="mt-4"><label for="quick-add-turno" class="block text-sm font-medium">Incolla Turno</label><div class="flex gap-2"><input type="text" id="quick-add-turno" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow"><button id="quick-add-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button></div></div>
+                            <div id="turniContainer" class="space-y-3 pt-2"></div>
+                            <button id="addTurnoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Turno Manuale</button>
+                        </div>
+                        <hr><h3 class="text-lg font-semibold">Congedi Disponibili</h3>
+                        <div class="mt-2 space-y-2">
+                            <div id="congediContainer" class="space-y-3 pt-2"></div>
+                            <button id="addCongedoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Congedo</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="pane3" class="split-pane">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content space-y-4">
+                        <h3 class="text-lg font-semibold">Stato Richieste (Manuale)</h3>
+                        <p class="text-xs text-gray-500">I valori qui vengono usati nel grafico del report mensile e popolati dall'analisi testo.</p>
+                        <div><label for="statsAccepted" class="block text-sm font-medium">Accettate</label><input type="number" id="statsAccepted" placeholder="0" min="0" class="form-input-box mt-1"></div>
+                        <div><label for="statsPending" class="block text-sm font-medium">In Sospeso</label><input type="number" id="statsPending" placeholder="0" min="0" class="form-input-box mt-1"></div>
+                        <div><label for="statsRejected" class="block text-sm font-medium">Respinte</label><input type="number" id="statsRejected" placeholder="0" min="0" class="form-input-box mt-1"></div>
+                    </div>
+                </div>
+                <div id="pane4" class="split-pane flex flex-col">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Analisi Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
+            -       <div class="pane-content flex-grow flex flex-col space-y-4">
+                        <label for="paste-area" class="block text-sm font-medium">Incolla qui i dati da analizzare:</label>
+                        <textarea id="paste-area" class="form-input-box w-full flex-grow"></textarea>
+                        <button id="analyze-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-purple-600 hover:bg-purple-700">Analizza e Compila</button>
+                    </div>
+                </div>
+                <div id="pane5" class="split-pane flex flex-col">
+                    <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content flex-grow flex flex-col space-y-4">
+                        <label for="standby-paste-area" class="block text-sm font-medium">Incolla qui la lista del personale:</label>
+                        <textarea id="standby-paste-area" class="form-input-box w-full flex-grow" rows="5"></textarea>
+                        <button id="process-standby-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-orange-600 hover:bg-orange-700">Elabora Lista</button>
+                        <hr>
+                        <div id="standby-results-container" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div id="pane6" class="split-pane">
+                     <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
+                    <div class="pane-content space-y-4">
+                         <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
+                         <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
+                         <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg text-red-600 bg-white hover:bg-red-50">Pulisci Dati Annuncio</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="bottom-split-pane">
+                <div id="calendar" class="h-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="addEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">
+         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b"><h3 class="text-xl font-semibold">Aggiungi Voce per il Giorno</h3><button id="closeAddEventModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div>
+            <div class="p-6">
+                <form id="modalEntryForm" class="space-y-4">
+                     <div><label for="modalEntryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="modalEntryDate" name="entryDate" class="form-input-box mt-1 bg-gray-200" readonly></div>
+                    <div class="grid grid-cols-3 gap-x-2">
+                        <div><label for="modalEntryType" class="block text-sm font-medium">Tipo</label><select id="modalEntryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
+                        <div><label for="modalShiftType" class="block text-sm font-medium">Turno</label><select id="modalShiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
+                        <div><label for="modalQuantity" class="block text-sm font-medium">Qtà</label><input type="number" id="modalQuantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Aggiungi</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-    <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">
-         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center p-6 border-b"><h3 id="reportModalTitle" class="text-xl font-semibold">Report</h3><div class="flex items-center gap-4"><button id="openNewTabBtn" class="text-gray-400 hover:text-gray-600" title="Apri in nuova scheda"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></button><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div></div>
-            <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50"></div>
-            <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3"><button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button><button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button><button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button></div>
-        </div>
-    </div>
-    
-    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all"><p id="toastMessage"></p></div>
+    <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">
+         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b"><h3 id="reportModalTitle" class="text-xl font-semibold">Report</h3><div class="flex items-center gap-4"><button id="openNewTabBtn" class="text-gray-400 hover:text-gray-600" title="Apri in nuova scheda"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></button><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div></div>
+            <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50"></div>
+            <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3"><button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button><button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button><button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button></div>
+        </div>
+    </div>
+    
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all"><p id="toastMessage"></p></div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        try {
-            // --- INIZIALIZZAZIONE LAYOUT DINAMICO ---
-            const initialSizesH = [16.6, 16.6, 16.6, 16.6, 16.6, 16.6];
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
-            const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
-            const initialSizesV = [60, 40];
-            let calendar = null;
-            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
-            
-            document.getElementById('top-split-pane').addEventListener('click', function(e) {
-                const button = e.target.closest('button[data-action]');
-                if (!button) return;
-                const action = button.dataset.action;
-                const paneIndex = parseInt(button.dataset.paneIndex, 10);
-                if (action === 'toggle') {
-                    const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    if (isCollapsed) { horizontalSplit.setSizes(initialSizesH); } else { horizontalSplit.collapse(paneIndex); }
-                } else if (action === 'maximize') {
-                    const pane = document.getElementById(`pane${paneIndex + 1}`);
-                    const isMaximized = pane.dataset.maximized === 'true';
-                    if (isMaximized) {
-                        pane.dataset.maximized = 'false';
-                        horizontalSplit.setSizes(initialSizesH);
-                    } else {
-                        document.querySelectorAll('.split-pane').forEach(p => p.dataset.maximized = 'false');
-                        const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100;
-                        pane.dataset.maximized = 'true';
-                        horizontalSplit.setSizes(newSizes);
-                    }
-                }
-            });
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // --- INIZIALIZZAZIONE LAYOUT DINAMICO ---
+            const initialSizesH = [16.6, 16.6, 16.6, 16.6, 16.6, 16.6];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
+            const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
+            const initialSizesV = [60, 40];
+            let calendar = null;
+            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
+            
+            document.getElementById('top-split-pane').addEventListener('click', function(e) {
+                const button = e.target.closest('button[data-action]');
+                if (!button) return;
+                const action = button.dataset.action;
+                const paneIndex = parseInt(button.dataset.paneIndex, 10);
+                if (action === 'toggle') {
+                    const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
+                    if (isCollapsed) { horizontalSplit.setSizes(initialSizesH); } else { horizontalSplit.collapse(paneIndex); }
+                } else if (action === 'maximize') {
+                    const pane = document.getElementById(`pane${paneIndex + 1}`);
+                    const isMaximized = pane.dataset.maximized === 'true';
+                    if (isMaximized) {
+                        pane.dataset.maximized = 'false';
+                        horizontalSplit.setSizes(initialSizesH);
+                    } else {
+                        document.querySelectorAll('.split-pane').forEach(p => p.dataset.maximized = 'false');
+                        const newSizes = Array(paneElementsH.length).fill(0);
+                        newSizes[paneIndex] = 100;
+                        pane.dataset.maximized = 'true';
+                        horizontalSplit.setSizes(newSizes);
+                    }
+                }
+            });
 
-            // --- INIZIALIZZAZIONE GLOBALE VARIABILI ---
-            const calendarEl = document.getElementById('calendar');
-            const entryForm = document.getElementById('entryForm');
-            const generateReportBtn = document.getElementById('generateReportBtn');
-            const generateShortReportBtn = document.getElementById('generateShortReportBtn');
-            const clearAllBtn = document.getElementById('clearAllBtn');
-            const modal = document.getElementById('reportModal');
-            const reportModalTitle = document.getElementById('reportModalTitle');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const openNewTabBtn = document.getElementById('openNewTabBtn');
-            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
-            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
-            const reportContent = document.getElementById('reportContent');
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const statsAcceptedInput = document.getElementById('statsAccepted');
-            const statsPendingInput = document.getElementById('statsPending');
-            const statsRejectedInput = document.getElementById('statsRejected');
-            document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
-            let currentReportGenerator = null;
-            const depositoReportSelect = document.getElementById('depositoReport');
-            const addTurnoBtn = document.getElementById('addTurnoBtn');
-            const turniContainer = document.getElementById('turniContainer');
-            const addCongedoBtn = document.getElementById('addCongedoBtn');
-            const congediContainer = document.getElementById('congediContainer');
-            let turniPerDeposito = {};
-            let congediDaOffrire = [];
-            let depositoPrecedente = depositoReportSelect.value;
-            const pasteArea = document.getElementById('paste-area');
-            const analyzeBtn = document.getElementById('analyze-btn');
-            const quickAddTurnoInput = document.getElementById('quick-add-turno');
-            const quickAddBtn = document.getElementById('quick-add-btn');
-            const addEventModal = document.getElementById('addEventModal');
-            const modalEntryForm = document.getElementById('modalEntryForm');
-            const closeAddEventModalBtn = document.getElementById('closeAddEventModalBtn');
-            const standbyPasteArea = document.getElementById('standby-paste-area');
-            const processStandbyBtn = document.getElementById('process-standby-btn');
-            const standbyResultsContainer = document.getElementById('standby-results-container');
+            // --- INIZIALIZZAZIONE GLOBALE VARIABILI ---
+            const calendarEl = document.getElementById('calendar');
+            const entryForm = document.getElementById('entryForm');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const generateShortReportBtn = document.getElementById('generateShortReportBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const modal = document.getElementById('reportModal');
+            const reportModalTitle = document.getElementById('reportModalTitle');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const openNewTabBtn = document.getElementById('openNewTabBtn');
+            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            const sendEmailBtn = document.getElementById('sendEmailBtn');
+            const reportContent = document.getElementById('reportContent');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const statsAcceptedInput = document.getElementById('statsAccepted');
+            const statsPendingInput = document.getElementById('statsPending');
+            const statsRejectedInput = document.getElementById('statsRejected');
+            document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
+            let currentReportGenerator = null;
+            const depositoReportSelect = document.getElementById('depositoReport');
+            const addTurnoBtn = document.getElementById('addTurnoBtn');
+            const turniContainer = document.getElementById('turniContainer');
+            const addCongedoBtn = document.getElementById('addCongedoBtn');
+            const congediContainer = document.getElementById('congediContainer');
+            let turniPerDeposito = {};
+            let congediDaOffrire = [];
+            let depositoPrecedente = depositoReportSelect.value;
+            const pasteArea = document.getElementById('paste-area');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const quickAddTurnoInput = document.getElementById('quick-add-turno');
+            const quickAddBtn = document.getElementById('quick-add-btn');
+            const addEventModal = document.getElementById('addEventModal');
+            const modalEntryForm = document.getElementById('modalEntryForm');
+            const closeAddEventModalBtn = document.getElementById('closeAddEventModalBtn');
+            const standbyPasteArea = document.getElementById('standby-paste-area');
+            const processStandbyBtn = document.getElementById('process-standby-btn');
+            const standbyResultsContainer = document.getElementById('standby-results-container');
 
-            // --- GESTIONE CALENDARIO ---
-            const storageKey = 'calendarEvents_v20';
-            let calendarEvents = [];
-            try {
-                const storedEvents = localStorage.getItem(storageKey);
-                if (storedEvents) calendarEvents = JSON.parse(storedEvents);
-            } catch (e) { console.error("Errore localStorage", e); }
+            // --- GESTIONE CALENDARIO ---
+            const storageKey = 'calendarEvents_v20';
+            let calendarEvents = [];
+            try {
+                const storedEvents = localStorage.getItem(storageKey);
+                if (storedEvents) calendarEvents = JSON.parse(storedEvents);
+            } catch (e) { console.error("Errore localStorage", e); }
 
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth', locale: 'it',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
-                events: calendarEvents,
-                dateClick: function(info) {
-                    if (info.dayEl.querySelector('.fc-event')) return; 
-                    document.getElementById('modalEntryDate').value = info.dateStr;
-                    addEventModal.classList.remove('hidden');
-                },
-                eventClick: function(info) {
-                    const eventId = info.event.id;
-                    const eventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
-                    if (eventIndex > -1) {
-                        calendarEvents[eventIndex].extendedProps.quantity--;
-                        if (calendarEvents[eventIndex].extendedProps.quantity <= 0) {
-                            calendarEvents.splice(eventIndex, 1);
-                            showToast('Gruppo di eventi rimosso.');
-                        } else {
-                            const eventData = calendarEvents[eventIndex];
-                            const props = eventData.extendedProps;
-                            const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                            eventData.title = `${props.type === 'need' ? 'Turni' : 'Congedi'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
-                            showToast('Quantità ridotta.');
-                        }
-                        saveAndRerender();
-                    }
-                },
-                editable: false, dayMaxEvents: 4, height: '100%'
-            });
-            calendar.render();
-            
-            // --- FUNZIONI DI UTILITÀ ---
-            function showToast(message) {
-                toastMessage.textContent = message;
-                toast.classList.remove('opacity-0', 'translate-y-10');
-                setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
-            }
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth', locale: 'it',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
+                events: calendarEvents,
+                dateClick: function(info) {
+                    if (info.dayEl.querySelector('.fc-event')) return; 
+                    document.getElementById('modalEntryDate').value = info.dateStr;
+                    addEventModal.classList.remove('hidden');
+                },
+                eventClick: function(info) {
+                    const eventId = info.event.id;
+                    const eventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
+                    if (eventIndex > -1) {
+                        calendarEvents[eventIndex].extendedProps.quantity--;
+                        if (calendarEvents[eventIndex].extendedProps.quantity <= 0) {
+                            calendarEvents.splice(eventIndex, 1);
+                            showToast('Gruppo di eventi rimosso.');
+                        } else {
+                            const eventData = calendarEvents[eventIndex];
+                            const props = eventData.extendedProps;
+                            const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
+                            eventData.title = `${props.type === 'need' ? 'Turni' : 'Congedi'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
+                            showToast('Quantità ridotta.');
+                        }
+                        saveAndRerender();
+                    }
+                },
+                editable: false, dayMaxEvents: 4, height: '100%'
+            });
+            calendar.render();
+            
+            // --- FUNZIONI DI UTILITÀ ---
+            function showToast(message) {
+                toastMessage.textContent = message;
+                toast.classList.remove('opacity-0', 'translate-y-10');
+                setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
+            }
 
-            function saveAndRerender() {
-                localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
-                calendar.removeAllEvents();
-                calendar.addEventSource(calendarEvents);
-            }
+            function saveAndRerender() {
+                localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
+                calendar.removeAllEvents();
+                calendar.addEventSource(calendarEvents);
+            }
 
-            function addOrUpdateCalendarEvent(date, type, shift, quantity) {
-                if (!date || !type || !shift || isNaN(quantity)) {
-                    showToast("Per favore, compila tutti i campi.");
-                    return;
-                }
-                const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                const eventId = `${date}-${type}-${shift}`;
-                const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
-                if (existingEventIndex > -1) {
-                    calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
-                    calendarEvents[existingEventIndex].title = `${type === 'need' ? 'Turni' : 'Congedi'}: ${calendarEvents[existingEventIndex].extendedProps.quantity} ${shiftTranslations[shift]}`;
-                } else {
-                    calendarEvents.push({ id: eventId, title: `${type === 'need' ? 'Turni' : 'Congedi'}: ${quantity} ${shiftTranslations[shift]}`, start: date, allDay: true, color: type === 'need' ? '#ef4444' : '#22c55e', extendedProps: { type, quantity, shift } });
-                }
-                saveAndRerender();
-                showToast('Calendario aggiornato.');
-            }
+            function addOrUpdateCalendarEvent(date, type, shift, quantity) {
+                if (!date || !type || !shift || isNaN(quantity)) {
+                    showToast("Per favore, compila tutti i campi.");
+                    return;
+                }
+                const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
+                const eventId = `${date}-${type}-${shift}`;
+                const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
+                if (existingEventIndex > -1) {
+                    calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
+                    calendarEvents[existingEventIndex].title = `${type === 'need' ? 'Turni' : 'Congedi'}: ${calendarEvents[existingEventIndex].extendedProps.quantity} ${shiftTranslations[shift]}`;
+                } else {
+                    calendarEvents.push({ id: eventId, title: `${type === 'need' ? 'Turni' : 'Congedi'}: ${quantity} ${shiftTranslations[shift]}`, start: date, allDay: true, color: type === 'need' ? '#ef4444' : '#22c55e', extendedProps: { type, quantity, shift } });
+                }
+                saveAndRerender();
+                showToast('Calendario aggiornato.');
+            }
 
-            // --- GESTIONE DINAMICA ANNUNCIO ---
-            function creaRigaTurno(data = {}) {
-                const rigaDiv = document.createElement('div');
-                rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
-                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
-                turniContainer.appendChild(rigaDiv);
-            }
-            
-            function creaRigaCongedo(data = {}) {
-                const rigaDiv = document.createElement('div');
-                rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
-                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
-                congediContainer.appendChild(rigaDiv);
-            }
+            // --- GESTIONE DINAMICA ANNUNCIO ---
+            function creaRigaTurno(data = {}) {
+                const rigaDiv = document.createElement('div');
+                rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
+                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
+                turniContainer.appendChild(rigaDiv);
+            }
+            
+            function creaRigaCongedo(data = {}) {
+                const rigaDiv = document.createElement('div');
+                rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
+                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
+                congediContainer.appendChild(rigaDiv);
+            }
 
-            function salvaTurni(deposito) {
-                turniPerDeposito[deposito] = Array.from(turniContainer.querySelectorAll('.turno-riga')).map(riga => ({ data: riga.querySelector('.data-turno-input').value, numero: riga.querySelector('.numero-turno-input').value, inizio: riga.querySelector('.inizio-turno-input').value, fine: riga.querySelector('.fine-turno-input').value, }));
-            }
-            function salvaCongedi() {
-                congediDaOffrire = Array.from(congediContainer.querySelectorAll('.congedo-riga')).map(riga => ({ data: riga.querySelector('.data-congedo-input').value, fascia: riga.querySelector('.fascia-congedo-input').value, quantita: riga.querySelector('.quantita-congedo-input').value, }));
-            }
-            function caricaTurni(deposito) {
-                turniContainer.innerHTML = '';
-                const turniSalvati = turniPerDeposito[deposito] || [];
-                turniSalvati.forEach(turno => creaRigaTurno(turno));
-            }
+            function salvaTurni(deposito) {
+                turniPerDeposito[deposito] = Array.from(turniContainer.querySelectorAll('.turno-riga')).map(riga => ({ data: riga.querySelector('.data-turno-input').value, numero: riga.querySelector('.numero-turno-input').value, inizio: riga.querySelector('.inizio-turno-input').value, fine: riga.querySelector('.fine-turno-input').value, }));
+            }
+            function salvaCongedi() {
+                congediDaOffrire = Array.from(congediContainer.querySelectorAll('.congedo-riga')).map(riga => ({ data: riga.querySelector('.data-congedo-input').value, fascia: riga.querySelector('.fascia-congedo-input').value, quantita: riga.querySelector('.quantita-congedo-input').value, }));
+            }
+            function caricaTurni(deposito) {
+                turniContainer.innerHTML = '';
+                const turniSalvati = turniPerDeposito[deposito] || [];
+                turniSalvati.forEach(turno => creaRigaTurno(turno));
+            }
 
-            // --- GENERAZIONE REPORT ---
-            function generateMonthlyReportData() {
-                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
-                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
-                const currentCalendarDate = calendar.getDate();
-                const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
-                const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
-                const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
-                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
-                let mainTableHtml = '';
-                if(filteredEvents.length===0){ mainTableHtml = `<p style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</p>`; }
-                else {
-                    const groupedData={};
-                    filteredEvents.forEach(event=>{
-                        const date=event.start.split('T')[0];
-                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}}; }
-                        const p=event.extendedProps;
-                        if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
-                        else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
-                    });
-                    const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
-                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
-                    const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
-                    const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
-                    for(const dateStr of sortedDates){
-                        const data = groupedData[dateStr], date = new Date(dateStr+'T00:00:00');
-                        const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        if (needParts.length>0 && leaveParts.length>0){
-                            mainTableHtml += `<tr class="page-break-avoid"><td rowspan="2" style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
-                            mainTableHtml += `<tr class="page-break-avoid"><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
-                        } else if (needParts.length > 0) {
-                             mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
-                        } else if (leaveParts.length > 0) {
-                            mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
-                        }
-                    }
-                    mainTableHtml += `</tbody></table>`;
-                }
-                const totalRequests=stats.approved+stats.pending+stats.rejected;
-                const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; height: 100%;"><style>.summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } .page-break-avoid { page-break-inside: avoid !important; }</style><div><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table></div><div style="flex-grow: 1;">${mainTableHtml}</div><div class="page-break-avoid"><table style="width: 100%; margin-top: 15px;"><tbody><tr><td style="width: 70%; vertical-align: top; padding-right: 20px;"><p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></td><td style="width: 30%; vertical-align: top;"><div style="max-width: 180px; margin: 0 auto;"><canvas id="leaveChart"></canvas></div></td></tr></tbody></table><p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div></div>`;
-                return { html: fullHtml, stats };
-            }
+            // --- GENERAZIONE REPORT ---
+            function generateMonthlyReportData() {
+                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+                const currentCalendarDate = calendar.getDate();
+                const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
+                const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
+                const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
+                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
+                let mainTableHtml = '';
+                if(filteredEvents.length===0){ mainTableHtml = `<p style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</p>`; }
+                else {
+                    const groupedData={};
+                    filteredEvents.forEach(event=>{
+                        const date=event.start.split('T')[0];
+                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}}; }
+                        const p=event.extendedProps;
+                        if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
+                        else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
+                    });
+                    const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
+                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
+                    const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
+                    const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
+                    for(const dateStr of sortedDates){
+                        const data = groupedData[dateStr], date = new Date(dateStr+'T00:00:00');
+                        const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                        const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                        if (needParts.length>0 && leaveParts.length>0){
+                            mainTableHtml += `<tr class="page-break-avoid"><td rowspan="2" style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
+                            mainTableHtml += `<tr class="page-break-avoid"><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
+                        } else if (needParts.length > 0) {
+                             mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
+                        } else if (leaveParts.length > 0) {
+                            mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="padding: 8px; border: 1px solid #ccc;">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
+                        }
+                    }
+                    mainTableHtml += `</tbody></table>`;
+                }
+                const totalRequests=stats.approved+stats.pending+stats.rejected;
+                const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; height: 100%;"><style>.summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } .page-break-avoid { page-break-inside: avoid !important; }</style><div><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2><table style="width:100%;margin-bottom:20px;font-size:14px;border:none;"><tr><td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr><tr><td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT')}</td><td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr></table></div><div style="flex-grow: 1;">${mainTableHtml}</div><div class="page-break-avoid" style="margin-top: 15px;"><p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p><table style="width: 100%;"><tbody><tr><td style="width: 70%; vertical-align: top; padding-right: 20px;"><table class="summary-table"><thead style="background-color:#e0e0e0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></td><td style="width: 30%; vertical-align: top;"><div style="max-width: 180px; margin: 0 auto;"><canvas id="leaveChart"></canvas></div></td></tr></tbody></table><p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p><p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p><p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p></div></div>`;
+                return { html: fullHtml, stats };
+            }
 
-            function generateUnifiedAnnouncementData() {
-                const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const startDate = document.getElementById('startDate').value, endDate = document.getElementById('endDate').value;
-                if (!startDate || !endDate) { showToast('Compilare l\'intervallo di date "Da/A".'); return null; }
-                const titleDateString = `dal ${formatDate(startDate)} al ${formatDate(endDate)}`;
-                salvaTurni(depositoReportSelect.value);
-                salvaCongedi();
-                const allTurni = Object.values(turniPerDeposito).flat().filter(t => t.data && (t.numero || t.inizio || t.fine));
-                const allCongedi = congediDaOffrire.filter(c => c.data && c.quantita > 0);
-                if (allTurni.length === 0 && allCongedi.length === 0) { showToast('Aggiungere almeno un turno o un congedo per generare il report.'); return null; }
-                let turniHtml = '';
-                if (allTurni.length > 0) {
-                    turniHtml += `<h3 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 5px;">Turni da Coprire</h3>`;
-                    const depotsWithShifts = Object.keys(turniPerDeposito).filter(d => turniPerDeposito[d] && turniPerDeposito[d].some(t => t.data));
-                    depotsWithShifts.forEach(deposito => {
-                        const turniDelDeposito = turniPerDeposito[deposito].filter(t => t.data).sort((a,b) => new Date(a.data) - new Date(b.data));
-                        if(turniDelDeposito.length > 0) {
-                            turniHtml += `<h4 style="font-size: 16px; font-weight: bold; background-color: #f0f0f0; padding: 8px; margin-top: 15px; border: 1px solid #ccc; border-bottom: none;">Deposito: ${deposito}</h4><table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;"><thead><tr style="background-color: #e0e0e0;"><th style="padding: 8px; border: 1px solid #999; width: 25%;">Data</th><th style="padding: 8px; border: 1px solid #999;">Numero</th><th style="padding: 8px; border: 1px solid #999;">Orario</th></tr></thead><tbody>`;
-                            turniDelDeposito.forEach(turno => { turniHtml += `<tr><td style="padding: 8px; border: 1px solid #ccc;">${formatDate(turno.data)}</td><td style="padding: 8px; border: 1px solid #ccc;">${turno.numero || 'Non spec.'}</td><td style="padding: 8px; border: 1px solid #ccc;">${turno.inizio || 'N/A'} - ${turno.fine || 'N/A'}</td></tr>`; });
-                            turniHtml += `</tbody></table>`;
-                        }
-                    });
-                }
-                let congediHtml = '';
-                if (allCongedi.length > 0) {
-                    congediHtml += `<h3 style="font-size: 18px; font-weight: bold; margin-top: 25px; margin-bottom: 10px; border-bottom: 2px solid #22c55e; padding-bottom: 5px;">Congedi Disponibili (Esubero)</h3><table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;"><thead><tr style="background-color: #e0e0e0;"><th style="padding: 8px; border: 1px solid #999; width: 25%;">Data</th><th style="padding: 8px; border: 1px solid #999;">Fascia Oraria</th><th style="padding: 8px; border: 1px solid #999;">Quantità</th></tr></thead><tbody>`;
-                    allCongedi.sort((a,b) => new Date(a.data) - new Date(b.data)).forEach(congedo => { congediHtml += `<tr><td style="padding: 8px; border: 1px solid #ccc;">${formatDate(congedo.data)}</td><td style="padding: 8px; border: 1px solid #ccc;">${congedo.fascia}</td><td style="padding: 8px; border: 1px solid #ccc;">${congedo.quantita}</td></tr>`; });
-                    congediHtml += `</tbody></table>`;
-                }
-                let reportHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Annuncio Stato Effettivi ${titleDateString}</h2>${turniHtml}${congediHtml}<p style="font-size: 14px; margin-top: 25px;">Per annunciarsi o per ulteriori informazioni, contattare al più presto il numero:</p><p style="font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0;">+41 51 285 11 11</p><p style="font-size: 14px;">Cordiali saluti e grazie per la collaborazione.</p></div>`;
-                return { html: reportHtml, stats: null };
-            }
+            function generateUnifiedAnnouncementData() {
+                const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const startDate = document.getElementById('startDate').value, endDate = document.getElementById('endDate').value;
+                if (!startDate || !endDate) { showToast('Compilare l\'intervallo di date "Da/A".'); return null; }
+                const titleDateString = `dal ${formatDate(startDate)} al ${formatDate(endDate)}`;
+                salvaTurni(depositoReportSelect.value);
+                salvaCongedi();
+                const allTurni = Object.values(turniPerDeposito).flat().filter(t => t.data && (t.numero || t.inizio || t.fine));
+                const allCongedi = congediDaOffrire.filter(c => c.data && c.quantita > 0);
+                if (allTurni.length === 0 && allCongedi.length === 0) { showToast('Aggiungere almeno un turno o un congedo per generare il report.'); return null; }
+                let turniHtml = '';
+                if (allTurni.length > 0) {
+                    turniHtml += `<h3 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 5px;">Turni da Coprire</h3>`;
+                    const depotsWithShifts = Object.keys(turniPerDeposito).filter(d => turniPerDeposito[d] && turniPerDeposito[d].some(t => t.data));
+                    depotsWithShifts.forEach(deposito => {
+                        const turniDelDeposito = turniPerDeposito[deposito].filter(t => t.data).sort((a,b) => new Date(a.data) - new Date(b.data));
+                        if(turniDelDeposito.length > 0) {
+                            turniHtml += `<h4 style="font-size: 16px; font-weight: bold; background-color: #f0f0f0; padding: 8px; margin-top: 15px; border: 1px solid #ccc; border-bottom: none;">Deposito: ${deposito}</h4><table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;"><thead><tr style="background-color: #e0e0e0;"><th style="padding: 8px; border: 1px solid #999; width: 25%;">Data</th><th style="padding: 8px; border: 1px solid #999;">Numero</th><th style="padding: 8px; border: 1px solid #999;">Orario</th></tr></thead><tbody>`;
+                            turniDelDeposito.forEach(turno => { turniHtml += `<tr><td style="padding: 8px; border: 1px solid #ccc;">${formatDate(turno.data)}</td><td style="padding: 8px; border: 1px solid #ccc;">${turno.numero || 'Non spec.'}</td><td style="padding: 8px; border: 1px solid #ccc;">${turno.inizio || 'N/A'} - ${turno.fine || 'N/A'}</td></tr>`; });
+                            turniHtml += `</tbody></table>`;
+                        }
+                    });
+                }
+                let congediHtml = '';
+                if (allCongedi.length > 0) {
+                    congediHtml += `<h3 style="font-size: 18px; font-weight: bold; margin-top: 25px; margin-bottom: 10px; border-bottom: 2px solid #22c55e; padding-bottom: 5px;">Congedi Disponibili (Esubero)</h3><table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: center;"><thead><tr style="background-color: #e0e0e0;"><th style="padding: 8px; border: 1px solid #999; width: 25%;">Data</th><th style="padding: 8px; border: 1px solid #999;">Fascia Oraria</th><th style="padding: 8px; border: 1px solid #999;">Quantità</th></tr></thead><tbody>`;
+                    allCongedi.sort((a,b) => new Date(a.data) - new Date(b.data)).forEach(congedo => { congediHtml += `<tr><td style="padding: 8px; border: 1px solid #ccc;">${formatDate(congedo.data)}</td><td style="padding: 8px; border: 1px solid #ccc;">${congedo.fascia}</td><td style="padding: 8px; border: 1px solid #ccc;">${congedo.quantita}</td></tr>`; });
+                    congediHtml += `</tbody></table>`;
+                }
+                let reportHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px;"><h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Annuncio Stato Effettivi ${titleDateString}</h2>${turniHtml}${congediHtml}<p style="font-size: 14px; margin-top: 25px;">Per annunciarsi o per ulteriori informazioni, contattare al più presto il numero:</p><p style="font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0;">+41 51 285 11 11</p><p style="font-size: 14px;">Cordiali saluti e grazie per la collaborazione.</p></div>`;
+                return { html: reportHtml, stats: null };
+            }
 
-            function renderPieChart(stats) {
-                const chartEl = document.getElementById('leaveChart');
-                if (!chartEl || !stats ) { if(chartEl) chartEl.style.display = 'none'; return; };
-                const hasData = Object.values(stats).some(v => v > 0);
-                if (!hasData) { if(chartEl) chartEl.style.display = 'none'; return; }
-                
-                chartEl.style.display = 'block';
-                if (window.myPieChart) window.myPieChart.destroy();
-                window.myPieChart = new Chart(chartEl, {
-                    type: 'pie', plugins: [ChartDataLabels], 
-                    data: { 
-                        labels: ['Accettate', 'In Sospeso', 'Respinte'], 
-                        datasets: [{ 
-                            data: [stats.approved, stats.pending, stats.rejected], 
-                            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], 
-                            borderColor: '#ffffff', borderWidth: 2 
-                        }] 
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { formatter: (v,c) => { if(v===0) return null; const t=c.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return t>0?Math.round(v/t*100)+'%':'0%'; }, color: '#fff', font: { weight: 'bold', size: 14 } } } }
-                });
-            }
+            function renderPieChart(stats) {
+                const chartEl = document.getElementById('leaveChart');
+                if (!chartEl || !stats ) { if(chartEl) chartEl.style.display = 'none'; return; };
+                const hasData = Object.values(stats).some(v => v > 0);
+                if (!hasData) { if(chartEl) chartEl.style.display = 'none'; return; }
+                
+                chartEl.style.display = 'block';
+                if (window.myPieChart) window.myPieChart.destroy();
+                window.myPieChart = new Chart(chartEl, {
+                    type: 'pie', plugins: [ChartDataLabels], 
+                    data: { 
+                        labels: ['Accettate', 'In Sospeso', 'Respinte'], 
+                        datasets: [{ 
+                            data: [stats.approved, stats.pending, stats.rejected], 
+                            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], 
+                            borderColor: '#ffffff', borderWidth: 2 
+                        }] 
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { formatter: (v,c) => { if(v===0) return null; const t=c.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return t>0?Math.round(v/t*100)+'%':'0%'; }, color: '#fff', font: { weight: 'bold', size: 14 } } } }
+                });
+            }
 
-            function openModal(reportGenerator, title) {
-                try {
-                    const reportData = reportGenerator();
-                    if (!reportData) return;
-                    currentReportGenerator = reportGenerator;
-                    const modalContentEl = document.getElementById('reportContent');
-                    document.getElementById('reportModalTitle').textContent = title;
-                    if(modalContentEl) modalContentEl.innerHTML = reportData.html;
-                    document.getElementById('reportModal').classList.remove('hidden');
-                    setTimeout(() => { if (reportData.stats) renderPieChart(reportData.stats); }, 50);
-                } catch (error) { console.error("ERRORE in openModal:", error); showToast(`Errore: ${error.message}.`); }
-            }
-            function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
+            function openModal(reportGenerator, title) {
+                try {
+                    const reportData = reportGenerator();
+                    if (!reportData) return;
+                    currentReportGenerator = reportGenerator;
+                    const modalContentEl = document.getElementById('reportContent');
+                    document.getElementById('reportModalTitle').textContent = title;
+                    if(modalContentEl) modalContentEl.innerHTML = reportData.html;
+                    document.getElementById('reportModal').classList.remove('hidden');
+                    setTimeout(() => { if (reportData.stats) renderPieChart(reportData.stats); }, 50);
+                } catch (error) { console.error("ERRORE in openModal:", error); showToast(`Errore: ${error.message}.`); }
+            }
+            function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
 
-            // --- EVENT LISTENERS ---
-            generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
-            generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            clearAllBtn.addEventListener('click', () => { if(confirm('Cancellare i dati per gli annunci?')){ turniPerDeposito={}; congediDaOffrire=[]; turniContainer.innerHTML=''; congediContainer.innerHTML=''; showToast('Dati annunci cancellati.'); } });
-            
-            entryForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(entryForm);
-                addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) );
-            });
-            modalEntryForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(modalEntryForm);
-                addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) );
-                addEventModal.classList.add('hidden');
-            });
-            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
-            
-            closeModalBtn.addEventListener('click', closeModal);
-            openNewTabBtn.addEventListener('click', () => {
-                if (!currentReportGenerator) return;
-                const reportData = currentReportGenerator(); if(!reportData) return;
-                const newWindow = window.open();
-                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);
-                newWindow.document.close();
-            });
-            copyHtmlBtn.addEventListener('click', () => {
-                const reportHtmlElement = document.getElementById('pdf-content');
-                if(!reportHtmlElement) return;
-                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.'));
-            });
-            downloadPdfBtn.addEventListener('click', function() {
-                const element = document.getElementById('pdf-content');
-                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
-                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
-                html2pdf().from(element).set(opt).save();
-            });
-            sendEmailBtn.addEventListener('click', function() {
-                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
-                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
-            });
-            depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
-            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
-            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
-            
-            quickAddBtn.addEventListener('click', function() {
-                const text = quickAddTurnoInput.value;
-                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
-                const columns = text.split('\t').filter(Boolean);
-                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
-                let depotCode = null, depotIndex = -1, depotName = null;
-                for (let i = 0; i < columns.length; i++) {
-                    const col = columns[i].trim();
-                    if (depotMap[col]) {
-                        depotCode = col;
-                        depotName = depotMap[col];
-                        depotIndex = i;
-                        break;
-                    }
-                }
-                if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; }
-                if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; }
-                const dateStr = columns[0];
-                const numero = columns[1];
-                const inizio = columns[depotIndex + 1];
-                const fine = columns[depotIndex + 2];
-                const dateParts = dateStr.split('.');
-                if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
-                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                if (depositoReportSelect.value !== depotName) {
-                    depositoReportSelect.value = depotName;
-                    depositoReportSelect.dispatchEvent(new Event('change'));
-                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
-                } else {
-                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
-                }
-                quickAddTurnoInput.value = '';
-                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
-            });
-            
-            analyzeBtn.addEventListener('click', function() {
-                const text = pasteArea.value;
-                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
-                let accepted = 0, pending = 0, rejected = 0;
-                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
-                const lines = text.trim().split('\n');
-                
-                const records = [];
-                let currentRecordLines = [];
-                lines.forEach((line, index) => {
-                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0;
-                    if (isNewRecordStart && currentRecordLines.length > 0) {
-                        records.push(currentRecordLines.join(' '));
-                        currentRecordLines = [];
-                    }
-                    currentRecordLines.push(line);
-                });
-                if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); }
-                
-                records.forEach(record => {
-                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));
-                    if (hasTargetType) {
-                        const recordLC = record.toLowerCase();
-                        if (recordLC.includes('annullato')) {
-                        } else if (recordLC.includes('accordato')) {
-                            accepted++;
-                        } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
-                            pending++;
-                        } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) {
-                            rejected++;
-                        }
-                    }
-                });
-                statsAcceptedInput.value = accepted;
-                statsPendingInput.value = pending;
-                statsRejectedInput.value = rejected;
-                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
-            });
+            // --- EVENT LISTENERS ---
+            generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
+            generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
+            clearAllBtn.addEventListener('click', () => { if(confirm('Cancellare i dati per gli annunci?')){ turniPerDeposito={}; congediDaOffrire=[]; turniContainer.innerHTML=''; congediContainer.innerHTML=''; showToast('Dati annunci cancellati.'); } });
+            
+            entryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(entryForm);
+                addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) );
+            });
+            modalEntryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(modalEntryForm);
+                addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) );
+                addEventModal.classList.add('hidden');
+            });
+            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
+            
+            closeModalBtn.addEventListener('click', closeModal);
+            openNewTabBtn.addEventListener('click', () => {
+                if (!currentReportGenerator) return;
+                const reportData = currentReportGenerator(); if(!reportData) return;
+                const newWindow = window.open();
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);
+                newWindow.document.close();
+            });
+            copyHtmlBtn.addEventListener('click', () => {
+                const reportHtmlElement = document.getElementById('pdf-content');
+                if(!reportHtmlElement) return;
+                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.'));
+            });
+            downloadPdfBtn.addEventListener('click', function() {
+                const element = document.getElementById('pdf-content');
+                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
+                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
+                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
+                html2pdf().from(element).set(opt).save();
+            });
+            sendEmailBtn.addEventListener('click', function() {
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");
+                const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti.");
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
+            depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
+            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
+            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            
+            quickAddBtn.addEventListener('click', function() {
+                const text = quickAddTurnoInput.value;
+                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
+          _       const columns = text.split('\t').filter(Boolean);
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                let depotCode = null, depotIndex = -1, depotName = null;
+                for (let i = 0; i < columns.length; i++) {
+                    const col = columns[i].trim();
+                    if (depotMap[col]) {
+                        depotCode = col;
+                        depotName = depotMap[col];
+                        depotIndex = i;
+                        break;
+                    }
+                }
+                if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; }
+                if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; }
+                const dateStr = columns[0];
+                const numero = columns[1];
+                const inizio = columns[depotIndex + 1];
+                const fine = columns[depotIndex + 2];
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                if (depositoReportSelect.value !== depotName) {
+                    depositoReportSelect.value = depotName;
+                    depositoReportSelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
+                } else {
+                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
+                }
+                quickAddTurnoInput.value = '';
+                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
+            });
+            
+            analyzeBtn.addEventListener('click', function() {
+                const text = pasteArea.value;
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }
+                let accepted = 0, pending = 0, rejected = 0;
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV'];
+      _         const lines = text.trim().split('\n');
+                
+                const records = [];
+                let currentRecordLines = [];
+                lines.forEach((line, index) => {
+                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0;
+                    if (isNewRecordStart && currentRecordLines.length > 0) {
+                        records.push(currentRecordLines.join(' '));
+                        currentRecordLines = [];
+                    }
+                    currentRecordLines.push(line);
+                });
+                if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); }
+                
+                records.forEach(record => {
+                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));
+                    if (hasTargetType) {
+                        const recordLC = record.toLowerCase();
+                        if (recordLC.includes('annullato')) {
+                        } else if (recordLC.includes('accordato')) {
+                            accepted++;
+                        } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) {
+                            pending++;
+                        } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) {
+                            rejected++;
+                        }
+                    }
+                });
+                statsAcceptedInput.value = accepted;
+                statsPendingInput.value = pending;
+                statsRejectedInput.value = rejected;
+              _ showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);
+            });
 
-            processStandbyBtn.addEventListener('click', function() {
-                const text = standbyPasteArea.value;
-                if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; }
-                standbyResultsContainer.innerHTML = ''; 
-                const lines = text.trim().split('\n');
-                lines.forEach(line => {
-                    if (line.trim().length === 0) return; 
-                    const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/);
-                    const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
-                    if (dateMatch && nameMatch) {
-                        const date = dateMatch[0];
-                        const surname = nameMatch[1];
-                        const name = nameMatch[2];
-                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
-                        const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`;
-                        const resultDiv = document.createElement('div');
-                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
-                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;
-                        standbyResultsContainer.appendChild(resultDiv);
-                    }
-                });
-                standbyPasteArea.value = '';
-                if(standbyResultsContainer.children.length > 0){
-                    showToast('Lista elaborata!');
-                } else {
-                    showToast('Nessun dato valido trovato nel testo.');
-                }
-            });
+            processStandbyBtn.addEventListener('click', function() {
+                const text = standbyPasteArea.value;
+                if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; }
+                standbyResultsContainer.innerHTML = ''; 
+                const lines = text.trim().split('\n');
+                lines.forEach(line => {
+                    if (line.trim().length === 0) return; 
+                    const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/);
+                    const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
+                    if (dateMatch && nameMatch) {
+                        const date = dateMatch[0];
+                        const surname = nameMatch[1];
+                        const name = nameMatch[2];
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
+                        const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`;
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;
+                        standbyResultsContainer.appendChild(resultDiv);
+                    }
+                });
+                standbyPasteArea.value = '';
+                if(standbyResultsContainer.children.length > 0){
+                    showToast('Lista elaborata!');
+                } else {
+                    showToast('Nessun dato valido trovato nel testo.');
+                }
+            });
 
-            standbyResultsContainer.addEventListener('click', function(e){
-                if(e.target.classList.contains('send-standby-email-btn')) {
-                    const button = e.target;
-                    const email = button.dataset.email;
-                    const subject = button.dataset.subject;
-                    const body = button.dataset.body;
-                    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-                }
-            });
+            standbyResultsContainer.addEventListener('click', function(e){
+                if(e.target.classList.contains('send-standby-email-btn')) {
+                    const button = e.target;
+                    const email = button.dataset.email;
+                    const subject = button.dataset.subject;
+                    const body = button.dataset.body;
+                    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+                }
+            });
 
-        } catch (error) {
-            console.error("ERRORE FATALE in initializeApp:", error);
-            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>${error.message}</p><p>Stack: ${error.stack}</p></div>`;
-        }
-    });
-    </script>
+        } catch (error) {
+            console.error("ERRORE FATALE in initializeApp:", error);
+            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>${error.message}</p><p>Stack: ${error.stack}</p></div>`;
+        }
+    });
+    </script>
 </body>
 </html>
