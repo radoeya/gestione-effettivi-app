@@ -419,7 +419,6 @@
                     mainTableHtml += `</tbody></table>`;
                 }
 
-                // --- GESTIONE TABELLA STATISTICHE ---
                 const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
                 const totalRequests = stats.approved + stats.pending + stats.rejected;
                 let statsHtmlBlock = '';
@@ -492,6 +491,85 @@
 
             function closeModal() { reportModal.classList.add('hidden'); }
 
+            function generateUnifiedAnnouncementData() {
+                salvaTurni(depositoReportSelect.value);
+                salvaCongedi();
+
+                const startDateVal = document.getElementById('startDate').value;
+                const endDateVal = document.getElementById('endDate').value;
+
+                if (!startDateVal || !endDateVal) {
+                    showToast("Per favore, imposta un intervallo di date (Da/A).");
+                    return null;
+                }
+
+                const startDate = new Date(startDateVal + 'T00:00:00');
+                const endDate = new Date(endDateVal + 'T23:59:59');
+                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                let turniHtml = '';
+                let hasTurni = false;
+
+                for (const deposito in turniPerDeposito) {
+                    if (turniPerDeposito.hasOwnProperty(deposito) && turniPerDeposito[deposito].length > 0) {
+                        const turniFiltrati = turniPerDeposito[deposito]
+                            .filter(t => {
+                                if (!t.data) return false;
+                                const turnoDate = new Date(t.data + 'T00:00:00');
+                                return turnoDate >= startDate && turnoDate <= endDate;
+                            })
+                            .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+                        if (turniFiltrati.length > 0) {
+                            hasTurni = true;
+                            turniHtml += `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire - ${deposito}</h3>`;
+                            turniHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #eff6ff;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Numero</th><th style="padding: 8px;">Inizio</th><th style="padding: 8px;">Fine</th></tr></thead><tbody>`;
+                            turniFiltrati.forEach(t => {
+                                turniHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(t.data)}</td><td style="padding: 8px;">${t.numero || ''}</td><td style="padding: 8px;">${t.inizio || ''}</td><td style="padding: 8px;">${t.fine || ''}</td></tr>`;
+                            });
+                            turniHtml += `</tbody></table>`;
+                        }
+                    }
+                }
+                if (!hasTurni) {
+                    turniHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire</h3><p style="margin-top: 10px; font-style: italic;">Nessun turno da coprire per il periodo selezionato.</p>`;
+                }
+
+                let congediHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #059669; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Congedi da offrire</h3>`;
+                const congediFiltrati = congediDaOffrire
+                    .filter(c => {
+                        if (!c.data) return false;
+                        const congedoDate = new Date(c.data + 'T00:00:00');
+                        return congedoDate >= startDate && congedoDate <= endDate;
+                    })
+                    .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+                if (congediFiltrati.length > 0) {
+                    congediHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #f0fdfa;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Fascia Oraria</th><th style="padding: 8px;">Quantità</th></tr></thead><tbody>`;
+                    congediFiltrati.forEach(c => {
+                        congediHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(c.data)}</td><td style="padding: 8px;">${c.fascia || ''}</td><td style="padding: 8px;">${c.quantita || ''}</td></tr>`;
+                    });
+                    congediHtml += `</tbody></table>`;
+                } else {
+                    congediHtml += `<p style="margin-top: 10px; font-style: italic;">Nessun congedo da offrire per il periodo selezionato.</p>`;
+                }
+
+                const fullHtml = `
+                    <div id="pdf-content" style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Annuncio Stato Effettivi</h2>
+                        <p style="text-align:center; font-size: 16px; margin-bottom: 20px; color: #555;">
+                            Periodo: <strong>${formatDate(startDateVal)}</strong> - <strong>${formatDate(endDateVal)}</strong>
+                        </p>
+                        ${turniHtml}
+                        ${congediHtml}
+                        <p style="margin-top:30px; font-size:12px;">Se interessati, siete pregati di inserire la richiesta in Sopre o contattare la ripartizione del personale.</p>
+                        <p style="font-size:12px;">Grazie per la collaborazione.</p>
+                    </div>`;
+
+                return { html: fullHtml };
+            }
+
+
             generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
             closeModalBtn.addEventListener('click', closeModal);
 
@@ -501,7 +579,6 @@
                     showToast('Errore: Contenuto del report non trovato.');
                     return;
                 }
-
                 const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
                 const opt = { 
                     margin: 0.5, 
@@ -511,7 +588,6 @@
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
                     pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' }
                 };
-                
                 html2pdf().from(element).set(opt).save();
             });
 
@@ -530,7 +606,6 @@
             processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
             generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            function generateUnifiedAnnouncementData() { /* ... implementazione di questa funzione se necessario ... */ }
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
             document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>${error.message}</p><p>Stack: ${error.stack}</p></div>`;
