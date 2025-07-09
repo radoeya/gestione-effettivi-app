@@ -126,6 +126,7 @@
                                     <button id="original-shift-paste-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
                                 </div>
                             </div>
+                            <button id="add-original-manual-btn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Turno Manuale</button>
                             <div id="original-shift-container" class="space-y-3 mt-2"></div>
                             <hr>
                             <h3 class="text-lg font-semibold">Turni Proposti in Cambio</h3>
@@ -296,6 +297,7 @@
             
             // Elementi per il pannello Cambio Turno
             const originalShiftContainer = document.getElementById('original-shift-container');
+            const addOriginalManualBtn = document.getElementById('add-original-manual-btn');
             const addSwapShiftBtn = document.getElementById('add-another-swap-btn');
             const swapShiftContainer = document.getElementById('swap-shift-container');
             const driverPasteArea = document.getElementById('driver-paste-area');
@@ -629,49 +631,62 @@
                 container.appendChild(rigaDiv);
             }
             
-            creaRigaPerScambio(originalShiftContainer);
-            creaRigaPerScambio(swapShiftContainer);
-
             function processShiftPaste(pasteInput, container) {
-                const text = pasteInput.value;
-                if (!text.trim()) {
-                    showToast('Incolla del testo prima di aggiungere.');
-                    return;
-                }
-                
-                if(container.children.length > 0 && container.id === "original-shift-container") {
-                    container.innerHTML = '';
-                }
-
-                const columns = text.split('\t').filter(Boolean);
-                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
-                let depotIndex = -1;
-                for (let i = 0; i < columns.length; i++) {
-                    if (depotMap[columns[i].trim()]) {
-                        depotIndex = i;
-                        break;
+                try {
+                    const text = pasteInput.value;
+                    if (!text.trim()) {
+                        throw new Error('Incolla del testo prima di aggiungere.');
                     }
-                }
-                if (depotIndex === -1) { 
-                    depotIndex = 1; 
-                }
+                    
+                    // Rimpiazza il contenuto se il container è quello del turno originale
+                    if (container.id === "original-shift-container") {
+                        container.innerHTML = '';
+                    }
 
-                if (columns.length < depotIndex + 3) {
-                    showToast('Formato testo non valido. Dati del turno non trovati.');
-                    return;
+                    // Gestisce sia tabulazioni che spazi multipli come separatori
+                    const columns = text.split(/\s{2,}|\t/).filter(Boolean);
+
+                    let depotIndex = -1;
+                    const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                    for (let i = 0; i < columns.length; i++) {
+                        if (depotMap[columns[i].trim()]) {
+                            depotIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (depotIndex === -1 && columns.length < 4) {
+                        throw new Error("Formato turno non riconosciuto. Dati insufficienti.");
+                    }
+                    if (depotIndex !== -1 && columns.length < depotIndex + 3) {
+                         throw new Error("Formato testo non valido. Orari non trovati dopo il deposito.");
+                    }
+
+                    const dateStr = columns[0];
+                    const dateParts = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+                    if (!dateParts) {
+                        throw new Error('Formato data non valido. Usare GG.MM.AAAA.');
+                    }
+                    const formattedDate = `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}`;
+
+                    // Logica per estrarre i dati basandosi sulla presenza del deposito
+                    let numero, inizio, fine;
+                    if(depotIndex !== -1) {
+                        numero = columns[1];
+                        inizio = columns[depotIndex + 1];
+                        fine = columns[depotIndex + 2];
+                    } else { // Formato generico senza deposito
+                        numero = columns[1];
+                        inizio = columns[2];
+                        fine = columns[3];
+                    }
+                    
+                    creaRigaPerScambio(container, { data: formattedDate, numero, inizio, fine });
+                    pasteInput.value = '';
+
+                } catch (error) {
+                    showToast(error.message);
                 }
-                const dateStr = columns[0];
-                const numero = columns[1];
-                const inizio = columns[depotIndex + 1];
-                const fine = columns[depotIndex + 2];
-                const dateParts = dateStr.split('.');
-                if (dateParts.length !== 3) {
-                    showToast('Formato data non valido.');
-                    return;
-                }
-                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                creaRigaPerScambio(container, { data: formattedDate, numero, inizio, fine });
-                pasteInput.value = '';
             }
 
             // --- LISTENERS ---
@@ -690,7 +705,7 @@
             closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
             openNewTabBtn.addEventListener('click', () => { if (!currentReportGenerator) return; const reportData = currentReportGenerator(); if(!reportData) return; const newWindow = window.open(); newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); newWindow.document.close(); });
             copyHtmlBtn.addEventListener('click', () => { const reportHtmlElement = document.getElementById('pdf-content'); if(!reportHtmlElement) return; navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.')); });
-            sendEmailBtn.addEventListener('click', function() { const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); const body = encodeURIComponent("Buongiorno,\n\nSi prega di scaricare il report in formato PDF e di allegarlo a questa email.\n\nCordiali saluti."); window.location.href = `mailto:?subject=${subject}&body=${body}`; });
+            sendEmailBtn.addEventListener('click', function() { const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); window.location.href = `mailto:?subject=${subject}&body=${body}`; });
             depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
@@ -710,68 +725,76 @@
                 }
             });
 
-            quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split('\t').filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
+            quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split(/\s{2,}|\t/).filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
             analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
             processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
-            // Listeners per il nuovo pannello Cambio Turno
+            // --- Listeners per il pannello Cambio Turno (ORA CORRETTI E ROBUSTI) ---
+            addOriginalManualBtn.addEventListener('click', () => {
+                originalShiftContainer.innerHTML = ''; // Assicura che ci sia solo un turno originale
+                creaRigaPerScambio(originalShiftContainer);
+            });
             addSwapShiftBtn.addEventListener('click', () => creaRigaPerScambio(swapShiftContainer));
             originalShiftPasteBtn.addEventListener('click', () => processShiftPaste(originalShiftPasteInput, originalShiftContainer));
             swapShiftPasteBtn.addEventListener('click', () => processShiftPaste(swapShiftPasteInput, swapShiftContainer));
             
             processSwapsBtn.addEventListener('click', function() {
-                swapResultsContainer.innerHTML = ''; 
-                swapResultsHeader.classList.add('hidden');
-                sendToSelectedBtn.classList.add('hidden');
+                try {
+                    swapResultsContainer.innerHTML = ''; 
+                    swapResultsHeader.classList.add('hidden');
+                    sendToSelectedBtn.classList.add('hidden');
 
-                const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
-                const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
-                const driversText = driverPasteArea.value;
+                    const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
+                    const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
+                    const driversText = driverPasteArea.value;
 
-                if (!originalShiftEl) { showToast("Inserisci il turno originale."); return; }
-                if (swapShiftEls.length === 0) { showToast("Inserisci almeno un turno proposto in cambio."); return; }
-                if (!driversText.trim()) { showToast("Incolla la lista dei macchinisti da contattare."); return; }
+                    if (!originalShiftEl) { throw new Error("Inserisci il turno originale."); }
+                    if (swapShiftEls.length === 0) { throw new Error("Inserisci almeno un turno proposto in cambio."); }
+                    if (!driversText.trim()) { throw new Error("Incolla la lista dei macchinisti da contattare."); }
 
-                const getShiftData = (el) => ({
-                    data: el.querySelector('.data-turno-input').value,
-                    numero: el.querySelector('.numero-turno-input').value,
-                    inizio: el.querySelector('.inizio-turno-input').value,
-                    fine: el.querySelector('.fine-turno-input').value,
-                });
+                    const getShiftData = (el) => ({
+                        data: el.querySelector('.data-turno-input').value,
+                        numero: el.querySelector('.numero-turno-input').value,
+                        inizio: el.querySelector('.inizio-turno-input').value,
+                        fine: el.querySelector('.fine-turno-input').value,
+                    });
 
-                const originalShift = getShiftData(originalShiftEl);
-                if (!originalShift.data) { showToast("Il turno originale deve avere una data valida."); return; }
+                    const originalShift = getShiftData(originalShiftEl);
+                    if (!originalShift.data) { throw new Error("Il turno originale deve avere una data valida."); }
 
-                const proposedShifts = Array.from(swapShiftEls).map(el => getShiftData(el));
-                if (proposedShifts.some(s => !s.data)) { showToast("Tutti i turni proposti devono avere una data valida."); return; }
+                    const proposedShifts = Array.from(swapShiftEls).map(el => getShiftData(el));
+                    if (proposedShifts.some(s => !s.data)) { throw new Error("Tutti i turni proposti devono avere una data valida."); }
 
-                const driverLines = driversText.trim().split('\n');
-                const driversFound = [];
-                const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/;
-                driverLines.forEach(line => {
-                    const match = line.match(nameRegex);
-                    if (match) { driversFound.push({ lastName: match[1], firstName: match[2] }); }
-                });
+                    const driverLines = driversText.trim().split('\n');
+                    const driversFound = [];
+                    const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/;
+                    driverLines.forEach(line => {
+                        const match = line.match(nameRegex);
+                        if (match) { driversFound.push({ lastName: match[1], firstName: match[2] }); }
+                    });
 
-                if (driversFound.length === 0) { showToast("Nessun macchinista valido trovato nella lista."); return; }
-                
-                swapResultsHeader.classList.remove('hidden');
-                sendToSelectedBtn.classList.remove('hidden');
-                
-                driversFound.forEach(driver => {
-                    const resultDiv = document.createElement('div');
-                    resultDiv.className = 'p-2 flex items-center border-b border-gray-200';
-                    const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                    const emailAddress = `${normalize(driver.firstName)}.${normalize(driver.lastName)}@sbb.ch`;
+                    if (driversFound.length === 0) { throw new Error("Nessun macchinista valido trovato. Controllare formato: Cognome Nome Matricola"); }
                     
-                    resultDiv.innerHTML = `
-                        <input type="checkbox" class="driver-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-email="${emailAddress}" data-firstname="${driver.firstName}">
-                        <label class="ml-3 block text-sm text-gray-900">${driver.lastName} ${driver.firstName}</label>
-                    `;
-                    swapResultsContainer.appendChild(resultDiv);
-                });
-                 showToast(`${driversFound.length} macchinisti pronti per l'invio.`);
+                    swapResultsHeader.classList.remove('hidden');
+                    sendToSelectedBtn.classList.remove('hidden');
+                    
+                    driversFound.forEach(driver => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'p-2 flex items-center border-b border-gray-200';
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                        const emailAddress = `${normalize(driver.firstName)}.${normalize(driver.lastName)}@sbb.ch`;
+                        
+                        resultDiv.innerHTML = `
+                            <input type="checkbox" class="driver-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-email="${emailAddress}" data-firstname="${driver.firstName}">
+                            <label class="ml-3 block text-sm text-gray-900">${driver.lastName} ${driver.firstName}</label>
+                        `;
+                        swapResultsContainer.appendChild(resultDiv);
+                    });
+                     showToast(`${driversFound.length} macchinisti pronti per l'invio.`);
+                } catch(error) {
+                    showToast(error.message);
+                }
             });
             
             selectAllDriversCheckbox.addEventListener('change', function() {
@@ -819,18 +842,17 @@
                 };
                 
                 const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
-                const proposedShiftsText = proposedShifts.map(s => formatShiftEmail(s, 'proposed')).join('\n');
+                const proposedShiftsText = proposedShifts.map(s => `• ${formatShiftEmail(s, 'proposed')}`).join('\n');
 
                 const body = `Buongiorno,
-ti contattiamo per proporti uno scambio del tuo turno previsto per:
 
+Si propone uno scambio per il turno:
 ${formatShiftEmail(originalShift, 'original')}
 
 Le opzioni disponibili per il cambio sono le seguenti:
-
 ${proposedShiftsText}
 
-Se sei disponibile ad accettare una di queste opzioni, ti chiediamo gentilmente di confermare rispondendo a questa email.
+Se interessati, si prega di rispondere a questa email.
 Cordiali saluti,
 
 Ripartizione del Personale
@@ -839,10 +861,9 @@ P-O-BP-ZFR-MSD-EIN`;
                 window.location.href = `mailto:?bcc=${bccEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             });
 
-
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
-            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>${error.message}</p><p>Stack: ${error.stack}</p></div>`;
+            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p><p>Dettagli: ${error.message}</p></div>`;
         }
     });
     </script>
