@@ -110,14 +110,28 @@
                     </div>
                     <div id="pane4" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Cambio Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
-                        <div class="pane-content flex-grow flex flex-col space-y-4">
+                         <div class="pane-content flex-grow flex flex-col space-y-4">
                             <h3 class="text-lg font-semibold">Turno Originale (1 solo)</h3>
+                            <div>
+                                <label for="original-shift-paste-input" class="block text-xs font-medium">Incolla Turno</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" id="original-shift-paste-input" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow">
+                                    <button id="original-shift-paste-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
+                                </div>
+                            </div>
                             <div id="original-shift-container" class="space-y-3"></div>
-                            <button id="add-original-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Turno Originale</button>
+                            <button id="add-original-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Manuale</button>
                             <hr>
                             <h3 class="text-lg font-semibold">Turni Proposti (uno o più)</h3>
+                             <div>
+                                <label for="swap-shift-paste-input" class="block text-xs font-medium">Incolla Turno</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" id="swap-shift-paste-input" placeholder="Incolla qui la riga del turno..." class="form-input-box flex-grow">
+                                    <button id="swap-shift-paste-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
+                                </div>
+                            </div>
                             <div id="swap-shift-container" class="space-y-3"></div>
-                            <button id="add-swap-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Turno da Cambiare</button>
+                            <button id="add-swap-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Manuale</button>
                             <hr>
                             <div>
                                 <label for="driver-paste-area" class="block text-sm font-medium">Incolla lista macchinisti</label>
@@ -274,7 +288,7 @@
             const processStandbyBtn = document.getElementById('process-standby-btn');
             const standbyResultsContainer = document.getElementById('standby-results-container');
             
-            // Elementi per il nuovo pannello Cambio Turno
+            // Elementi per il pannello Cambio Turno
             const addOriginalShiftBtn = document.getElementById('add-original-shift-btn');
             const originalShiftContainer = document.getElementById('original-shift-container');
             const addSwapShiftBtn = document.getElementById('add-swap-shift-btn');
@@ -282,7 +296,10 @@
             const driverPasteArea = document.getElementById('driver-paste-area');
             const processSwapsBtn = document.getElementById('process-swaps-btn');
             const swapResultsContainer = document.getElementById('swap-results-container');
-            
+            const originalShiftPasteInput = document.getElementById('original-shift-paste-input');
+            const originalShiftPasteBtn = document.getElementById('original-shift-paste-btn');
+            const swapShiftPasteInput = document.getElementById('swap-shift-paste-input');
+            const swapShiftPasteBtn = document.getElementById('swap-shift-paste-btn');
             
             // --- GESTIONE CALENDARIO ---
             const storageKey = 'calendarEvents_v20';
@@ -597,7 +614,7 @@
             }
             
             function creaRigaPerScambio(container, data = {}) {
-                if (container.id === 'original-shift-container' && container.children.length > 0) {
+                 if (container.id === 'original-shift-container' && container.children.length > 0) {
                     showToast("Puoi inserire un solo turno originale.");
                     return;
                 }
@@ -606,6 +623,43 @@
                 rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 container.appendChild(rigaDiv);
+            }
+
+            function processShiftPaste(pasteInput, container) {
+                const text = pasteInput.value;
+                if (!text.trim()) {
+                    showToast('Incolla del testo prima di aggiungere.');
+                    return;
+                }
+                const columns = text.split('\t').filter(Boolean);
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                let depotIndex = -1;
+                for (let i = 0; i < columns.length; i++) {
+                    if (depotMap[columns[i].trim()]) {
+                        depotIndex = i;
+                        break;
+                    }
+                }
+                if (depotIndex === -1) { 
+                    depotIndex = 1; 
+                }
+
+                if (columns.length < depotIndex + 3) {
+                    showToast('Formato testo non valido. Dati del turno non trovati.');
+                    return;
+                }
+                const dateStr = columns[0];
+                const numero = columns[1];
+                const inizio = columns[depotIndex + 1];
+                const fine = columns[depotIndex + 2];
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) {
+                    showToast('Formato data non valido.');
+                    return;
+                }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                creaRigaPerScambio(container, { data: formattedDate, numero, inizio, fine });
+                pasteInput.value = '';
             }
 
             // --- LISTENERS ---
@@ -652,6 +706,8 @@
             // Listeners per il nuovo pannello Cambio Turno
             addOriginalShiftBtn.addEventListener('click', () => creaRigaPerScambio(originalShiftContainer));
             addSwapShiftBtn.addEventListener('click', () => creaRigaPerScambio(swapShiftContainer));
+            originalShiftPasteBtn.addEventListener('click', () => processShiftPaste(originalShiftPasteInput, originalShiftContainer));
+            swapShiftPasteBtn.addEventListener('click', () => processShiftPaste(swapShiftPasteInput, swapShiftContainer));
             
             processSwapsBtn.addEventListener('click', function() {
                 const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
@@ -748,6 +804,7 @@
                 
                 window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             });
+
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
