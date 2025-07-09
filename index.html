@@ -146,7 +146,7 @@
                             </div>
                              <button id="process-swaps-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">Elabora Proposte di Scambio</button>
                              <hr>
-                             <div id="swap-results-header" class="hidden items-center p-2 bg-gray-100 rounded-t-lg">
+                             <div id="swap-results-header" class="hidden flex items-center p-2 bg-gray-100 rounded-t-lg">
                                  <input type="checkbox" id="select-all-drivers" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                  <label for="select-all-drivers" class="ml-3 block text-sm font-medium text-gray-700">Seleziona Tutti</label>
                              </div>
@@ -720,7 +720,10 @@
             swapShiftPasteBtn.addEventListener('click', () => processShiftPaste(swapShiftPasteInput, swapShiftContainer));
             
             processSwapsBtn.addEventListener('click', function() {
-                swapResultsContainer.innerHTML = ''; // Pulisci risultati precedenti
+                swapResultsContainer.innerHTML = ''; 
+                swapResultsHeader.classList.add('hidden');
+                sendToSelectedBtn.classList.add('hidden');
+
                 const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
                 const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
                 const driversText = driverPasteArea.value;
@@ -757,7 +760,7 @@
                 
                 driversFound.forEach(driver => {
                     const resultDiv = document.createElement('div');
-                    resultDiv.className = 'p-2 flex items-center';
+                    resultDiv.className = 'p-2 flex items-center border-b border-gray-200';
                     const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
                     const emailAddress = `${normalize(driver.firstName)}.${normalize(driver.lastName)}@sbb.ch`;
                     
