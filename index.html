@@ -375,7 +375,7 @@
                 const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
                 const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
                 const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
-                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
+                
                 let mainTableHtml = '';
                 if(filteredEvents.length===0){ mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`; }
                 else {
@@ -418,8 +418,32 @@
                     }
                     mainTableHtml += `</tbody></table>`;
                 }
-                const totalRequests=stats.approved+stats.pending+stats.rejected;
-                const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
+
+                // --- GESTIONE TABELLA STATISTICHE ---
+                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
+                const totalRequests = stats.approved + stats.pending + stats.rejected;
+                let statsHtmlBlock = '';
+
+                if (totalRequests > 0) {
+                    const percApproved = ((stats.approved / totalRequests) * 100).toFixed(0);
+                    const percPending = ((stats.pending / totalRequests) * 100).toFixed(0);
+                    const percRejected = ((stats.rejected / totalRequests) * 100).toFixed(0);
+                    statsHtmlBlock = `
+                        <div style="margin-top: 20px; width: 100%;">
+                            <div style="width: 60%; margin: 0 auto;">
+                                <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
+                                <table class="summary-table">
+                                    <thead style="background-color:#e0e0e0;">
+                                        <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
+                                        <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                }
                 
                 let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
                     <style>
@@ -446,20 +470,7 @@
                     </div>
                     <div style="flex-grow: 1;">${mainTableHtml}</div>
                     <div class="page-break-avoid">
-                        <div style="margin-top: 20px; width: 100%;">
-                            <div style="width: 60%; margin: 0 auto;">
-                                <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
-                                <table class="summary-table">
-                                    <thead style="background-color:#e0e0e0;">
-                                        <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
-                                        <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        ${statsHtmlBlock}
                         <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
                         <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
                         <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
