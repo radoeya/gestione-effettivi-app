@@ -373,51 +373,51 @@
      const totalRequests=stats.approved+stats.pending+stats.rejected;
      const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
      
-     let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
-        <style>
-            .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
-            .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
-            .page-break-avoid { page-break-inside: avoid !important; }
-        </style>
-        <div>
-            <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
-            <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
-                <tr>
-                    <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
-                    <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
-                </tr>
-                <tr>
-                    <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
-                    <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
-                </tr>
-            </table>
-        </div>
-        <div style="flex-grow: 1;">${mainTableHtml}</div>
-        <div class="page-break-avoid">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; width: 100%;">
-                <div style="width: 60%; flex-shrink: 0; margin-top: 70px;">
-                    <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
-                    <table class="summary-table">
-                        <thead style="background-color:#e0e0e0;">
-                            <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
-                            <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div style="width: 35%; flex-shrink: 0; margin-top: 70px;">
-                    <div style="max-width: 180px; margin: 0 auto;">
-                        <canvas id="leaveChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
-            <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
-            <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
-        </div>
-    </div>`;
+     let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; padding: 10px 20px; display: flex; flex-direction: column; min-height: 98%;">
+         <style>
+             .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
+             .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
+             .page-break-avoid { page-break-inside: avoid !important; }
+         </style>
+         <div>
+             <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
+             <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
+                 <tr>
+                     <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
+                     <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
+                 </tr>
+                 <tr>
+                     <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
+                     <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
+                 </tr>
+             </table>
+         </div>
+         <div style="flex-grow: 1;">${mainTableHtml}</div>
+         <div class="page-break-avoid" style="margin-top: 40px;">
+             <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                 <div style="width: 60%; flex-shrink: 0;">
+                     <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
+                     <table class="summary-table">
+                         <thead style="background-color:#e0e0e0;">
+                             <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
+                         </thead>
+                         <tbody>
+                             <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
+                             <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
+                         </tbody>
+                     </table>
+                 </div>
+                 <div style="width: 35%; flex-shrink: 0;">
+                     <div style="max-width: 180px; margin: 0 auto;">
+                         <canvas id="leaveChart"></canvas>
+                     </div>
+                 </div>
+             </div>
+             <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
+             <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
+             <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
+         </div>
+     </div>`;
      return { html: fullHtml, stats };
     }
 
@@ -446,21 +446,21 @@
         responsive: true, 
         maintainAspectRatio: false, 
         plugins: { 
-            legend: { display: false }, 
-            datalabels: { 
-                formatter: (value, context) => {
-                    if (value === 0) return null;
-                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    const percentage = total > 0 ? Math.round(value / total * 100) : 0;
-                    return percentage;
-                },
-                color: '#fff',
-                textAlign: 'center',
-                font: { 
-                    weight: 'bold', 
-                    size: 14 
-                } 
-            } 
+          legend: { display: false }, 
+          datalabels: { 
+               formatter: (value, context) => {
+                   if (value === 0) return null;
+                   const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                   const percentage = total > 0 ? Math.round(value / total * 100) : 0;
+                   return percentage;
+               },
+               color: '#fff',
+               textAlign: 'center',
+               font: { 
+                   weight: 'bold', 
+                   size: 14 
+               } 
+          } 
         } 
       }
      });
@@ -488,43 +488,43 @@
     closeModalBtn.addEventListener('click', closeModal);
 
     downloadPdfBtn.addEventListener('click', function() {
-        const element = document.getElementById('pdf-content');
-        if(!element) {
-            showToast('Errore: Contenuto del report non trovato.');
-            return;
-        }
+         const element = document.getElementById('pdf-content');
+         if(!element) {
+             showToast('Errore: Contenuto del report non trovato.');
+             return;
+         }
 
-        const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-        const opt = { 
-            margin: 0.5, 
-            filename: filename, 
-            image: { type: 'png', quality: 1.0 }, 
-            html2canvas: { scale: 3, useCORS: true }, 
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' }
-        };
+         const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
+         const opt = { 
+             margin: 0.5, 
+             filename: filename, 
+             image: { type: 'png', quality: 1.0 }, 
+             html2canvas: { scale: 3, useCORS: true }, 
+             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+             pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' }
+         };
 
-        const chartCanvas = document.getElementById('leaveChart');
+         const chartCanvas = document.getElementById('leaveChart');
 
-        if (!chartCanvas || !window.myPieChart) {
-            html2pdf().from(element).set(opt).save();
-            return;
-        }
+         if (!chartCanvas || !window.myPieChart) {
+             html2pdf().from(element).set(opt).save();
+             return;
+         }
 
-        const chartImage = window.myPieChart.toBase64Image();
-        const elementToPrint = element.cloneNode(true);
-        const canvasInClone = elementToPrint.querySelector('#leaveChart');
-        if (canvasInClone) {
-            const chartContainerInClone = canvasInClone.parentElement;
-            const img = document.createElement('img');
-            img.src = chartImage;
-            img.style.maxWidth = '180px';
-            img.style.margin = '0 auto';
-            chartContainerInClone.innerHTML = '';
-            chartContainerInClone.appendChild(img);
-        }
-        
-        html2pdf().from(elementToPrint).set(opt).save();
+         const chartImage = window.myPieChart.toBase64Image();
+         const elementToPrint = element.cloneNode(true);
+         const canvasInClone = elementToPrint.querySelector('#leaveChart');
+         if (canvasInClone) {
+             const chartContainerInClone = canvasInClone.parentElement;
+             const img = document.createElement('img');
+             img.src = chartImage;
+             img.style.maxWidth = '180px';
+             img.style.margin = '0 auto';
+             chartContainerInClone.innerHTML = '';
+             chartContainerInClone.appendChild(img);
+         }
+         
+         html2pdf().from(elementToPrint).set(opt).save();
     });
 
     // ... altri event listener ...
