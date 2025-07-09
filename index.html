@@ -144,9 +144,14 @@
                                 <label for="driver-paste-area" class="block text-sm font-medium">Incolla lista macchinisti</label>
                                 <textarea id="driver-paste-area" class="form-input-box w-full mt-1" rows="4" placeholder="Incolla qui una o più righe del personale..."></textarea>
                             </div>
-                             <button id="process-swaps-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700">Elabora Proposte di Scambio</button>
+                             <button id="process-swaps-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">Elabora Proposte di Scambio</button>
                              <hr>
-                             <div id="swap-results-container" class="space-y-2 flex-grow overflow-y-auto"></div>
+                             <div id="swap-results-header" class="hidden items-center p-2 bg-gray-100 rounded-t-lg">
+                                 <input type="checkbox" id="select-all-drivers" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                 <label for="select-all-drivers" class="ml-3 block text-sm font-medium text-gray-700">Seleziona Tutti</label>
+                             </div>
+                             <div id="swap-results-container" class="space-y-2 flex-grow overflow-y-auto bg-gray-50 p-2 rounded-b-lg"></div>
+                              <button id="send-to-selected-btn" class="hidden w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 mt-4">Invia Email ai Selezionati</button>
                         </div>
                     </div>
                     <div id="pane5" class="split-pane flex flex-col">
@@ -302,6 +307,9 @@
             const originalShiftPasteBtn = document.getElementById('original-shift-paste-btn');
             const swapShiftPasteInput = document.getElementById('swap-shift-paste-input');
             const swapShiftPasteBtn = document.getElementById('swap-shift-paste-btn');
+            const swapResultsHeader = document.getElementById('swap-results-header');
+            const selectAllDriversCheckbox = document.getElementById('select-all-drivers');
+            const sendToSelectedBtn = document.getElementById('send-to-selected-btn');
             
             // --- GESTIONE CALENDARIO ---
             const storageKey = 'calendarEvents_v20';
@@ -712,6 +720,7 @@
             swapShiftPasteBtn.addEventListener('click', () => processShiftPaste(swapShiftPasteInput, swapShiftContainer));
             
             processSwapsBtn.addEventListener('click', function() {
+                swapResultsContainer.innerHTML = ''; // Pulisci risultati precedenti
                 const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
                 const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
                 const driversText = driverPasteArea.value;
@@ -742,50 +751,76 @@
                 });
 
                 if (driversFound.length === 0) { showToast("Nessun macchinista valido trovato nella lista."); return; }
-
-                swapResultsContainer.innerHTML = '';
+                
+                swapResultsHeader.classList.remove('hidden');
+                sendToSelectedBtn.classList.remove('hidden');
+                
                 driversFound.forEach(driver => {
                     const resultDiv = document.createElement('div');
-                    resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';
-                    
+                    resultDiv.className = 'p-2 flex items-center';
                     const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
                     const emailAddress = `${normalize(driver.firstName)}.${normalize(driver.lastName)}@sbb.ch`;
-
-                    const button = document.createElement('button');
-                    button.className = 'send-swap-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700';
-                    button.textContent = 'Invia Email';
-                    button.dataset.email = emailAddress;
-                    button.dataset.firstname = driver.firstName;
-                    button.dataset.originalShift = JSON.stringify(originalShift);
-                    button.dataset.proposedShifts = JSON.stringify(proposedShifts);
-
-                    resultDiv.innerHTML = `<span class="text-sm">${driver.lastName} ${driver.firstName}</span>`;
-                    resultDiv.appendChild(button);
+                    
+                    resultDiv.innerHTML = `
+                        <input type="checkbox" class="driver-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" data-email="${emailAddress}" data-firstname="${driver.firstName}">
+                        <label class="ml-3 block text-sm text-gray-900">${driver.lastName} ${driver.firstName}</label>
+                    `;
                     swapResultsContainer.appendChild(resultDiv);
                 });
-                 showToast(`${driversFound.length} proposte di scambio generate.`);
+                 showToast(`${driversFound.length} macchinisti pronti per l'invio.`);
+            });
+            
+            selectAllDriversCheckbox.addEventListener('change', function() {
+                const checkboxes = swapResultsContainer.querySelectorAll('.driver-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllDriversCheckbox.checked;
+                });
             });
 
-            swapResultsContainer.addEventListener('click', function(e) {
-                if (!e.target.classList.contains('send-swap-email-btn')) return;
+            sendToSelectedBtn.addEventListener('click', function() {
+                const selectedCheckboxes = Array.from(swapResultsContainer.querySelectorAll('.driver-checkbox:checked'));
+                if(selectedCheckboxes.length === 0) {
+                    showToast("Seleziona almeno un macchinista a cui inviare l'email.");
+                    return;
+                }
 
-                const button = e.target;
-                const email = button.dataset.email;
-                const firstName = button.dataset.firstname;
-                const originalShift = JSON.parse(button.dataset.originalShift);
-                const proposedShifts = JSON.parse(button.dataset.proposedShifts);
+                const bccEmails = selectedCheckboxes.map(cb => cb.dataset.email).join(',');
 
+                const originalShiftEl = originalShiftContainer.querySelector('.turno-riga-scambio');
+                const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
+
+                const getShiftData = (el) => ({
+                    data: el.querySelector('.data-turno-input').value,
+                    numero: el.querySelector('.numero-turno-input').value,
+                    inizio: el.querySelector('.inizio-turno-input').value,
+                    fine: el.querySelector('.fine-turno-input').value,
+                });
+                
+                const originalShift = getShiftData(originalShiftEl);
+                const proposedShifts = Array.from(swapShiftEls).map(el => getShiftData(el));
+                
                 const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                const formatOriginalShiftForEmail = (shift) => `${formatDate(shift.data)} – Turno n. ${shift.numero || 'N/A'} (inizio alle ${shift.inizio || 'N/A'})`;
-                const formatProposedShiftForEmail = (shift) => `${formatDate(shift.data)} – Turno n. ${shift.numero || 'N/A'} (${shift.inizio || ''} – ${shift.fine || ''})`;
+                
+                const formatShiftEmail = (shift, type) => {
+                    const datePart = formatDate(shift.data);
+                    const numPart = shift.numero ? `Turno n. ${shift.numero}` : '';
+                    let timePart = '';
+                    if (type === 'original') {
+                        if (shift.inizio) timePart = `(inizio alle ${shift.inizio})`;
+                    } else {
+                        if (shift.inizio && shift.fine) timePart = `(${shift.inizio} – ${shift.fine})`;
+                        else if (shift.inizio) timePart = `(inizio alle ${shift.inizio})`;
+                    }
+                    return [datePart, numPart, timePart].filter(Boolean).join(' – ');
+                };
                 
                 const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
-                const proposedShiftsText = proposedShifts.map(s => formatProposedShiftForEmail(s)).join('\n');
+                const proposedShiftsText = proposedShifts.map(s => formatShiftEmail(s, 'proposed')).join('\n');
 
-                const body = `Buongiorno ${firstName},
+                const body = `Buongiorno,
 ti contattiamo per proporti uno scambio del tuo turno previsto per:
 
-${formatOriginalShiftForEmail(originalShift)}
+${formatShiftEmail(originalShift, 'original')}
 
 Le opzioni disponibili per il cambio sono le seguenti:
 
@@ -793,11 +828,11 @@ ${proposedShiftsText}
 
 Se sei disponibile ad accettare una di queste opzioni, ti chiediamo gentilmente di confermare rispondendo a questa email.
 Cordiali saluti,
-Ripartizione del Personale
 
+Ripartizione del Personale
 P-O-BP-ZFR-MSD-EIN`;
                 
-                window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = `mailto:?bcc=${bccEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             });
 
 
