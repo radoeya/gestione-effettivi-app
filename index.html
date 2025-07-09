@@ -68,6 +68,9 @@
                                 </div>
                                 <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Aggiungi al Calendario</button>
                             </form>
+                             <div class="mt-6 pt-4 border-t">
+                                <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
+                             </div>
                         </div>
                     </div>
                     <div id="pane2" class="split-pane">
@@ -89,6 +92,10 @@
                             <div class="mt-2 space-y-2">
                                 <div id="congediContainer" class="space-y-3 pt-2"></div>
                                 <button id="addCongedoBtn" type="button" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg">Aggiungi Congedo</button>
+                            </div>
+                             <div class="mt-6 pt-4 border-t space-y-2">
+                                <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
+                                <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg text-red-600 bg-white hover:bg-red-50">Pulisci Dati Annuncio</button>
                             </div>
                         </div>
                     </div>
@@ -150,14 +157,6 @@
                             <button id="process-standby-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-orange-600 hover:bg-orange-700">Elabora Lista</button>
                             <hr>
                             <div id="standby-results-container" class="space-y-2"></div>
-                        </div>
-                    </div>
-                    <div id="pane6" class="split-pane">
-                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Azioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
-                        <div class="pane-content space-y-4">
-                            <button id="generateReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-gray-800 hover:bg-gray-900">Genera Report Mensile</button>
-                            <button id="generateShortReportBtn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Genera Annuncio Effettivi</button>
-                            <button id="clearAllBtn" class="w-full flex justify-center items-center py-3 px-4 border border-red-500 rounded-lg text-red-600 bg-white hover:bg-red-50">Pulisci Dati Annuncio</button>
                         </div>
                     </div>
                 </div>
@@ -229,9 +228,10 @@
                 availability: '#4ade80'  // green-400 (lighter green)
             };
 
-            const initialSizesH = [16.6, 16.6, 16.6, 16.6, 16.6, 16.6];
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
+            const initialSizesH = [15, 20, 15, 30, 20];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
+            
             const initialSizesV = [60, 40];
             let calendar = null;
             const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
@@ -243,13 +243,15 @@
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
                 if (action === 'toggle') {
                     const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    if (isCollapsed) { horizontalSplit.setSizes(initialSizesH); } else { horizontalSplit.collapse(paneIndex); }
+                    const originalSizes = [15, 20, 15, 30, 20];
+                    if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
                 } else if (action === 'maximize') {
                     const pane = document.getElementById(`pane${paneIndex + 1}`);
                     const isMaximized = pane.dataset.maximized === 'true';
                     if (isMaximized) {
                         pane.dataset.maximized = 'false';
-                        horizontalSplit.setSizes(initialSizesH);
+                        const originalSizes = [15, 20, 15, 30, 20];
+                        horizontalSplit.setSizes(originalSizes);
                     } else {
                         document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
                         const newSizes = Array(paneElementsH.length).fill(0);
@@ -791,8 +793,8 @@ ${proposedShiftsText}
 
 Se sei disponibile ad accettare una di queste opzioni, ti chiediamo gentilmente di confermare rispondendo a questa email.
 Cordiali saluti,
-
 Ripartizione del Personale
+
 P-O-BP-ZFR-MSD-EIN`;
                 
                 window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
