@@ -55,7 +55,14 @@
                                 <h3 class="text-lg font-semibold text-gray-700">Aggiungi Voce al Calendario</h3>
                                 <div><label for="entryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="entryDate" name="entryDate" class="form-input-box mt-1" required></div>
                                 <div class="grid grid-cols-3 gap-x-2">
-                                    <div><label for="entryType" class="block text-sm font-medium">Tipo</label><select id="entryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
+                                    <div>
+                                        <label for="entryType" class="block text-sm font-medium">Tipo</label>
+                                        <select id="entryType" name="entryType" class="form-input-box mt-1">
+                                            <option value="need">Turni</option>
+                                            <option value="leave">Congedi</option>
+                                            <option value="availability">Disponibilità</option>
+                                        </select>
+                                    </div>
                                     <div><label for="shiftType" class="block text-sm font-medium">Turno</label><select id="shiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
                                     <div><label for="quantity" class="block text-sm font-medium">Qtà</label><input type="number" id="quantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
                                 </div>
@@ -136,7 +143,14 @@
                     <form id="modalEntryForm" class="space-y-4">
                         <div><label for="modalEntryDate" class="block text-sm font-medium text-gray-700">Data</label><input type="date" id="modalEntryDate" name="entryDate" class="form-input-box mt-1 bg-gray-200" readonly></div>
                        <div class="grid grid-cols-3 gap-x-2">
-                            <div><label for="modalEntryType" class="block text-sm font-medium">Tipo</label><select id="modalEntryType" name="entryType" class="form-input-box mt-1"><option value="need">Turni</option><option value="leave">Congedi</option></select></div>
+                            <div>
+                                <label for="modalEntryType" class="block text-sm font-medium">Tipo</label>
+                                <select id="modalEntryType" name="entryType" class="form-input-box mt-1">
+                                    <option value="need">Turni</option>
+                                    <option value="leave">Congedi</option>
+                                    <option value="availability">Disponibilità</option>
+                                </select>
+                            </div>
                             <div><label for="modalShiftType" class="block text-sm font-medium">Turno</label><select id="modalShiftType" name="shiftType" class="form-input-box mt-1"><option value="early">Presto</option><option value="medium">Medio</option><option value="late">Tardi</option></select></div>
                             <div><label for="modalQuantity" class="block text-sm font-medium">Qtà</label><input type="number" id="modalQuantity" name="quantity" min="1" value="1" class="form-input-box mt-1" required></div>
                        </div>
@@ -172,7 +186,17 @@
             const statsPendingInput = document.getElementById('statsPending');
             const statsRejectedInput = document.getElementById('statsRejected');
             
-            // ... Altre inizializzazioni ...
+            const typeTranslations = {
+                need: 'Turni',
+                leave: 'Congedi',
+                availability: 'Disponibilità'
+            };
+            const typeColors = {
+                need: '#ef4444',        // red-500
+                leave: '#22c55e',       // green-500
+                availability: '#4ade80'  // green-400 (lighter green)
+            };
+
             const initialSizesH = [16.6, 16.6, 16.6, 16.6, 16.6, 16.6];
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
@@ -261,7 +285,7 @@
                             const eventData = calendarEvents[eventIndex];
                             const props = eventData.extendedProps;
                             const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                            eventData.title = `${props.type === 'need' ? 'Turni' : 'Congedi'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
+                            eventData.title = `${typeTranslations[props.type] || 'Evento'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
                             showToast('Quantità ridotta.');
                         }
                         saveAndRerender();
@@ -291,11 +315,22 @@
                 const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
                 const eventId = `${date}-${type}-${shift}`;
                 const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
+                
+                const title = `${typeTranslations[type] || 'Evento'}: ${quantity} ${shiftTranslations[shift]}`;
+                const newTitle = (currentQty) => `${typeTranslations[type] || 'Evento'}: ${currentQty} ${shiftTranslations[shift]}`;
+
                 if (existingEventIndex > -1) {
                     calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
-                    calendarEvents[existingEventIndex].title = `${type === 'need' ? 'Turni' : 'Congedi'}: ${calendarEvents[existingEventIndex].extendedProps.quantity} ${shiftTranslations[shift]}`;
+                    calendarEvents[existingEventIndex].title = newTitle(calendarEvents[existingEventIndex].extendedProps.quantity);
                 } else {
-                    calendarEvents.push({ id: eventId, title: `${type === 'need' ? 'Turni' : 'Congedi'}: ${quantity} ${shiftTranslations[shift]}`, start: date, allDay: true, color: type === 'need' ? '#ef4444' : '#22c55e', extendedProps: { type, quantity, shift } });
+                    calendarEvents.push({ 
+                        id: eventId, 
+                        title: newTitle(quantity), 
+                        start: date, 
+                        allDay: true, 
+                        color: typeColors[type] || '#808080', 
+                        extendedProps: { type, quantity, shift } 
+                    });
                 }
                 saveAndRerender();
                 showToast('Calendario aggiornato.');
@@ -331,9 +366,11 @@
 
             function generateMonthlyReportData() {
                 const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                // --- FIX: Corrected SVG syntax (removed extra " 24" from viewBox) ---
-                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
-                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+                
+                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.need}"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.leave}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+                const availabilityIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.availability}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+
                 const currentCalendarDate = calendar.getDate();
                 const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
                 const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
@@ -345,29 +382,38 @@
                     const groupedData={};
                     filteredEvents.forEach(event=>{
                         const date=event.start.split('T')[0];
-                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}}; }
+                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}, availabilities:{early:0,medium:0,late:0}}; }
                         const p=event.extendedProps;
                         if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
                         else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
+                        else if(p.type==='availability'){ groupedData[date].availabilities[p.shift]+=p.quantity; }
                     });
+
                     const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
                     mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
                     const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
                     const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
-                    // --- FIX: Added style for centering icons in the cell ---
                     const iconCellStyle = "padding: 8px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
                     
                     for(const dateStr of sortedDates){
-                        const data = groupedData[dateStr], date = new Date(dateStr+'T00:00:00');
+                        const data = groupedData[dateStr];
+                        const date = new Date(dateStr+'T00:00:00');
+                        
                         const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
                         const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        if (needParts.length>0 && leaveParts.length>0){
-                            mainTableHtml += `<tr class="page-break-avoid"><td rowspan="2" style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
-                            mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
-                        } else if (needParts.length > 0) {
-                            mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${needIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Turni da coprire: ${needParts.join(' + ')}</td></tr>`;
-                        } else if (leaveParts.length > 0) {
-                            mainTableHtml += `<tr class="page-break-avoid"><td style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${leaveIcon}</td><td style="padding: 8px; border: 1px solid #ccc;">Congedi disponibili: ${leaveParts.join(' + ')}</td></tr>`;
+                        const availabilityParts = Object.entries(data.availabilities).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+
+                        const rowsForDate = [];
+                        if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
+                        if (leaveParts.length > 0) rowsForDate.push({ icon: leaveIcon, text: `Congedi disponibili: ${leaveParts.join(' + ')}` });
+                        if (availabilityParts.length > 0) rowsForDate.push({ icon: availabilityIcon, text: `Disponibilità: ${availabilityParts.join(' + ')}` });
+
+                        if (rowsForDate.length > 0) {
+                            const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
+                            mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[0].text}</td></tr>`;
+                            for (let i = 1; i < rowsForDate.length; i++) {
+                                mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[i].text}</td></tr>`;
+                            }
                         }
                     }
                     mainTableHtml += `</tbody></table>`;
@@ -386,11 +432,15 @@
                         <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
                             <tr>
                                 <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
                             </tr>
                             <tr>
                                 <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
+                            </tr>
+                            <tr>
+                                <td style="border:none;padding:2px;"></td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
                             </tr>
                         </table>
                     </div>
