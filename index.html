@@ -373,14 +373,14 @@
      const totalRequests=stats.approved+stats.pending+stats.rejected;
      const percApproved=totalRequests>0?((stats.approved/totalRequests)*100).toFixed(0):0, percPending=totalRequests>0?((stats.pending/totalRequests)*100).toFixed(0):0, percRejected=totalRequests>0?((stats.rejected/totalRequests)*100).toFixed(0):0;
      
-     let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; padding: 10px 20px; display: flex; flex-direction: column; min-height: 98%;">
+     let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; padding: 0 20px; display: flex; flex-direction: column; min-height: 98%;">
          <style>
              .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
              .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
              .page-break-avoid { page-break-inside: avoid !important; }
          </style>
          <div>
-             <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
+             <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
              <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
                  <tr>
                      <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
@@ -393,7 +393,7 @@
              </table>
          </div>
          <div style="flex-grow: 1;">${mainTableHtml}</div>
-         <div class="page-break-avoid" style="margin-top: 40px;">
+         <div class="page-break-avoid" style="margin-top: 60px;">
              <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
                  <div style="width: 60%; flex-shrink: 0;">
                      <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
