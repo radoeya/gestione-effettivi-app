@@ -118,7 +118,7 @@
                     <div id="pane4" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Cambio Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
                          <div class="pane-content flex-grow flex flex-col space-y-4">
-                            <h3 class="text-lg font-semibold">Turno Originale (1 solo)</h3>
+                            <h3 class="text-lg font-semibold">Turno Originale</h3>
                             <div>
                                 <label for="original-shift-paste-input" class="block text-xs font-medium">Incolla Turno</label>
                                 <div class="flex gap-2 mt-1">
@@ -126,10 +126,9 @@
                                     <button id="original-shift-paste-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
                                 </div>
                             </div>
-                            <div id="original-shift-container" class="space-y-3"></div>
-                            <button id="add-original-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Manuale</button>
+                            <div id="original-shift-container" class="space-y-3 mt-2"></div>
                             <hr>
-                            <h3 class="text-lg font-semibold">Turni Proposti (uno o più)</h3>
+                            <h3 class="text-lg font-semibold">Turni Proposti in Cambio</h3>
                              <div>
                                 <label for="swap-shift-paste-input" class="block text-xs font-medium">Incolla Turno</label>
                                 <div class="flex gap-2 mt-1">
@@ -137,8 +136,8 @@
                                     <button id="swap-shift-paste-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Aggiungi</button>
                                 </div>
                             </div>
-                            <div id="swap-shift-container" class="space-y-3"></div>
-                            <button id="add-swap-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">Aggiungi Manuale</button>
+                            <div id="swap-shift-container" class="space-y-3 mt-2"></div>
+                            <button id="add-another-swap-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Opzione di Scambio</button>
                             <hr>
                             <div>
                                 <label for="driver-paste-area" class="block text-sm font-medium">Incolla lista macchinisti</label>
@@ -151,7 +150,7 @@
                                  <label for="select-all-drivers" class="ml-3 block text-sm font-medium text-gray-700">Seleziona Tutti</label>
                              </div>
                              <div id="swap-results-container" class="space-y-2 flex-grow overflow-y-auto bg-gray-50 p-2 rounded-b-lg"></div>
-                              <button id="send-to-selected-btn" class="hidden w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 mt-4">Invia Email ai Selezionati</button>
+                             <button id="send-to-selected-btn" class="hidden w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 mt-4">Invia Email ai Selezionati</button>
                         </div>
                     </div>
                     <div id="pane5" class="split-pane flex flex-col">
@@ -296,9 +295,8 @@
             const standbyResultsContainer = document.getElementById('standby-results-container');
             
             // Elementi per il pannello Cambio Turno
-            const addOriginalShiftBtn = document.getElementById('add-original-shift-btn');
             const originalShiftContainer = document.getElementById('original-shift-container');
-            const addSwapShiftBtn = document.getElementById('add-swap-shift-btn');
+            const addSwapShiftBtn = document.getElementById('add-another-swap-btn');
             const swapShiftContainer = document.getElementById('swap-shift-container');
             const driverPasteArea = document.getElementById('driver-paste-area');
             const processSwapsBtn = document.getElementById('process-swaps-btn');
@@ -624,16 +622,15 @@
             }
             
             function creaRigaPerScambio(container, data = {}) {
-                 if (container.id === 'original-shift-container' && container.children.length > 0) {
-                    showToast("Puoi inserire un solo turno originale.");
-                    return;
-                }
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'turno-riga-scambio p-3 border rounded-lg bg-gray-50 relative';
                 rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
                 rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
                 container.appendChild(rigaDiv);
             }
+            
+            creaRigaPerScambio(originalShiftContainer);
+            creaRigaPerScambio(swapShiftContainer);
 
             function processShiftPaste(pasteInput, container) {
                 const text = pasteInput.value;
@@ -641,6 +638,11 @@
                     showToast('Incolla del testo prima di aggiungere.');
                     return;
                 }
+                
+                if(container.children.length > 0 && container.id === "original-shift-container") {
+                    container.innerHTML = '';
+                }
+
                 const columns = text.split('\t').filter(Boolean);
                 const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
                 let depotIndex = -1;
@@ -714,7 +716,6 @@
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
             // Listeners per il nuovo pannello Cambio Turno
-            addOriginalShiftBtn.addEventListener('click', () => creaRigaPerScambio(originalShiftContainer));
             addSwapShiftBtn.addEventListener('click', () => creaRigaPerScambio(swapShiftContainer));
             originalShiftPasteBtn.addEventListener('click', () => processShiftPaste(originalShiftPasteInput, originalShiftContainer));
             swapShiftPasteBtn.addEventListener('click', () => processShiftPaste(swapShiftPasteInput, swapShiftContainer));
