@@ -714,18 +714,9 @@
                 const swapShiftEls = swapShiftContainer.querySelectorAll('.turno-riga-scambio');
                 const driversText = driverPasteArea.value;
 
-                if (!originalShiftEl) {
-                    showToast("Inserisci il turno originale.");
-                    return;
-                }
-                if (swapShiftEls.length === 0) {
-                    showToast("Inserisci almeno un turno proposto in cambio.");
-                    return;
-                }
-                if (!driversText.trim()) {
-                    showToast("Incolla la lista dei macchinisti da contattare.");
-                    return;
-                }
+                if (!originalShiftEl) { showToast("Inserisci il turno originale."); return; }
+                if (swapShiftEls.length === 0) { showToast("Inserisci almeno un turno proposto in cambio."); return; }
+                if (!driversText.trim()) { showToast("Incolla la lista dei macchinisti da contattare."); return; }
 
                 const getShiftData = (el) => ({
                     data: el.querySelector('.data-turno-input').value,
@@ -735,32 +726,20 @@
                 });
 
                 const originalShift = getShiftData(originalShiftEl);
-                if (!originalShift.data) {
-                    showToast("Il turno originale deve avere una data valida.");
-                    return;
-                }
+                if (!originalShift.data) { showToast("Il turno originale deve avere una data valida."); return; }
 
                 const proposedShifts = Array.from(swapShiftEls).map(el => getShiftData(el));
-                if (proposedShifts.some(s => !s.data)) {
-                     showToast("Tutti i turni proposti devono avere una data valida.");
-                    return;
-                }
+                if (proposedShifts.some(s => !s.data)) { showToast("Tutti i turni proposti devono avere una data valida."); return; }
 
                 const driverLines = driversText.trim().split('\n');
                 const driversFound = [];
                 const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/;
-                
                 driverLines.forEach(line => {
                     const match = line.match(nameRegex);
-                    if (match) {
-                        driversFound.push({ lastName: match[1], firstName: match[2] });
-                    }
+                    if (match) { driversFound.push({ lastName: match[1], firstName: match[2] }); }
                 });
 
-                if (driversFound.length === 0) {
-                    showToast("Nessun macchinista valido trovato nella lista.");
-                    return;
-                }
+                if (driversFound.length === 0) { showToast("Nessun macchinista valido trovato nella lista."); return; }
 
                 swapResultsContainer.innerHTML = '';
                 driversFound.forEach(driver => {
@@ -794,13 +773,27 @@
                 const originalShift = JSON.parse(button.dataset.originalShift);
                 const proposedShifts = JSON.parse(button.dataset.proposedShifts);
 
-                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const formatShift = (shift) => `${formatDate(shift.data)} (N. ${shift.numero || 'N/A'}, ${shift.inizio || ''} - ${shift.fine || ''})`;
+                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                const formatOriginalShiftForEmail = (shift) => `${formatDate(shift.data)} – Turno n. ${shift.numero || 'N/A'} (inizio alle ${shift.inizio || 'N/A'})`;
+                const formatProposedShiftForEmail = (shift) => `${formatDate(shift.data)} – Turno n. ${shift.numero || 'N/A'} (${shift.inizio || ''} – ${shift.fine || ''})`;
+                
+                const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
+                const proposedShiftsText = proposedShifts.map(s => formatProposedShiftForEmail(s)).join('\n');
 
-                let proposedShiftsText = proposedShifts.map(s => `- ${formatShift(s)}`).join('\n');
+                const body = `Buongiorno ${firstName},
+ti contattiamo per proporti uno scambio del tuo turno previsto per:
 
-                const subject = "Proposta di cambio turno";
-                const body = `Buongiorno ${firstName},\n\nTi scriviamo per proporti un cambio con il tuo seguente turno:\n- TUO TURNO: ${formatShift(originalShift)}\n\nLe opzioni di scambio sono:\n${proposedShiftsText}\n\nSe sei d'accordo con una di queste opzioni, per favore rispondi a questa email per conferma.\n\nCordiali saluti,\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN`;
+${formatOriginalShiftForEmail(originalShift)}
+
+Le opzioni disponibili per il cambio sono le seguenti:
+
+${proposedShiftsText}
+
+Se sei disponibile ad accettare una di queste opzioni, ti chiediamo gentilmente di confermare rispondendo a questa email.
+Cordiali saluti,
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN`;
                 
                 window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             });
