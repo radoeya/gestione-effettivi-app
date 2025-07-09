@@ -647,7 +647,7 @@
                     }
                 }
                 if (depotIndex === -1) { 
-                    depotIndex = 1; // Fallback if no depot code is found
+                    depotIndex = 1; 
                 }
 
                 if (columns.length < depotIndex + 3) {
@@ -721,13 +721,13 @@
                     showToast("Incolla i dati del macchinista da elaborare.");
                     return;
                 }
-                const nameMatch = text.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)/);
+                const nameMatch = text.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/);
                 if (nameMatch) {
                     const fullName = `${nameMatch[1]} ${nameMatch[2]}`;
                     driverNameInput.value = fullName;
                     showToast(`Nome estratto: ${fullName}`);
                 } else {
-                    showToast("Nessun nome valido trovato nel testo.");
+                    showToast("Nessun nome di macchinista (seguito da ID a 6 cifre) trovato.");
                 }
             });
 
