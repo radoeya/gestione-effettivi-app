@@ -269,7 +269,7 @@
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
                 events: calendarEvents,
                 dateClick: function(info) {
-                    if (info.dayEl.querySelector('.fc-event')) return; 
+                    // FIX: Rimosso il controllo che impediva il click se un evento era già presente.
                     document.getElementById('modalEntryDate').value = info.dateStr;
                     addEventModal.classList.remove('hidden');
                 },
