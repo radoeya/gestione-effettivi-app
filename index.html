@@ -61,11 +61,21 @@
         <div class="content-wrapper">
             <div id="vertical-split-container">
                 <div id="top-split-pane">
-                    <div id="pane1" class="split-pane">...</div>
-                    <div id="pane2" class="split-pane">...</div>
-                    <div id="pane3" class="split-pane">...</div>
-                    <div id="pane4" class="split-pane flex flex-col">...</div>
-                    <div id="pane5" class="split-pane flex flex-col">...</div>
+                    <div id="pane1" class="split-pane">
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Impostazioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="0" title="Massimizza">□</button><button data-action="toggle" data-pane-index="0" title="Chiudi/Ripristina">X</button></div></div>
+                        </div>
+                    <div id="pane2" class="split-pane">
+                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Annuncio Effettivi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="1" title="Massimizza">□</button><button data-action="toggle" data-pane-index="1" title="Chiudi/Ripristina">X</button></div></div>
+                         </div>
+                    <div id="pane3" class="split-pane">
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
+                        </div>
+                    <div id="pane4" class="split-pane flex flex-col">
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Cambio Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="3" title="Massimizza">□</button><button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button></div></div>
+                        </div>
+                    <div id="pane5" class="split-pane flex flex-col">
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
+                        </div>
                     
                     <div id="pane6" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Crea Proposta di Modifica</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
@@ -115,24 +125,15 @@
             </div>
         </div>
         
-        <div id="addEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">...</div>
-        <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);">...</div>
+        <div id="addEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);"></div>
+        <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background-color: rgba(0,0,0,0.5);"></div>
         
         <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all"><p id="toastMessage"></p></div>
 
 <script>
-// Nascondi il contenuto dei pannelli 1-5 e dei modal per brevità
-document.getElementById('pane1').innerHTML = '<div class="pane-header">...</div>';
-document.getElementById('pane2').innerHTML = '<div class="pane-header">...</div>';
-document.getElementById('pane3').innerHTML = '<div class="pane-header">...</div>';
-document.getElementById('pane4').innerHTML = '<div class="pane-header">...</div>';
-document.getElementById('pane5').innerHTML = '<div class="pane-header">...</div>';
-document.getElementById('addEventModal').innerHTML = '...';
-document.getElementById('reportModal').innerHTML = '...';
-
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // --- INIZIALIZZAZIONE GLOBALE E CODICE PANNELLI 1-5 (OMESSO PER BREVITÀ) ---
+        // --- INIZIALIZZAZIONE GLOBALE E FUNZIONI COMUNI ---
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
         function showToast(message) {
@@ -141,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
         }
 
+        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+
+        // --- GESTIONE SPLIT PANES ---
         const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
         const initialSizesH = [14, 18, 12, 18, 18, 20]; 
         const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
@@ -174,13 +178,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // ===== INIZIO LOGICA PER PANE 6 (Modifica Turno Assegnato) =====
+        // NOTA: La logica completa per i pannelli 1-5 e il calendario è omessa qui, ma si presume esista.
+        // Questo script si concentra sulla logica del Pannello 6 che è stata richiesta.
+
+        // ===== INIZIO LOGICA PER PANE 6 (Crea Proposta di Modifica) =====
         
-        // --- State Management per Pane 6 ---
         let p6_recipients = [];
         let p6_originalShift = null;
 
-        // --- Riferimenti DOM per Pane 6 ---
         const p6_personnelPasteArea = document.getElementById('p6_personnelPasteArea');
         const p6_addRecipientBtn = document.getElementById('p6_addRecipientBtn');
         const p6_recipientsListDiv = document.getElementById('p6_recipientsList');
@@ -192,20 +197,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const p6_motivation = document.getElementById('p6_motivation');
         const p6_generateEmailBtn = document.getElementById('p6_generateEmailBtn');
 
-        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-
-        // --- Funzioni di Render ---
         function p6_renderRecipients() {
             p6_recipientsListDiv.innerHTML = '';
             if (p6_recipients.length === 0) {
                 p6_recipientsListDiv.innerHTML = '<p class="text-xs text-gray-500">Nessun destinatario aggiunto.</p>';
+            } else {
+                p6_recipients.forEach((recipient, index) => {
+                    const tag = document.createElement('span');
+                    tag.className = 'p6-recipient-tag';
+                    tag.innerHTML = `${recipient.name} <button data-index="${index}" title="Rimuovi">&times;</button>`;
+                    p6_recipientsListDiv.appendChild(tag);
+                });
             }
-            p6_recipients.forEach((recipient, index) => {
-                const tag = document.createElement('span');
-                tag.className = 'p6-recipient-tag';
-                tag.innerHTML = `${recipient.name} <button data-index="${index}" title="Rimuovi">&times;</button>`;
-                p6_recipientsListDiv.appendChild(tag);
-            });
         }
         
         function p6_renderOriginalShift() {
@@ -223,7 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // --- Event Handlers ---
         p6_addRecipientBtn.addEventListener('click', () => {
             const text = p6_personnelPasteArea.value;
             const nameRegex = /\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6,})\b/;
@@ -267,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (dateParts) {
                     p6_originalShift = {
                         date: columns[0],
-                        formattedDate: `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}`,
                         number: columns[1],
                         start: columns[6],
                         end: columns[7]
@@ -315,31 +316,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         p6_generateEmailBtn.addEventListener('click', () => {
-            // Validazione
-            let isValid = true;
             document.querySelectorAll('#pane6 .validation-error').forEach(el => el.classList.remove('validation-error'));
+            let isValid = true;
             
-            if (p6_recipients.length === 0) {
-                isValid = false;
-                document.getElementById('p6_personnelPasteArea').parentElement.classList.add('validation-error');
-            }
-            if (!p6_originalShift) {
-                isValid = false;
-                document.getElementById('p6_originalShiftPaste').parentElement.classList.add('validation-error');
-            }
-            if (!p6_motivation.value.trim()) {
-                isValid = false;
-                p6_motivation.classList.add('validation-error');
-            }
+            if (p6_recipients.length === 0) { isValid = false; document.getElementById('p6_personnelPasteArea').parentElement.classList.add('validation-error'); }
+            if (!p6_originalShift) { isValid = false; document.getElementById('p6_originalShiftPaste').parentElement.classList.add('validation-error'); }
+            if (!p6_motivation.value.trim()) { isValid = false; p6_motivation.classList.add('validation-error'); }
+            
             const proposedRows = p6_proposedShiftsContainer.querySelectorAll('.p6-proposed-shift-row');
-            if (proposedRows.length === 0) isValid = false;
+            if (proposedRows.length === 0) { isValid = false; p6_addProposedShiftBtn.classList.add('validation-error'); }
             
             proposedRows.forEach(row => {
                 row.querySelectorAll('input').forEach(input => {
-                    if (!input.value) {
-                        isValid = false;
-                        input.classList.add('validation-error');
-                    }
+                    if (!input.value) { isValid = false; input.classList.add('validation-error'); }
                 });
             });
             
@@ -348,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Raccolta dati
             const recipientEmails = p6_recipients.map(r => r.email).join(',');
             const motivation = p6_motivation.value.trim();
             const proposedShiftsData = Array.from(proposedRows).map(row => ({
@@ -358,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 end: row.querySelector('.p6-p-end').value,
             }));
 
-            // Generazione corpo email
             const proposedHtml = proposedShiftsData.map(s => `<li>Turno <strong>${s.number}</strong> del ${s.date} (orario ${s.start} - ${s.end})</li>`).join('');
 
             const emailBodyHtml = `
@@ -385,7 +372,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = mailtoLink;
         });
 
-        // Inizializzazione UI di Pane 6
         p6_renderRecipients();
 
         // ===== FINE LOGICA PER PANE 6 =====
