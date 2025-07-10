@@ -31,6 +31,10 @@
         .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
         #bottom-split-pane { display: flex; flex-direction: column; background-color: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .fc-event { cursor: pointer; }
+        .validation-error {
+            box-shadow: 0 0 0 2px #ef4444; /* red-500 */
+            transition: box-shadow 0.2s ease-in-out;
+        }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -697,6 +701,18 @@
                     </div>
                 `;
             }
+
+            function highlightError(element, remove = false) {
+                if (!element) return;
+                if (remove) {
+                    element.classList.remove('validation-error');
+                } else {
+                    element.classList.add('validation-error');
+                    setTimeout(() => {
+                       element.classList.remove('validation-error');
+                    }, 3500);
+                }
+            }
             
             function attachProposalSetListeners(proposalSetDiv) {
                 proposalSetDiv.addEventListener('click', (e) => {
@@ -800,32 +816,53 @@
                     } else if (target.closest('.send-single-driver-email-btn')) {
                         const singleSendBtn = target.closest('.send-single-driver-email-btn');
                         const block = singleSendBtn.closest('.proposal-set');
-                         try {
-                            const originalShift = getShiftDataFromElement(block.querySelector('.original-shift-wrapper .turno-riga-scambio'));
-                            if (!originalShift) throw new Error("Dati del turno originale mancanti o incompleti.");
-                            
-                            const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
-                            const proposedShifts = Array.from(swapShiftEls).map(getShiftDataFromElement).filter(Boolean);
-                            if (proposedShifts.length === 0) throw new Error("Inserire almeno un turno proposto valido.");
+                        let allValid = true;
 
-                            const motivation = block.querySelector('.motivation-input').value;
-                            if (!motivation) throw new Error("Per favore, inserisci una motivazione per lo scambio.");
+                        // Clear previous errors
+                        block.querySelectorAll('.validation-error').forEach(el => highlightError(el, true));
+                        
+                        const originalShiftEl = block.querySelector('.original-shift-wrapper .turno-riga-scambio');
+                        const originalShift = getShiftDataFromElement(originalShiftEl);
+                        if (!originalShift) {
+                            allValid = false;
+                            highlightError(originalShiftEl);
+                        }
+                        
+                        const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
+                        const proposedShifts = Array.from(swapShiftEls).map(el => {
+                            const data = getShiftDataFromElement(el);
+                            if (!data) highlightError(el);
+                            return data;
+                        }).filter(Boolean);
 
-                            const emailData = {
-                                driverEmail: singleSendBtn.dataset.email,
-                                driverFullName: singleSendBtn.dataset.fullname,
-                                originalShift: originalShift,
-                                proposedShifts: proposedShifts,
-                                motivation: motivation
-                            };
-                            
-                            const emailBody = generateSwapProposalEmailHTML(emailData);
-                            const subject = `Proposta di modifica turno`;
-                            window.location.href = `mailto:${emailData.driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                        if (swapShiftEls.length === 0 || proposedShifts.length !== swapShiftEls.length) {
+                            allValid = false;
+                            if(swapShiftEls.length === 0) showToast("Aggiungere almeno un turno proposto.");
+                        }
 
-                         } catch (error) {
-                             showToast(error.message);
-                         }
+                        const motivationInput = block.querySelector('.motivation-input');
+                        const motivation = motivationInput.value;
+                        if (!motivation) {
+                            allValid = false;
+                            highlightError(motivationInput);
+                        }
+
+                        if (!allValid) {
+                             showToast("Compilare i campi evidenziati in rosso.");
+                             return;
+                        }
+
+                        const emailData = {
+                            driverEmail: singleSendBtn.dataset.email,
+                            driverFullName: singleSendBtn.dataset.fullname,
+                            originalShift: originalShift,
+                            proposedShifts: proposedShifts,
+                            motivation: motivation
+                        };
+                        
+                        const emailBody = generateSwapProposalEmailHTML(emailData);
+                        const subject = `Proposta di modifica turno`;
+                        window.location.href = `mailto:${emailData.driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
                     }
                 });
             }
