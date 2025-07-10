@@ -34,6 +34,7 @@
         .validation-error {
             box-shadow: 0 0 0 2px #ef4444; /* red-500 */
             transition: box-shadow 0.2s ease-in-out;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
@@ -631,13 +632,15 @@
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
             // --- LOGICA PER CAMBIO TURNO (PANE 4)---
+            const today_YYYY_MM_DD = new Date().toISOString().slice(0, 10);
             let proposalSetCounter = 0;
+            
             function createShiftInputRow() {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'turno-riga-scambio p-3 border rounded-lg bg-gray-50 relative';
                 rigaDiv.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2 items-end">
-                        <div><label class="block text-xs font-medium">Data</label><input type="date" class="data-turno-input form-input-box mt-1"></div>
+                        <div><label class="block text-xs font-medium">Data</label><input type="date" class="data-turno-input form-input-box mt-1" value="${today_YYYY_MM_DD}"></div>
                         <div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 112" class="numero-turno-input form-input-box mt-1"></div>
                         <div><label class="block text-xs font-medium">Inizio</label><input type="time" class="inizio-turno-input form-input-box mt-1"></div>
                         <div><label class="block text-xs font-medium">Fine</label><input type="time" class="fine-turno-input form-input-box mt-1"></div>
@@ -646,6 +649,7 @@
                 `;
                 return rigaDiv;
             }
+
             function getShiftDataFromElement(el) {
                 if (!el) return null;
                 const data = {
@@ -818,7 +822,6 @@
                         const block = singleSendBtn.closest('.proposal-set');
                         let allValid = true;
 
-                        // Clear previous errors
                         block.querySelectorAll('.validation-error').forEach(el => highlightError(el, true));
                         
                         const originalShiftEl = block.querySelector('.original-shift-wrapper .turno-riga-scambio');
@@ -831,13 +834,16 @@
                         const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
                         const proposedShifts = Array.from(swapShiftEls).map(el => {
                             const data = getShiftDataFromElement(el);
-                            if (!data) highlightError(el);
+                            if (!data) {
+                                allValid = false;
+                                highlightError(el);
+                            }
                             return data;
                         }).filter(Boolean);
 
-                        if (swapShiftEls.length === 0 || proposedShifts.length !== swapShiftEls.length) {
+                        if (swapShiftEls.length === 0) {
                             allValid = false;
-                            if(swapShiftEls.length === 0) showToast("Aggiungere almeno un turno proposto.");
+                            showToast("Aggiungere almeno un turno proposto.");
                         }
 
                         const motivationInput = block.querySelector('.motivation-input');
@@ -926,6 +932,16 @@
                 `;
                 
                 attachProposalSetListeners(proposalSetDiv);
+                
+                // Pre-popola il blocco con una riga per il turno originale e una per il proposto
+                const originalContainer = proposalSetDiv.querySelector('.original-shift-wrapper .shift-manual-container-local');
+                const originalRow = createShiftInputRow();
+                originalRow.querySelector('.remove-shift-row').remove();
+                originalContainer.appendChild(originalRow);
+
+                const proposedContainer = proposalSetDiv.querySelector('.swap-shifts-wrapper');
+                proposedContainer.appendChild(createShiftInputRow());
+
                 document.getElementById('swap-proposals-container').appendChild(proposalSetDiv);
             }
             document.getElementById('add-swap-proposal-set-btn').addEventListener('click', addSwapProposalSet);
