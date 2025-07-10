@@ -644,24 +644,38 @@
                 `;
                 return rigaDiv;
             }
+            
+            function getShiftDataFromElement(el) {
+                if (!el) return null;
+                const data = {
+                    data: el.querySelector('.data-turno-input').value,
+                    numero: el.querySelector('.numero-turno-input').value,
+                    inizio: el.querySelector('.inizio-turno-input').value,
+                    fine: el.querySelector('.fine-turno-input').value,
+                };
+                if (!data.data || !data.numero) return null;
+                return data;
+            };
 
             function attachProposalSetListeners(proposalSetDiv) {
-                proposalSetDiv.querySelector('.remove-proposal-set-btn').addEventListener('click', () => {
-                    if (confirm("Sei sicuro di voler rimuovere questo intero blocco di proposta?")) {
-                        proposalSetDiv.remove();
-                        showToast("Blocco proposta rimosso.");
-                    }
-                });
-
-                proposalSetDiv.querySelector('.add-another-swap-btn-local').addEventListener('click', (e) => {
-                    const swapWrapper = e.target.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
-                    swapWrapper.appendChild(createShiftInputRow());
-                });
-
                 proposalSetDiv.addEventListener('click', (e) => {
-                    const removeBtn = e.target.closest('.remove-shift-row');
-                    if (removeBtn) {
-                        removeBtn.parentElement.remove();
+                    const removeProposalBtn = e.target.closest('.remove-proposal-set-btn');
+                    if (removeProposalBtn) {
+                        if (confirm("Sei sicuro di voler rimuovere questo intero blocco di proposta?")) {
+                            proposalSetDiv.remove();
+                            showToast("Blocco proposta rimosso.");
+                        }
+                    }
+
+                    const addSwapBtn = e.target.closest('.add-another-swap-btn-local');
+                    if(addSwapBtn) {
+                        const swapWrapper = addSwapBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
+                        swapWrapper.appendChild(createShiftInputRow());
+                    }
+                    
+                    const removeShiftBtn = e.target.closest('.remove-shift-row');
+                    if (removeShiftBtn) {
+                        removeShiftBtn.parentElement.remove();
                     }
 
                     const pasteBtn = e.target.closest('.shift-paste-btn-local');
@@ -702,68 +716,88 @@
                             newShiftRow.querySelector('.fine-turno-input').value = fine;
                             
                             if (isOriginal) {
-                                newShiftRow.querySelector('.remove-shift-row').remove(); // No remove button for original shift
-                                container.innerHTML = ''; // Rimpiazza l'originale
+                                newShiftRow.querySelector('.remove-shift-row').remove(); 
+                                container.innerHTML = ''; 
+                                container.appendChild(newShiftRow);
+                            } else {
+                                container.appendChild(newShiftRow);
                             }
-                            container.appendChild(newShiftRow);
                             inputField.value = '';
                         } catch (error) {
                             showToast(error.message);
                         }
                     }
-                });
 
-                proposalSetDiv.querySelector('.send-proposal-email-btn').addEventListener('click', (e) => {
-                    const block = e.target.closest('.proposal-set');
-                    try {
-                        const getShiftData = (el) => {
-                            if (!el) return null;
-                            const data = {
-                                data: el.querySelector('.data-turno-input').value,
-                                numero: el.querySelector('.numero-turno-input').value,
-                                inizio: el.querySelector('.inizio-turno-input').value,
-                                fine: el.querySelector('.fine-turno-input').value,
-                            };
-                            if (!data.data || !data.numero) return null;
-                            return data;
-                        };
-
-                        const originalShift = getShiftData(block.querySelector('.original-shift-wrapper .turno-riga-scambio'));
-                        if (!originalShift) throw new Error("Turno originale mancante o incompleto.");
-
-                        const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
-                        const proposedShifts = Array.from(swapShiftEls).map(getShiftData).filter(Boolean);
-                        if (proposedShifts.length === 0) throw new Error("Inserire almeno un turno proposto valido.");
-
+                    const processDriversBtn = e.target.closest('.process-drivers-btn');
+                    if (processDriversBtn) {
+                        const block = processDriversBtn.closest('.proposal-set');
                         const driversText = block.querySelector('.driver-paste-area-local').value;
-                        if (!driversText.trim()) throw new Error("Inserire la lista dei macchinisti da contattare.");
+                        const resultsContainer = block.querySelector('.processed-drivers-container');
+                        resultsContainer.innerHTML = '';
+
+                        if (!driversText.trim()) {
+                            showToast("Incolla la lista dei macchinisti prima di elaborare.");
+                            return;
+                        }
                         
                         const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/g;
-                        const emails = [];
                         let match;
+                        let foundCount = 0;
                         while ((match = nameRegex.exec(driversText)) !== null) {
+                            foundCount++;
+                            const lastName = match[1];
+                            const firstName = match[2];
                             const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                            const emailAddress = `${normalize(match[2])}.${normalize(match[1])}@sbb.ch`; // nome.cognome
-                            emails.push(emailAddress);
+                            const emailAddress = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
+
+                            const driverDiv = document.createElement('div');
+                            driverDiv.className = "flex items-center justify-between p-2 bg-gray-100 rounded-md";
+                            driverDiv.innerHTML = `
+                                <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
+                                <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" data-email="${emailAddress}">
+                                  Invia Email
+                                </button>
+                            `;
+                            resultsContainer.appendChild(driverDiv);
                         }
 
-                        if (emails.length === 0) throw new Error("Nessun macchinista valido trovato nel formato 'Cognome Nome Matricola'.");
+                        if (foundCount === 0) {
+                            showToast("Nessun macchinista valido trovato. Controllare il formato: Cognome Nome Matricola");
+                        } else {
+                            showToast(`${foundCount} macchinisti elaborati.`);
+                        }
+                    }
 
-                        const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', day: 'numeric', month: 'long' });
-                        const formatShiftEmail = (shift) => {
-                            let parts = [formatDate(shift.data), `Turno n. ${shift.numero}`];
-                            if (shift.inizio && shift.fine) parts.push(`(${shift.inizio} – ${shift.fine})`);
-                            else if (shift.inizio) parts.push(`(inizio alle ${shift.inizio})`);
-                            return parts.join(' – ');
-                        };
-                        
-                        const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
-                        const proposedShiftsText = proposedShifts.map(s => `• ${formatShiftEmail(s)}`).join('\n');
-                        const body = `Buongiorno,\n\nSi propone uno scambio per il turno:\n${formatShiftEmail(originalShift)}\n\nLe opzioni disponibili per il cambio sono le seguenti:\n${proposedShiftsText}\n\nSe interessati, si prega di rispondere a questa email.\nCordiali saluti,\n\nRipartizione del Personale\nP-O-BP-ZFR-MSD-EIN`;
+                    const singleSendBtn = e.target.closest('.send-single-driver-email-btn');
+                    if (singleSendBtn) {
+                         const block = singleSendBtn.closest('.proposal-set');
+                         try {
+                            const originalShift = getShiftDataFromElement(block.querySelector('.original-shift-wrapper .turno-riga-scambio'));
+                            if (!originalShift) throw new Error("Dati del turno originale mancanti o incompleti.");
+                            
+                            const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
+                            const proposedShifts = Array.from(swapShiftEls).map(getShiftDataFromElement).filter(Boolean);
+                            if (proposedShifts.length === 0) throw new Error("Inserire almeno un turno proposto valido.");
 
-                        window.location.href = `mailto:?bcc=${emails.join(',')}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    } catch (error) {
-                        showToast(error.message);
+                            const driverEmail = singleSendBtn.dataset.email;
+
+                            const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', day: 'numeric', month: 'long' });
+                            const formatShiftEmail = (shift) => {
+                                let parts = [formatDate(shift.data), `Turno n. ${shift.numero}`];
+                                if (shift.inizio && shift.fine) parts.push(`(${shift.inizio} – ${shift.fine})`);
+                                else if (shift.inizio) parts.push(`(inizio alle ${shift.inizio})`);
+                                return parts.join(' – ');
+                            };
+                            
+                            const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
+                            const proposedShiftsText = proposedShifts.map(s => `• ${formatShiftEmail(s)}`).join('\n');
+                            const body = `Buongiorno,\n\nSi propone uno scambio per il turno:\n${formatShiftEmail(originalShift)}\n\nLe opzioni disponibili per il cambio sono le seguenti:\n${proposedShiftsText}\n\nSe interessati, si prega di rispondere a questa email.\nCordiali saluti,\n\nRipartizione del Personale\nP-O-BP-ZFR-MSD-EIN`;
+
+                            window.location.href = `mailto:${driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+                         } catch (error) {
+                             showToast(error.message);
+                         }
                     }
                 });
             }
@@ -795,8 +829,8 @@
                             <hr class="my-4">
 
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Turni Proposti in Cambio</h3>
-                            <div class="space-y-2">
-                                 <div>
+                            <div class="space-y-4">
+                                 <div class="space-y-2">
                                     <label for="${uniqueIdSwap}" class="block text-xs font-medium">Incolla Turno da Proporre</label>
                                     <div class="flex gap-2 mt-1">
                                         <input type="text" id="${uniqueIdSwap}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
@@ -812,10 +846,11 @@
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Macchinisti da Contattare</h3>
                             <div>
                                 <label class="block text-sm font-medium">Incolla lista macchinisti</label>
-                                <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="8" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
+                                <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="5" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
                             </div>
-                            <div class="flex-grow"></div>
-                            <button type="button" class="send-proposal-email-btn w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 mt-4">Invia Email per questa Proposta</button>
+                            <button type="button" class="process-drivers-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700">Elabora Lista Macchinisti</button>
+                            <hr>
+                            <div class="processed-drivers-container flex-grow space-y-2 overflow-y-auto" style="min-height: 100px;"></div>
                         </div>
                     </div>
                 `;
