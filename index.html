@@ -626,7 +626,52 @@
 
             quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split(/\s{2,}|\t/).filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
             analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
-            processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
+            
+            // --- LOGICA PER ATTESA TURNO (PANE 5) ---
+            processStandbyBtn.addEventListener('click', function() { 
+                const text = standbyPasteArea.value; 
+                if (!text.trim()) { 
+                    showToast('Incolla il testo da elaborare.'); 
+                    return; 
+                } 
+                standbyResultsContainer.innerHTML = '';  
+                const lines = text.trim().split('\n'); 
+                lines.forEach(line => { 
+                    if (line.trim().length === 0) return;  
+                    const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); 
+                    const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); 
+                    if (dateMatch && nameMatch) { 
+                        const date = dateMatch[0]; 
+                        const surname = nameMatch[1]; 
+                        const name = nameMatch[2]; 
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; 
+                        
+                        const subject = `Assegnazione turno del ${date}`;
+                        const emailBody = `Buongiorno ${name},
+
+vi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.
+Ringraziandovi per l'attenzione, porgiamo cordiali saluti.
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+                        const resultDiv = document.createElement('div'); 
+                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; 
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; 
+                        standbyResultsContainer.appendChild(resultDiv); 
+                    } 
+                }); 
+                standbyPasteArea.value = ''; 
+                if(standbyResultsContainer.children.length > 0){ 
+                    showToast('Lista elaborata!'); 
+                } else { 
+                    showToast('Nessun dato valido trovato nel testo.'); 
+                } 
+            });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
             // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
@@ -820,6 +865,7 @@
 la informiamo che è stata apportata una modifica al suo piano di servizio.
 Il turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.
 In sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.
+
 La preghiamo di prenderne nota.
 
 Cordiali saluti,
