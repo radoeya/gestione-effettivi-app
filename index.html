@@ -801,7 +801,7 @@
                     
                     let motivo = motivoInput.value.trim();
                     if(!motivo){
-                        motivo = "[motivo non specificato]";
+                        motivo = "necessità"; // Default reason
                     }
 
                     if (!allValid) {
@@ -815,65 +815,23 @@
 
                     const subject = `Modifica piano di servizio del ${s_orig.date}`;
                     
-                    const body = `
-                    <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #333;">
-                      <p>Buongiorno ${driver.name},</p>
-                      <p>la informiamo di una modifica al suo piano di servizio.</p>
-                      
-                      <p style="margin-top: 20px; margin-bottom: 10px; font-weight: bold;">Turno stornato:</p>
-                      <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt; border-top: 1px solid #ddd;">
-                        <tbody>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; width: 100px; background-color: #f8f8f8;">Turno</td>
-                            <td style="padding: 8px;">${s_orig.number}</td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Data</td>
-                            <td style="padding: 8px;">${s_orig.date}</td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Orario</td>
-                            <td style="padding: 8px;">${s_orig.start} – ${s_orig.end}</td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Motivo</td>
-                            <td style="padding: 8px;">${motivo}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    const body = `Buongiorno ${driver.name},
 
-                      <p style="margin-top: 20px; margin-bottom: 10px; font-weight: bold;">Nuovo turno assegnato:</p>
-                      <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt; border-top: 1px solid #ddd;">
-                         <tbody>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; width: 100px; background-color: #f8f8f8;">Turno</td>
-                            <td style="padding: 8px;">${s_new.number}</td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Data</td>
-                            <td style="padding: 8px;">${s_new.date}</td>
-                          </tr>
-                           <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Orario</td>
-                            <td style="padding: 8px;">${s_new.start} – ${s_new.end}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+la informiamo che è stata apportata una modifica al suo piano di servizio.
+Il turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.
+In sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.
+La preghiamo di prenderne nota.
 
-                      <p style="margin-top: 25px;">La preghiamo di prenderne nota.</p>
-                      <div style="margin-top: 20px; line-height: 1.5; font-size: 10pt;">
-                        Cordiali saluti,<br>
-                        <strong>Ripartizione del Personale</strong><br><br>
-                        P-O-BP-ZFR-MSD-EIN<br><br>
-                        <strong>Ferrovie Federali Svizzere FFS</strong><br>
-                        Produzione ferroviaria – Condotta dei treni e manovra<br>
-                        6500 Bellinzona
-                      </div>
-                    </div>`;
+Cordiali saluti,
 
-                    const newWindow = window.open();
-                    newWindow.document.write(`<html><head><title>${subject}</title></head><body>${body}</body></html>`);
-                    newWindow.document.close();
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+
+                    window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }
             });
 
