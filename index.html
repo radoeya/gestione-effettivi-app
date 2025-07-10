@@ -766,6 +766,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
             }
             
             document.getElementById('add-new-swap-block-btn').addEventListener('click', addNewChangeBlock);
+            addNewChangeBlock();
             
             function parseDriverInfo(text) {
                 const match = text.match(/\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
@@ -900,7 +901,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
             svgFileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (file) {
+                if (file && file.type === "image/svg+xml") {
                     svgFileName.textContent = file.name;
                     svgResultsContainer.innerHTML = '';
                     svgSpinner.classList.remove('hidden');
@@ -909,16 +910,12 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     reader.onload = function(event) {
                         try {
                             const svgText = event.target.result;
-                            // Qui andrebbe la logica di parsing SVG e analisi
-                            // Per ora, simuliamo un risultato
-                            setTimeout(() => {
-                                svgSpinner.classList.add('hidden');
-                                svgResultsContainer.innerHTML = '<p class="text-center text-gray-700">Analisi del file SVG completata. La funzione di modifica blocchi non è ancora stata implementata in questo prototipo.</p>';
-                                showToast("Analisi SVG completata (simulazione).");
-                            }, 1500);
+                            const analysisResult = parseSVGAndAnalyzeShifts(svgText);
+                            displayAnalysisResults(analysisResult);
                         } catch (err) {
-                            svgSpinner.classList.add('hidden');
                             svgResultsContainer.innerHTML = `<p class="text-center text-red-600">Errore durante l'analisi del file SVG: ${err.message}</p>`;
+                        } finally {
+                            svgSpinner.classList.add('hidden');
                         }
                     };
                     reader.onerror = function() {
@@ -926,6 +923,185 @@ Produzione ferroviaria – Condotta dei treni e manovra
                          svgResultsContainer.innerHTML = `<p class="text-center text-red-600">Impossibile leggere il file.</p>`;
                     }
                     reader.readAsText(file);
+                } else if(file) {
+                    showToast('Tipo di file non valido. Seleziona un file .svg');
+                    svgFileName.textContent = "File non valido";
+                }
+            });
+            
+            function parseSVGAndAnalyzeShifts(svgText) {
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+                if (svgDoc.querySelector("parsererror")) { throw new Error("File SVG non valido o malformato."); }
+
+                const elements = Array.from(svgDoc.querySelectorAll('text, rect'));
+                const yTolerance = 5;
+                const rows = new Map();
+
+                // Raggruppa elementi per riga (coordinata Y)
+                elements.forEach(el => {
+                    const y = parseFloat(el.getAttribute('y'));
+                    let foundRow = false;
+                    for (const [rowY, rowElements] of rows.entries()) {
+                        if (Math.abs(y - rowY) < yTolerance) {
+                            rowElements.push(el);
+                            foundRow = true;
+                            break;
+                        }
+                    }
+                    if (!foundRow) { rows.set(y, [el]); }
+                });
+
+                const scheduleData = [];
+                const sortedRows = new Map([...rows.entries()].sort((a, b) => a[0] - b[0]));
+
+                // Estrai dati da ogni riga
+                for (const [, rowElements] of sortedRows.entries()) {
+                    const texts = rowElements.filter(el => el.tagName === 'text').sort((a,b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
+                    const rects = rowElements.filter(el => el.tagName === 'rect');
+
+                    if (texts.length < 2 || rects.length === 0) continue; // Salta righe non valide
+                    
+                    const colleagueName = texts[0].textContent.trim();
+                    if (!colleagueName || colleagueName.includes(':') || !isNaN(colleagueName)) continue; // Heuristica per scartare righe che non sono di personale
+                    
+                    const colleagueShifts = [];
+                    rects.forEach(rect => {
+                        const rx = parseFloat(rect.getAttribute('x'));
+                        const ry = parseFloat(rect.getAttribute('y'));
+                        const rwidth = parseFloat(rect.getAttribute('width'));
+                        const rheight = parseFloat(rect.getAttribute('height'));
+                        
+                        // Trova il testo all'interno di questo rettangolo
+                        const shiftText = texts.find(t => {
+                            const tx = parseFloat(t.getAttribute('x'));
+                            const ty = parseFloat(t.getAttribute('y'));
+                            return tx > rx && tx < (rx + rwidth) && ty > ry && ty < (ry + rheight);
+                        });
+
+                        if(shiftText) {
+                           const timeMatch = shiftText.textContent.match(/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+                           if(timeMatch) {
+                               const start = timeMatch[1];
+                               const end = timeMatch[2];
+                               const startHour = parseInt(start.split(':')[0], 10);
+                               let type = 'Medio';
+                               if(startHour < 7) type = 'Presto';
+                               if(startHour >= 13) type = 'Tardi';
+
+                               colleagueShifts.push({ start, end, type });
+                           }
+                        }
+                    });
+
+                    if(colleagueShifts.length > 0) {
+                        scheduleData.push({ colleague: colleagueName, shifts: colleagueShifts });
+                    }
+                }
+
+                // Identifica i blocchi
+                const blocks = [];
+                scheduleData.forEach(person => {
+                    if (person.shifts.length < 2) return;
+                    
+                    let currentBlock = [person.shifts[0]];
+                    for (let i = 1; i < person.shifts.length; i++) {
+                        if (person.shifts[i].type === currentBlock[0].type) {
+                            currentBlock.push(person.shifts[i]);
+                        } else {
+                            if (currentBlock.length >= 2) { // Un blocco è definito da almeno 2 turni
+                                blocks.push({ colleague: person.colleague, blockType: currentBlock[0].type, shifts: currentBlock });
+                            }
+                            currentBlock = [person.shifts[i]];
+                        }
+                    }
+                    if (currentBlock.length >= 2) {
+                        blocks.push({ colleague: person.colleague, blockType: currentBlock[0].type, shifts: currentBlock });
+                    }
+                });
+                return blocks;
+            }
+
+            function displayAnalysisResults(blocks) {
+                if (!blocks || blocks.length === 0) {
+                    svgResultsContainer.innerHTML = '<p class="text-center text-gray-700">Nessun blocco di turni consecutivo (min. 2) trovato nel file SVG.</p>';
+                    return;
+                }
+                
+                svgResultsContainer.innerHTML = ''; // Pulisce
+                blocks.forEach((block, index) => {
+                    const blockDiv = document.createElement('div');
+                    blockDiv.className = 'bg-white p-4 rounded-lg shadow space-y-3';
+                    
+                    const blockData = {
+                        colleague: block.colleague,
+                        blockType: block.blockType,
+                        shiftCount: block.shifts.length,
+                        firstShift: block.shifts[0],
+                        lastShift: block.shifts[block.shifts.length - 1]
+                    };
+
+                    blockDiv.dataset.block = JSON.stringify(blockData);
+
+                    let typeColor = 'gray';
+                    if(block.blockType === 'Presto') typeColor = 'blue';
+                    if(block.blockType === 'Tardi') typeColor = 'indigo';
+                    
+                    blockDiv.innerHTML = `
+                        <div class="flex justify-between items-start">
+                           <div>
+                              <p class="font-bold text-lg">${block.colleague}</p>
+                              <p class="text-sm text-${typeColor}-600 font-semibold">
+                                 Blocco ${block.blockType} (${block.shifts.length} turni)
+                              </p>
+                           </div>
+                           <span class="text-xs font-mono text-gray-400">ID Blocco: ${index}</span>
+                        </div>
+                        <div class="flex items-center gap-4 pt-2">
+                           <div class="flex-grow">
+                              <label for="change-fascia-${index}" class="block text-sm font-medium text-gray-700">Cambia in Fascia:</label>
+                              <select id="change-fascia-${index}" class="form-input-box mt-1 text-sm change-fascia-select">
+                                 <option value="Presto" ${block.blockType === 'Presto' ? 'disabled' : ''}>Presto</option>
+                                 <option value="Medio" ${block.blockType === 'Medio' ? 'disabled' : ''}>Medio</option>
+                                 <option value="Tardi" ${block.blockType === 'Tardi' ? 'disabled' : ''}>Tardi</option>
+                              </select>
+                           </div>
+                           <div class="self-end">
+                              <button class="generate-svg-change-email-btn px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">Genera Notifica</button>
+                           </div>
+                        </div>
+                    `;
+                    svgResultsContainer.appendChild(blockDiv);
+                });
+            }
+
+            svgResultsContainer.addEventListener('click', function(e) {
+                if(e.target.classList.contains('generate-svg-change-email-btn')){
+                    const parentBlockDiv = e.target.closest('[data-block]');
+                    if(!parentBlockDiv) return;
+
+                    const blockData = JSON.parse(parentBlockDiv.dataset.block);
+                    const newFascia = parentBlockDiv.querySelector('.change-fascia-select').value;
+                    const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                    const nameParts = blockData.colleague.split(', ');
+                    const email = `${normalize(nameParts[1])}.${normalize(nameParts[0])}@sbb.ch`;
+
+                    const subject = `Variazione blocco turni`;
+                    const body = `Buongiorno ${nameParts[1]},
+
+la informiamo che il suo blocco di turni di tipo "${blockData.blockType}", previsto per un totale di ${blockData.shiftCount} prestazioni, è stato modificato in un blocco di turni di tipo "${newFascia}".
+
+La preghiamo di prendere nota della variazione e di consultare il piano di servizio aggiornato per i nuovi orari di dettaglio.
+
+Cordiali saluti,
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+                    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }
             });
 
