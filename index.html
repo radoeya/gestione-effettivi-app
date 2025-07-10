@@ -631,11 +631,11 @@
             processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
-            // --- LOGICA PER CAMBIO TURNO (PANE 4)---
+            // --- LOGICA PER CAMBIO TURNO (PANE 4) ---
             const today_YYYY_MM_DD = new Date().toISOString().slice(0, 10);
             let proposalSetCounter = 0;
             
-            function createShiftInputRow() {
+            function createShiftInputRow(isOriginal = false) {
                 const rigaDiv = document.createElement('div');
                 rigaDiv.className = 'turno-riga-scambio p-3 border rounded-lg bg-gray-50 relative';
                 rigaDiv.innerHTML = `
@@ -645,7 +645,7 @@
                         <div><label class="block text-xs font-medium">Inizio</label><input type="time" class="inizio-turno-input form-input-box mt-1"></div>
                         <div><label class="block text-xs font-medium">Fine</label><input type="time" class="fine-turno-input form-input-box mt-1"></div>
                     </div>
-                    <button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600 remove-shift-row" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+                    ${!isOriginal ? `<button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600 remove-shift-row" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>` : ''}
                 `;
                 return rigaDiv;
             }
@@ -658,7 +658,7 @@
                     inizio: el.querySelector('.inizio-turno-input').value,
                     fine: el.querySelector('.fine-turno-input').value,
                 };
-                if (!data.data || !data.numero) return null;
+                if (!data.data || !data.numero.trim()) return null;
                 return data;
             };
 
@@ -671,8 +671,8 @@
 
                 return `
                     <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000;">
-                        <p>Buongiorno ${data.driverFullName},</p>
-                        <p>nell'ambito della gestione dei turni, ti viene proposto il seguente scambio:</p>
+                        <p>Buongiorno,</p>
+                        <p>nell'ambito della gestione dei turni, viene proposto il seguente scambio:</p>
                         <table style="width: 100%; margin-top: 20px; margin-bottom: 20px; border-collapse: collapse; text-align: left;">
                              <thead>
                                 <tr>
@@ -689,9 +689,9 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p>Se interessato, ti invitiamo a rispondere a questa email per confermare la tua scelta.</p>
-                        <p>Nel caso in cui non fossi interessato o avessi domande, puoi contattare il distributore al numero <strong>051 285 11 11</strong>.</p>
-                        <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
+                        <p>Se interessati, siete invitati a rispondere a questa email per confermare la vostra scelta.</p>
+                        <p>Nel caso in cui non foste interessati o aveste domande, potete contattare il distributore al numero <strong>051 285 11 11</strong>.</p>
+                        <p>Vi ringraziamo per la collaborazione e porgiamo cordiali saluti.</p>
                         <br>
                         <p style="margin: 0; line-height: 1.4;">Ripartizione del personale<br>P-O-BP-ZFR-MSD-EIN</p>
                         <br>
@@ -732,94 +732,8 @@
                         swapWrapper.appendChild(createShiftInputRow());
                     } else if (target.closest('.remove-shift-row')) {
                         target.closest('.turno-riga-scambio').remove();
-                    } else if (target.closest('.shift-paste-btn-local')) {
-                        const pasteBtn = target.closest('.shift-paste-btn-local');
-                        const inputField = pasteBtn.previousElementSibling;
-                        const text = inputField.value;
-                        const isOriginal = pasteBtn.closest('.original-shift-wrapper') !== null;
-                        const container = isOriginal ? 
-                            pasteBtn.closest('.original-shift-wrapper').querySelector('.shift-manual-container-local') : 
-                            pasteBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
-                        
-                        try {
-                            if (!text.trim()) throw new Error('Incolla del testo prima di aggiungere.');
-                            const columns = text.split(/\s{2,}|\t/).filter(Boolean);
-                            const dateParts = columns[0].match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-                            if (!dateParts) throw new Error('Formato data non valido. Usare GG.MM.AAAA.');
-
-                            const formattedDate = `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}`;
-                            let depotIndex = columns.findIndex(col => ['CHI', 'BEL'].includes(col.trim()));
-                            let numero, inizio, fine;
-
-                            if (depotIndex !== -1 && columns.length >= depotIndex + 3) {
-                                numero = columns[1];
-                                inizio = columns[depotIndex + 1];
-                                fine = columns[depotIndex + 2];
-                            } else if (columns.length >= 4) {
-                                numero = columns[1];
-                                inizio = columns[2];
-                                fine = columns[3];
-                            } else {
-                                throw new Error("Formato turno non riconosciuto. Dati insufficienti.");
-                            }
-
-                            const newShiftRow = createShiftInputRow();
-                            newShiftRow.querySelector('.data-turno-input').value = formattedDate;
-                            newShiftRow.querySelector('.numero-turno-input').value = numero;
-                            newShiftRow.querySelector('.inizio-turno-input').value = inizio;
-                            newShiftRow.querySelector('.fine-turno-input').value = fine;
-                            
-                            if (isOriginal) {
-                                newShiftRow.querySelector('.remove-shift-row').remove(); 
-                                container.innerHTML = ''; 
-                                container.appendChild(newShiftRow);
-                            } else {
-                                container.appendChild(newShiftRow);
-                            }
-                            inputField.value = '';
-                        } catch (error) {
-                            showToast(error.message);
-                        }
-                    } else if (target.closest('.process-drivers-btn')) {
+                    } else if (target.closest('.send-proposal-email-btn')) {
                         const block = target.closest('.proposal-set');
-                        const driversText = block.querySelector('.driver-paste-area-local').value;
-                        const resultsContainer = block.querySelector('.processed-drivers-container');
-                        resultsContainer.innerHTML = '';
-
-                        if (!driversText.trim()) {
-                            showToast("Incolla la lista dei macchinisti prima di elaborare.");
-                            return;
-                        }
-                        
-                        const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/g;
-                        let match;
-                        let foundCount = 0;
-                        while ((match = nameRegex.exec(driversText)) !== null) {
-                            foundCount++;
-                            const lastName = match[1];
-                            const firstName = match[2];
-                            const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                            const emailAddress = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
-
-                            const driverDiv = document.createElement('div');
-                            driverDiv.className = "flex items-center justify-between p-2 bg-gray-100 rounded-md";
-                            driverDiv.innerHTML = `
-                                <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
-                                <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-fullname="${firstName} ${lastName}">
-                                  Invia Email
-                                </button>
-                            `;
-                            resultsContainer.appendChild(driverDiv);
-                        }
-
-                        if (foundCount === 0) {
-                            showToast("Nessun macchinista valido trovato. Controllare il formato: Cognome Nome Matricola");
-                        } else {
-                            showToast(`${foundCount} macchinisti elaborati.`);
-                        }
-                    } else if (target.closest('.send-single-driver-email-btn')) {
-                        const singleSendBtn = target.closest('.send-single-driver-email-btn');
-                        const block = singleSendBtn.closest('.proposal-set');
                         let allValid = true;
 
                         block.querySelectorAll('.validation-error').forEach(el => highlightError(el, true));
@@ -847,20 +761,34 @@
                         }
 
                         const motivationInput = block.querySelector('.motivation-input');
-                        const motivation = motivationInput.value;
+                        const motivation = motivationInput.value.trim();
                         if (!motivation) {
                             allValid = false;
                             highlightError(motivationInput);
                         }
 
+                        const driversText = block.querySelector('.driver-paste-area-local').value;
+                        const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/g;
+                        const driverEmails = [];
+                        let match;
+                        while ((match = nameRegex.exec(driversText)) !== null) {
+                            const lastName = match[1];
+                            const firstName = match[2];
+                            const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                            driverEmails.push(`${normalize(firstName)}.${normalize(lastName)}@sbb.ch`);
+                        }
+
+                        if (driverEmails.length === 0) {
+                            allValid = false;
+                            highlightError(block.querySelector('.driver-paste-area-local'));
+                        }
+
                         if (!allValid) {
-                             showToast("Compilare i campi evidenziati in rosso.");
+                             showToast("Compilare tutti i campi evidenziati in rosso.");
                              return;
                         }
 
                         const emailData = {
-                            driverEmail: singleSendBtn.dataset.email,
-                            driverFullName: singleSendBtn.dataset.fullname,
                             originalShift: originalShift,
                             proposedShifts: proposedShifts,
                             motivation: motivation
@@ -868,7 +796,9 @@
                         
                         const emailBody = generateSwapProposalEmailHTML(emailData);
                         const subject = `Proposta di modifica turno`;
-                        window.location.href = `mailto:${emailData.driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                        const bccEmails = driverEmails.join(',');
+                        
+                        window.location.href = `mailto:?bcc=${bccEmails}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
                     }
                 });
             }
@@ -877,9 +807,7 @@
                 proposalSetCounter++;
                 const proposalSetDiv = document.createElement('div');
                 proposalSetDiv.className = 'proposal-set border border-gray-300 rounded-xl p-4 bg-white shadow-sm relative';
-                const uniqueIdOrig = `shift-paste-input-${proposalSetCounter}-orig`;
-                const uniqueIdSwap = `shift-paste-input-${proposalSetCounter}-swap`;
-
+                
                 proposalSetDiv.innerHTML = `
                     <button type="button" class="remove-proposal-set-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Proposta">&times;</button>
                     
@@ -888,13 +816,6 @@
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Dettagli Scambio</h3>
                             <div class="original-shift-wrapper space-y-2">
                                 <label class="block text-sm font-medium">Turno Originale (da cedere)</label>
-                                <div>
-                                    <label for="${uniqueIdOrig}" class="block text-xs font-medium">Incolla Turno</label>
-                                    <div class="flex gap-2 mt-1">
-                                        <input type="text" id="${uniqueIdOrig}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
-                                        <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
-                                    </div>
-                                </div>
                                 <div class="shift-manual-container-local space-y-3 mt-2"></div>
                             </div>
                             <div>
@@ -906,15 +827,8 @@
 
                             <div class="space-y-4">
                                 <label class="block text-sm font-medium">Turni Proposti (in cambio)</label>
-                                 <div class="space-y-2">
-                                    <label for="${uniqueIdSwap}" class="block text-xs font-medium">Incolla Turno da Proporre</label>
-                                    <div class="flex gap-2 mt-1">
-                                        <input type="text" id="${uniqueIdSwap}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
-                                        <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
-                                    </div>
-                                </div>
                                 <div class="swap-shifts-wrapper space-y-3 mt-2"></div>
-                                <button type="button" class="add-another-swap-btn-local w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Opzione Manuale</button>
+                                <button type="button" class="add-another-swap-btn-local w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Opzione di Scambio</button>
                             </div>
                         </div>
 
@@ -922,22 +836,17 @@
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Macchinisti da Contattare</h3>
                             <div>
                                 <label class="block text-sm font-medium">Incolla lista macchinisti</label>
-                                <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="5" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
+                                <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="8" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
                             </div>
-                            <button type="button" class="process-drivers-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700">Elabora Lista Macchinisti</button>
-                            <hr>
-                            <div class="processed-drivers-container flex-grow space-y-2 overflow-y-auto" style="min-height: 100px;"></div>
+                            <button type="button" class="send-proposal-email-btn w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Invia Email per questa Proposta</button>
                         </div>
                     </div>
                 `;
                 
                 attachProposalSetListeners(proposalSetDiv);
                 
-                // Pre-popola il blocco con una riga per il turno originale e una per il proposto
                 const originalContainer = proposalSetDiv.querySelector('.original-shift-wrapper .shift-manual-container-local');
-                const originalRow = createShiftInputRow();
-                originalRow.querySelector('.remove-shift-row').remove();
-                originalContainer.appendChild(originalRow);
+                originalContainer.appendChild(createShiftInputRow(true));
 
                 const proposedContainer = proposalSetDiv.querySelector('.swap-shifts-wrapper');
                 proposedContainer.appendChild(createShiftInputRow());
