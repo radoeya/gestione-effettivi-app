@@ -50,6 +50,7 @@
         .shift-change-row .form-group { margin-bottom: 0; }
         .btn-danger { background-color: #dc3545; color: white; padding: 0.5rem; line-height: 1; border-radius: 8px;}
         .btn-danger:hover { background-color: #c82333; }
+        #p6_recipientDisplay { font-weight: 500; background-color: #e9ecef; padding: 0.75rem; border-radius: 8px; text-align: center; color: #495057; }
         #error-message-pane6 { color: #dc3545; margin-top: 1rem; font-weight: 500; text-align: center; display: none; }
     </style>
 </head>
@@ -166,16 +167,14 @@
                     <div id="pane6" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Modifica Turno Assegnato</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
-                            <div class="grid grid-cols-2 gap-x-4">
-                                <div>
-                                    <label for="p6_recipientName" class="block text-sm font-medium">Destinatario (Nome)</label>
-                                    <input type="text" id="p6_recipientName" class="form-input-box mt-1" placeholder="Es: Mario Rossi">
-                                </div>
-                                <div>
-                                    <label for="p6_recipientEmail" class="block text-sm font-medium">Destinatario (Email)</label>
-                                    <input type="email" id="p6_recipientEmail" class="form-input-box mt-1" placeholder="Es: mario.rossi@sbb.ch">
-                                </div>
+                            
+                            <div>
+                                <label for="p6_personnelPasteArea" class="block text-sm font-medium">Incolla dati del personale</label>
+                                <textarea id="p6_personnelPasteArea" class="form-input-box mt-1" rows="3" placeholder="Incolla qui la riga completa del personale..."></textarea>
+                                <button id="p6_processPersonnelBtn" class="w-full mt-2 py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Elabora Personale</button>
                             </div>
+                            <div id="p6_recipientDisplay">Nessun macchinista selezionato.</div>
+
                             <div class="grid grid-cols-2 gap-x-4">
                                  <div>
                                     <label for="p6_referenceMonth" class="block text-sm font-medium">Mese di Riferimento</label>
@@ -264,9 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
             availability: '#4ade80' // green-400 (lighter green)
         };
 
-        // --- MODIFICA SPLIT.JS PER INCLUDERE PANE 6 ---
         const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
-        const initialSizesH = [14, 18, 12, 18, 18, 20]; // Ridistribuiti per fare spazio
+        const initialSizesH = [14, 18, 12, 18, 18, 20]; 
         const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
         
         const initialSizesV = [60, 40];
@@ -280,14 +278,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const paneIndex = parseInt(button.dataset.paneIndex, 10);
             if (action === 'toggle') {
                 const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                const originalSizes = [14, 18, 12, 18, 18, 20]; // Assicurati che corrisponda
+                const originalSizes = [14, 18, 12, 18, 18, 20];
                 if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
             } else if (action === 'maximize') {
                 const pane = document.getElementById(`pane${paneIndex + 1}`);
                 const isMaximized = pane.dataset.maximized === 'true';
                 if (isMaximized) {
                     pane.dataset.maximized = 'false';
-                    const originalSizes = [14, 18, 12, 18, 18, 20]; // Assicurati che corrisponda
+                    const originalSizes = [14, 18, 12, 18, 18, 20];
                     horizontalSplit.setSizes(originalSizes);
                 } else {
                     document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
@@ -982,8 +980,10 @@ document.addEventListener('DOMContentLoaded', function() {
         addSwapProposalSet();
 
         // --- INIZIO LOGICA PER PANE 6 ---
-        const p6_recipientNameInput = document.getElementById('p6_recipientName');
-        const p6_recipientEmailInput = document.getElementById('p6_recipientEmail');
+        let p6_recipientData = { name: '', email: '' }; // Oggetto per salvare i dati del macchinista
+        const p6_personnelPasteArea = document.getElementById('p6_personnelPasteArea');
+        const p6_processPersonnelBtn = document.getElementById('p6_processPersonnelBtn');
+        const p6_recipientDisplay = document.getElementById('p6_recipientDisplay');
         const p6_referenceMonthSelect = document.getElementById('p6_referenceMonth');
         const p6_referenceYearInput = document.getElementById('p6_referenceYear');
         const p6_shiftRowsContainer = document.getElementById('p6_shift-rows-container');
@@ -1000,6 +1000,33 @@ document.addEventListener('DOMContentLoaded', function() {
             p6_referenceMonthSelect.appendChild(option);
         });
 
+        p6_processPersonnelBtn.addEventListener('click', function() {
+            const text = p6_personnelPasteArea.value;
+            const nameRegex = /\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6,})\b/;
+            const match = text.match(nameRegex);
+
+            if (match) {
+                const lastName = match[1];
+                const firstName = match[2];
+                const fullName = `${firstName} ${lastName}`;
+                
+                const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                const email = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
+
+                p6_recipientData = { name: fullName, email: email };
+                p6_recipientDisplay.textContent = `Macchinista: ${fullName}`;
+                p6_recipientDisplay.style.color = '#1a2b4d';
+                p6_recipientDisplay.style.fontWeight = '600';
+                p6_personnelPasteArea.value = '';
+                showToast(`Macchinista ${fullName} elaborato.`);
+            } else {
+                p6_recipientData = { name: '', email: '' };
+                p6_recipientDisplay.textContent = 'Nessun macchinista valido trovato nel testo.';
+                p6_recipientDisplay.style.color = '#dc3545';
+                showToast('Errore: formato personale non riconosciuto.');
+            }
+        });
+        
         function p6_createShiftRow() {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'shift-change-row';
@@ -1028,22 +1055,30 @@ document.addEventListener('DOMContentLoaded', function() {
             p6_shiftRowsContainer.appendChild(rowDiv);
         }
         
-        p6_createShiftRow(); // Aggiungi prima riga all'avvio
+        p6_createShiftRow(); 
         p6_addShiftBtn.addEventListener('click', p6_createShiftRow);
         
         p6_generateEmailBtn.addEventListener('click', function() {
             p6_errorMessage.style.display = 'none';
+            document.querySelectorAll('#pane6 .validation-error').forEach(el => el.classList.remove('validation-error'));
+
             let isValid = true;
-            [p6_recipientNameInput, p6_recipientEmailInput].forEach(input => {
-                if (!input.value.trim()) { isValid = false; input.classList.add('validation-error'); }
-                else { input.classList.remove('validation-error'); }
-            });
+            if (!p6_recipientData.email) {
+                isValid = false;
+                p6_recipientDisplay.classList.add('validation-error');
+                showToast("Errore: Elaborare i dati del personale prima di generare l'email.");
+            } else {
+                 p6_recipientDisplay.classList.remove('validation-error');
+            }
+
             const shiftRows = p6_shiftRowsContainer.querySelectorAll('.shift-change-row');
             if (shiftRows.length === 0) isValid = false;
             shiftRows.forEach(row => {
                 row.querySelectorAll('.form-input-box').forEach(input => {
-                    if (!input.value.trim()) { isValid = false; input.classList.add('validation-error'); }
-                    else { input.classList.remove('validation-error'); }
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        input.classList.add('validation-error');
+                    }
                 });
             });
 
@@ -1092,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             const subject = `Modifica turni per ${month} ${year}`;
-            const mailtoLink = `mailto:${p6_recipientEmailInput.value.trim()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBodyHtml)}`;
+            const mailtoLink = `mailto:${p6_recipientData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBodyHtml)}`;
             window.location.href = mailtoLink;
         });
         // --- FINE LOGICA PER PANE 6 ---
