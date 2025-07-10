@@ -143,22 +143,6 @@
                             <div id="standby-results-container" class="space-y-2"></div>
                         </div>
                     </div>
-                    <div id="pane6" class="split-pane flex flex-col">
-                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Notifica Modifica Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
-                        <div class="pane-content flex-grow flex flex-col space-y-4">
-                            <div>
-                                <label for="notification-month" class="block text-sm font-medium text-gray-700">Mese di Riferimento della Distribuzione</label>
-                                <input type="month" id="notification-month" class="form-input-box mt-1">
-                            </div>
-                            <hr>
-                            <div id="notification-rows-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
-                                </div>
-                            <button id="add-notification-row-btn" class="w-full flex justify-center items-center py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Riga di Modifica</button>
-                            <hr>
-                            <button id="prepare-notifications-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-cyan-600 hover:bg-cyan-700">Prepara Email di Notifica</button>
-                            <div id="notification-results-container" class="space-y-2 mt-4"></div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div id="bottom-split-pane">
@@ -228,8 +212,8 @@
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
-            const initialSizesH = [14, 14, 14, 22, 14, 22];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
+            const initialSizesH = [15, 20, 15, 30, 20];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
             
             const initialSizesV = [60, 40];
@@ -243,14 +227,14 @@
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
                 if (action === 'toggle') {
                     const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    const originalSizes = [14, 14, 14, 22, 14, 22];
+                    const originalSizes = [15, 20, 15, 30, 20];
                     if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
                 } else if (action === 'maximize') {
                     const pane = document.getElementById(`pane${paneIndex + 1}`);
                     const isMaximized = pane.dataset.maximized === 'true';
                     if (isMaximized) {
                         pane.dataset.maximized = 'false';
-                        const originalSizes = [14, 14, 14, 22, 14, 22];
+                        const originalSizes = [15, 20, 15, 30, 20];
                         horizontalSplit.setSizes(originalSizes);
                     } else {
                         document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
@@ -669,35 +653,73 @@
                 if (!data.data || !data.numero) return null;
                 return data;
             };
+
+            function generateSwapProposalEmailHTML(data) {
+                const originalShiftDate = new Date(data.originalShift.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const proposedShiftsHTML = data.proposedShifts.map(s => {
+                    const proposedDate = new Date(s.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    return `<li>Turno <strong>${s.numero}</strong> del ${proposedDate}</li>`;
+                }).join('');
+
+                return `
+                    <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000;">
+                        <p>Buongiorno ${data.driverFullName},</p>
+                        <p>nell'ambito della gestione dei turni, ti viene proposto il seguente scambio:</p>
+                        <table style="width: 100%; margin-top: 20px; margin-bottom: 20px; border-collapse: collapse; text-align: left;">
+                             <thead>
+                                <tr>
+                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Turno da rotazione</th>
+                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Opzioni per nuovo turno</th>
+                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Motivazione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">Turno <strong>${data.originalShift.numero}</strong> del ${originalShiftDate}</td>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;"><ul style="margin:0; padding-left: 20px;">${proposedShiftsHTML}</ul></td>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.motivation}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>Se interessato, ti invitiamo a rispondere a questa email per confermare la tua scelta.</p>
+                        <p>Nel caso in cui non fossi interessato o avessi domande, puoi contattare il distributore al numero <strong>051 285 11 11</strong>.</p>
+                        <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
+                        <br>
+                        <p style="margin: 0; line-height: 1.4;">Ripartizione del personale<br>P-O-BP-ZFR-MSD-EIN</p>
+                        <br>
+                        <p style="margin: 0; line-height: 1.4;">
+                            <strong>Ferrovie Federali Svizzere - FFS</strong><br>
+                            Produzione ferroviaria,<br>
+                            Condotta dei treni e manovra,<br>
+                            Ripartizione del personale,<br>
+                            6500 Bellinzona
+                        </p>
+                    </div>
+                `;
+            }
+            
             function attachProposalSetListeners(proposalSetDiv) {
                 proposalSetDiv.addEventListener('click', (e) => {
-                    const removeProposalBtn = e.target.closest('.remove-proposal-set-btn');
-                    if (removeProposalBtn) {
+                    const target = e.target;
+
+                    if (target.closest('.remove-proposal-set-btn')) {
                         if (confirm("Sei sicuro di voler rimuovere questo intero blocco di proposta?")) {
                             proposalSetDiv.remove();
                             showToast("Blocco proposta rimosso.");
                         }
-                    }
-
-                    const addSwapBtn = e.target.closest('.add-another-swap-btn-local');
-                    if(addSwapBtn) {
-                        const swapWrapper = addSwapBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
+                    } else if (target.closest('.add-another-swap-btn-local')) {
+                        const swapWrapper = proposalSetDiv.querySelector('.swap-shifts-wrapper');
                         swapWrapper.appendChild(createShiftInputRow());
-                    }
-                    
-                    const removeShiftBtn = e.target.closest('.remove-shift-row');
-                    if (removeShiftBtn) {
-                        removeShiftBtn.parentElement.remove();
-                    }
-
-                    const pasteBtn = e.target.closest('.shift-paste-btn-local');
-                    if (pasteBtn) {
+                    } else if (target.closest('.remove-shift-row')) {
+                        target.closest('.turno-riga-scambio').remove();
+                    } else if (target.closest('.shift-paste-btn-local')) {
+                        const pasteBtn = target.closest('.shift-paste-btn-local');
                         const inputField = pasteBtn.previousElementSibling;
                         const text = inputField.value;
                         const isOriginal = pasteBtn.closest('.original-shift-wrapper') !== null;
                         const container = isOriginal ? 
                             pasteBtn.closest('.original-shift-wrapper').querySelector('.shift-manual-container-local') : 
-                            pasteBtn.closest('.space-y-4').querySelector('.swap-shifts-wrapper');
+                            pasteBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
                         
                         try {
                             if (!text.trim()) throw new Error('Incolla del testo prima di aggiungere.');
@@ -738,11 +760,8 @@
                         } catch (error) {
                             showToast(error.message);
                         }
-                    }
-
-                    const processDriversBtn = e.target.closest('.process-drivers-btn');
-                    if (processDriversBtn) {
-                        const block = processDriversBtn.closest('.proposal-set');
+                    } else if (target.closest('.process-drivers-btn')) {
+                        const block = target.closest('.proposal-set');
                         const driversText = block.querySelector('.driver-paste-area-local').value;
                         const resultsContainer = block.querySelector('.processed-drivers-container');
                         resultsContainer.innerHTML = '';
@@ -766,7 +785,7 @@
                             driverDiv.className = "flex items-center justify-between p-2 bg-gray-100 rounded-md";
                             driverDiv.innerHTML = `
                                 <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
-                                <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" data-email="${emailAddress}">
+                                <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-fullname="${firstName} ${lastName}">
                                   Invia Email
                                 </button>
                             `;
@@ -778,11 +797,9 @@
                         } else {
                             showToast(`${foundCount} macchinisti elaborati.`);
                         }
-                    }
-
-                    const singleSendBtn = e.target.closest('.send-single-driver-email-btn');
-                    if (singleSendBtn) {
-                         const block = singleSendBtn.closest('.proposal-set');
+                    } else if (target.closest('.send-single-driver-email-btn')) {
+                        const singleSendBtn = target.closest('.send-single-driver-email-btn');
+                        const block = singleSendBtn.closest('.proposal-set');
                          try {
                             const originalShift = getShiftDataFromElement(block.querySelector('.original-shift-wrapper .turno-riga-scambio'));
                             if (!originalShift) throw new Error("Dati del turno originale mancanti o incompleti.");
@@ -791,21 +808,20 @@
                             const proposedShifts = Array.from(swapShiftEls).map(getShiftDataFromElement).filter(Boolean);
                             if (proposedShifts.length === 0) throw new Error("Inserire almeno un turno proposto valido.");
 
-                            const driverEmail = singleSendBtn.dataset.email;
+                            const motivation = block.querySelector('.motivation-input').value;
+                            if (!motivation) throw new Error("Per favore, inserisci una motivazione per lo scambio.");
 
-                            const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-CH', { weekday: 'long', day: 'numeric', month: 'long' });
-                            const formatShiftEmail = (shift) => {
-                                let parts = [formatDate(shift.data), `Turno n. ${shift.numero}`];
-                                if (shift.inizio && shift.fine) parts.push(`(${shift.inizio} – ${shift.fine})`);
-                                else if (shift.inizio) parts.push(`(inizio alle ${shift.inizio})`);
-                                return parts.join(' – ');
+                            const emailData = {
+                                driverEmail: singleSendBtn.dataset.email,
+                                driverFullName: singleSendBtn.dataset.fullname,
+                                originalShift: originalShift,
+                                proposedShifts: proposedShifts,
+                                motivation: motivation
                             };
                             
-                            const subject = `Proposta di cambio turno – ${formatDate(originalShift.data)}`;
-                            const proposedShiftsText = proposedShifts.map(s => `• ${formatShiftEmail(s)}`).join('\n');
-                            const body = `Buongiorno,\n\nSi propone uno scambio per il turno:\n${formatShiftEmail(originalShift)}\n\nLe opzioni disponibili per il cambio sono le seguenti:\n${proposedShiftsText}\n\nSe interessati, si prega di rispondere a questa email.\nCordiali saluti,\n\nRipartizione del Personale\nP-O-BP-ZFR-MSD-EIN`;
-
-                            window.location.href = `mailto:${driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                            const emailBody = generateSwapProposalEmailHTML(emailData);
+                            const subject = `Proposta di modifica turno`;
+                            window.location.href = `mailto:${emailData.driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 
                          } catch (error) {
                              showToast(error.message);
@@ -813,6 +829,7 @@
                     }
                 });
             }
+
             function addSwapProposalSet() {
                 proposalSetCounter++;
                 const proposalSetDiv = document.createElement('div');
@@ -825,8 +842,9 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                         <div class="space-y-4">
-                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Turno Originale</h3>
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Dettagli Scambio</h3>
                             <div class="original-shift-wrapper space-y-2">
+                                <label class="block text-sm font-medium">Turno Originale (da cedere)</label>
                                 <div>
                                     <label for="${uniqueIdOrig}" class="block text-xs font-medium">Incolla Turno</label>
                                     <div class="flex gap-2 mt-1">
@@ -836,11 +854,15 @@
                                 </div>
                                 <div class="shift-manual-container-local space-y-3 mt-2"></div>
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mt-2">Motivazione dello scambio</label>
+                                <input type="text" placeholder="Es: Suddivisione turno, necessità di servizio..." class="motivation-input form-input-box w-full mt-1">
+                            </div>
                             
                             <hr class="my-4">
 
-                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Turni Proposti in Cambio</h3>
                             <div class="space-y-4">
+                                <label class="block text-sm font-medium">Turni Proposti (in cambio)</label>
                                  <div class="space-y-2">
                                     <label for="${uniqueIdSwap}" class="block text-xs font-medium">Incolla Turno da Proporre</label>
                                     <div class="flex gap-2 mt-1">
@@ -871,160 +893,6 @@
             }
             document.getElementById('add-swap-proposal-set-btn').addEventListener('click', addSwapProposalSet);
             addSwapProposalSet();
-
-            // --- NUOVA LOGICA PER NOTIFICA MODIFICA TURNO (PANE 6) ---
-            const addNotificationRowBtn = document.getElementById('add-notification-row-btn');
-            const notificationRowsContainer = document.getElementById('notification-rows-container');
-            const prepareNotificationsBtn = document.getElementById('prepare-notifications-btn');
-            const notificationResultsContainer = document.getElementById('notification-results-container');
-            
-            function createNotificationRow() {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'notification-row border rounded-lg p-3 bg-gray-50 relative';
-                rowDiv.innerHTML = `
-                    <button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600 remove-notification-row" title="Rimuovi riga">&times;</button>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium">Macchinista</label>
-                            <textarea rows="2" placeholder="Incolla qui la riga del macchinista..." class="notif-driver-paste form-input-box w-full mt-1"></textarea>
-                        </div>
-                        <div class="grid grid-cols-2 gap-x-2">
-                            <div><label class="block text-xs font-medium">Data Modifica</label><input type="date" class="notif-date form-input-box mt-1"></div>
-                            <div><label class="block text-xs font-medium">Motivazione</label><input type="text" placeholder="Motivo del cambio..." class="notif-motivation form-input-box mt-1"></div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-x-2">
-                             <div><label class="block text-xs font-medium">Turno da Rotazione</label><input type="text" placeholder="N. Turno Originale" class="notif-original-shift form-input-box mt-1"></div>
-                            <div><label class="block text-xs font-medium">Nuovo Turno</label><input type="text" placeholder="N. Nuovo Turno" class="notif-new-shift form-input-box mt-1"></div>
-                        </div>
-                    </div>
-                `;
-                notificationRowsContainer.appendChild(rowDiv);
-                rowDiv.querySelector('.remove-notification-row').addEventListener('click', () => rowDiv.remove());
-            }
-            
-            function generateModificationEmailHTML(data) {
-                return `
-                    <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000;">
-                        <p>Buongiorno,</p>
-                        <p>nell'ambito dell'allestimento della distribuzione mensile per <strong>${data.referenceMonth}</strong>, sono stati modificati i seguenti turni a tuo carico:</p>
-                        <table style="width: 100%; margin-top: 20px; margin-bottom: 20px; border-collapse: collapse; text-align: left;">
-                            <thead>
-                                <tr>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Data</th>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Nuovo turno</th>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Turno da rotazione</th>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Motivazione</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.date}</td>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.newShift}</td>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.originalShift}</td>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.motivation}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p>Nel caso in cui non ti fosse possibile svolgere il nuovo turno assegnato, ti invitiamo a contattare il distributore al numero <strong>051 285 11 11</strong> oppure a rispondere direttamente a questa email.</p>
-                        <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
-                        <br>
-                        <p style="margin: 0; line-height: 1.4;">Ripartizione del personale<br>P-O-BP-ZFR-MSD-EIN</p>
-                        <br>
-                        <p style="margin: 0; line-height: 1.4;">
-                            <strong>Ferrovie Federali Svizzere - FFS</strong><br>
-                            Produzione ferroviaria,<br>
-                            Condotta dei treni e manovra,<br>
-                            Ripartizione del personale,<br>
-                            6500 Bellinzona
-                        </p>
-                    </div>
-                `;
-            }
-
-            addNotificationRowBtn.addEventListener('click', createNotificationRow);
-            createNotificationRow(); // Start with one row
-            
-            prepareNotificationsBtn.addEventListener('click', () => {
-                notificationResultsContainer.innerHTML = '';
-                const rows = notificationRowsContainer.querySelectorAll('.notification-row');
-                let processedCount = 0;
-                
-                rows.forEach(row => {
-                    try {
-                        const driverText = row.querySelector('.notif-driver-paste').value;
-                        const date = row.querySelector('.notif-date').value;
-                        const motivation = row.querySelector('.notif-motivation').value;
-                        const originalShift = row.querySelector('.notif-original-shift').value;
-                        const newShift = row.querySelector('.notif-new-shift').value;
-
-                        if (!driverText || !date || !originalShift || !newShift || !motivation) {
-                           return; // Skip incomplete rows silently or show a message
-                        }
-                        
-                        const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/;
-                        const match = driverText.match(nameRegex);
-                        if (!match) throw new Error("Formato macchinista non valido.");
-                        
-                        const lastName = match[1];
-                        const firstName = match[2];
-                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                        const email = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
-
-                        const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                        const resultDiv = document.createElement('div');
-                        resultDiv.className = 'flex items-center justify-between p-2 bg-gray-100 rounded-md';
-                        resultDiv.innerHTML = `
-                            <div>
-                                <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
-                                <span class="text-xs text-gray-500 ml-2">(${formattedDate}: ${originalShift} &rarr; ${newShift})</span>
-                            </div>
-                            <button class="send-notification-btn px-3 py-1 bg-sky-600 text-white text-xs rounded-md hover:bg-sky-700">Invia Notifica</button>
-                        `;
-
-                        // Store data on the button itself
-                        const btn = resultDiv.querySelector('button');
-                        btn.dataset.email = email;
-                        btn.dataset.date = formattedDate;
-                        btn.dataset.originalShift = originalShift;
-                        btn.dataset.newShift = newShift;
-                        btn.dataset.motivation = motivation;
-
-                        notificationResultsContainer.appendChild(resultDiv);
-                        processedCount++;
-                    } catch (e) {
-                       // Could add an error display per row here
-                       console.warn("Skipping a notification row due to error:", e.message);
-                    }
-                });
-                 if(processedCount > 0) {
-                     showToast(`${processedCount} notifiche pronte per l'invio.`);
-                 } else {
-                     showToast('Nessuna riga di modifica completa trovata. Compila tutti i campi.');
-                 }
-            });
-
-            notificationResultsContainer.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('send-notification-btn')) return;
-                
-                const btn = e.target;
-                const monthInput = document.getElementById('notification-month').value;
-                if (!monthInput) {
-                    showToast("Per favore, imposta il 'Mese di Riferimento' prima di inviare.");
-                    return;
-                }
-
-                const [year, month] = monthInput.split('-');
-                const referenceMonth = new Date(year, month - 1).toLocaleDateString('it-CH', { month: 'long', year: 'numeric'});
-
-                const emailData = { ...btn.dataset, referenceMonth };
-                
-                const emailBody = generateModificationEmailHTML(emailData);
-                const subject = "Modifica turno mensile";
-                
-                window.location.href = `mailto:${emailData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-            });
-
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
