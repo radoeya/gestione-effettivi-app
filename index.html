@@ -36,6 +36,21 @@
             transition: box-shadow 0.2s ease-in-out;
             border-radius: 0.5rem;
         }
+        /* Stili per il nuovo pannello (Pane 6) */
+        .shift-change-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 2fr auto;
+            gap: 1rem;
+            align-items: flex-end;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .shift-change-row .form-group { margin-bottom: 0; }
+        .btn-danger { background-color: #dc3545; color: white; padding: 0.5rem; line-height: 1; border-radius: 8px;}
+        .btn-danger:hover { background-color: #c82333; }
+        #error-message-pane6 { color: #dc3545; margin-top: 1rem; font-weight: 500; text-align: center; display: none; }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -50,7 +65,7 @@
             <div id="vertical-split-container">
                 <div id="top-split-pane">
                     <div id="pane1" class="split-pane">
-                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Impostazioni e Calendario</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="0" title="Massimizza">□</button><button data-action="toggle" data-pane-index="0" title="Chiudi/Ripristina">X</button></div></div>
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Impostazioni</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="0" title="Massimizza">□</button><button data-action="toggle" data-pane-index="0" title="Chiudi/Ripristina">X</button></div></div>
                         <div class="pane-content space-y-4">
                             <h3 class="text-lg font-semibold text-gray-700">Report Mensile</h3>
                             <div><label for="deposito" class="block text-sm font-medium">Deposito</label><select id="deposito" class="form-input-box mt-1"><option>Chiasso P</option><option>Bellinzona P</option></select></div>
@@ -105,7 +120,7 @@
                         </div>
                     </div>
                     <div id="pane3" class="split-pane">
-                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche e Analisi</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Statistiche</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="2" title="Massimizza">□</button><button data-action="toggle" data-pane-index="2" title="Chiudi/Ripristina">X</button></div></div>
                         <div class="pane-content space-y-4">
                             <h3 class="text-lg font-semibold">Stato Richieste (Manuale)</h3>
                             <p class="text-xs text-gray-500">I valori qui vengono usati nel report mensile e popolati dall'analisi testo.</p>
@@ -133,8 +148,8 @@
                                 </div>
                             <div class="pt-4 border-t">
                                  <button id="add-swap-proposal-set-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
-                                    + Aggiungi Proposta di Scambio
-                                </button>
+                                     + Aggiungi Proposta di Scambio
+                                 </button>
                             </div>
                         </div>
                     </div>
@@ -148,7 +163,39 @@
                             <div id="standby-results-container" class="space-y-2"></div>
                         </div>
                     </div>
-                </div>
+                    <div id="pane6" class="split-pane flex flex-col">
+                        <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Modifica Turno Assegnato</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="5" title="Massimizza">□</button><button data-action="toggle" data-pane-index="5" title="Chiudi/Ripristina">X</button></div></div>
+                        <div class="pane-content flex-grow flex flex-col space-y-4">
+                            <div class="grid grid-cols-2 gap-x-4">
+                                <div>
+                                    <label for="p6_recipientName" class="block text-sm font-medium">Destinatario (Nome)</label>
+                                    <input type="text" id="p6_recipientName" class="form-input-box mt-1" placeholder="Es: Mario Rossi">
+                                </div>
+                                <div>
+                                    <label for="p6_recipientEmail" class="block text-sm font-medium">Destinatario (Email)</label>
+                                    <input type="email" id="p6_recipientEmail" class="form-input-box mt-1" placeholder="Es: mario.rossi@sbb.ch">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-x-4">
+                                 <div>
+                                    <label for="p6_referenceMonth" class="block text-sm font-medium">Mese di Riferimento</label>
+                                    <select id="p6_referenceMonth" class="form-input-box mt-1"></select>
+                                </div>
+                                <div>
+                                    <label for="p6_referenceYear" class="block text-sm font-medium">Anno di Riferimento</label>
+                                    <input type="number" id="p6_referenceYear" class="form-input-box mt-1" value="2025">
+                                </div>
+                            </div>
+                            <hr>
+                             <div id="p6_shift-rows-container">
+                                </div>
+                            <button id="p6_add-shift-btn" class="w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Riga Modifica</button>
+                            <hr>
+                            <button id="p6_generate-email-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Genera Email di Modifica</button>
+                            <p id="error-message-pane6"></p>
+                        </div>
+                    </div>
+                    </div>
                 
                 <div id="bottom-split-pane">
                     <div id="calendar" class="h-full"></div>
@@ -190,767 +237,872 @@
         
         <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-y-10 transition-all"><p id="toastMessage"></p></div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // --- INIZIALIZZAZIONE GLOBALE VARIABILI ---
+        const calendarEl = document.getElementById('calendar');
+        const entryForm = document.getElementById('entryForm');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const reportContent = document.getElementById('reportContent');
+        const reportModal = document.getElementById('reportModal');
+        const reportModalTitle = document.getElementById('reportModalTitle');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const statsAcceptedInput = document.getElementById('statsAccepted');
+        const statsPendingInput = document.getElementById('statsPending');
+        const statsRejectedInput = document.getElementById('statsRejected');
+        
+        const typeTranslations = {
+            need: 'Turni',
+            leave: 'Congedi',
+            availability: 'Disponibilità'
+        };
+        const typeColors = {
+            need: '#ef4444',     // red-500
+            leave: '#22c55e',     // green-500
+            availability: '#4ade80' // green-400 (lighter green)
+        };
+
+        // --- MODIFICA SPLIT.JS PER INCLUDERE PANE 6 ---
+        const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
+        const initialSizesH = [14, 18, 12, 18, 18, 20]; // Ridistribuiti per fare spazio
+        const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
+        
+        const initialSizesV = [60, 40];
+        let calendar = null;
+        const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
+        
+        document.getElementById('top-split-pane').addEventListener('click', function(e) {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+            const action = button.dataset.action;
+            const paneIndex = parseInt(button.dataset.paneIndex, 10);
+            if (action === 'toggle') {
+                const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
+                const originalSizes = [14, 18, 12, 18, 18, 20]; // Assicurati che corrisponda
+                if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
+            } else if (action === 'maximize') {
+                const pane = document.getElementById(`pane${paneIndex + 1}`);
+                const isMaximized = pane.dataset.maximized === 'true';
+                if (isMaximized) {
+                    pane.dataset.maximized = 'false';
+                    const originalSizes = [14, 18, 12, 18, 18, 20]; // Assicurati che corrisponda
+                    horizontalSplit.setSizes(originalSizes);
+                } else {
+                    document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
+                    const newSizes = Array(paneElementsH.length).fill(0);
+                    newSizes[paneIndex] = 100;
+                    pane.dataset.maximized = 'true';
+                    horizontalSplit.setSizes(newSizes);
+                }
+            }
+        });
+
+        const generateShortReportBtn = document.getElementById('generateShortReportBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const openNewTabBtn = document.getElementById('openNewTabBtn');
+        const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
+        let currentReportGenerator = null;
+        const depositoReportSelect = document.getElementById('depositoReport');
+        const addTurnoBtn = document.getElementById('addTurnoBtn');
+        const turniContainer = document.getElementById('turniContainer');
+        const addCongedoBtn = document.getElementById('addCongedoBtn');
+        const congediContainer = document.getElementById('congediContainer');
+        let turniPerDeposito = {};
+        let congediDaOffrire = [];
+        let depositoPrecedente = depositoReportSelect.value;
+        const pasteArea = document.getElementById('paste-area');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const quickAddTurnoInput = document.getElementById('quick-add-turno');
+        const quickAddBtn = document.getElementById('quick-add-btn');
+        const addEventModal = document.getElementById('addEventModal');
+        const modalEntryForm = document.getElementById('modalEntryForm');
+        const closeAddEventModalBtn = document.getElementById('closeAddEventModalBtn');
+        const standbyPasteArea = document.getElementById('standby-paste-area');
+        const processStandbyBtn = document.getElementById('process-standby-btn');
+        const standbyResultsContainer = document.getElementById('standby-results-container');
+        
+        // --- GESTIONE CALENDARIO ---
+        const storageKey = 'calendarEvents_v20';
+        let calendarEvents = [];
         try {
-            // --- INIZIALIZZAZIONE GLOBALE VARIABILI ---
-            const calendarEl = document.getElementById('calendar');
-            const entryForm = document.getElementById('entryForm');
-            const generateReportBtn = document.getElementById('generateReportBtn');
-            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-            const reportContent = document.getElementById('reportContent');
-            const reportModal = document.getElementById('reportModal');
-            const reportModalTitle = document.getElementById('reportModalTitle');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const statsAcceptedInput = document.getElementById('statsAccepted');
-            const statsPendingInput = document.getElementById('statsPending');
-            const statsRejectedInput = document.getElementById('statsRejected');
-            
-            const typeTranslations = {
-                need: 'Turni',
-                leave: 'Congedi',
-                availability: 'Disponibilità'
-            };
-            const typeColors = {
-                need: '#ef4444',      // red-500
-                leave: '#22c55e',     // green-500
-                availability: '#4ade80' // green-400 (lighter green)
-            };
+            const storedEvents = localStorage.getItem(storageKey);
+            if (storedEvents) calendarEvents = JSON.parse(storedEvents);
+        } catch (e) { console.error("Errore localStorage", e); }
 
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
-            const initialSizesH = [15, 20, 15, 30, 20];
-            const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
-            
-            const initialSizesV = [60, 40];
-            let calendar = null;
-            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
-            
-            document.getElementById('top-split-pane').addEventListener('click', function(e) {
-                const button = e.target.closest('button[data-action]');
-                if (!button) return;
-                const action = button.dataset.action;
-                const paneIndex = parseInt(button.dataset.paneIndex, 10);
-                if (action === 'toggle') {
-                    const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    const originalSizes = [15, 20, 15, 30, 20];
-                    if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
-                } else if (action === 'maximize') {
-                    const pane = document.getElementById(`pane${paneIndex + 1}`);
-                    const isMaximized = pane.dataset.maximized === 'true';
-                    if (isMaximized) {
-                        pane.dataset.maximized = 'false';
-                        const originalSizes = [15, 20, 15, 30, 20];
-                        horizontalSplit.setSizes(originalSizes);
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth', locale: 'it',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
+            events: calendarEvents,
+            dateClick: function(info) {
+                document.getElementById('modalEntryDate').value = info.dateStr;
+                addEventModal.classList.remove('hidden');
+            },
+            eventClick: function(info) {
+                const eventId = info.event.id;
+                const eventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
+                if (eventIndex > -1) {
+                    calendarEvents[eventIndex].extendedProps.quantity--;
+                    if (calendarEvents[eventIndex].extendedProps.quantity <= 0) {
+                        calendarEvents.splice(eventIndex, 1);
+                        showToast('Gruppo di eventi rimosso.');
                     } else {
-                        document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
-                        const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100;
-                        pane.dataset.maximized = 'true';
-                        horizontalSplit.setSizes(newSizes);
+                        const eventData = calendarEvents[eventIndex];
+                        const props = eventData.extendedProps;
+                        const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
+                        eventData.title = `${typeTranslations[props.type] || 'Evento'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
+                        showToast('Quantità ridotta.');
                     }
+                    saveAndRerender();
                 }
-            });
+            },
+            editable: false, dayMaxEvents: 4, height: '100%'
+        });
+        calendar.render();
+        
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
+        }
 
-            const generateShortReportBtn = document.getElementById('generateShortReportBtn');
-            const clearAllBtn = document.getElementById('clearAllBtn');
-            const openNewTabBtn = document.getElementById('openNewTabBtn');
-            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
-            let currentReportGenerator = null;
-            const depositoReportSelect = document.getElementById('depositoReport');
-            const addTurnoBtn = document.getElementById('addTurnoBtn');
-            const turniContainer = document.getElementById('turniContainer');
-            const addCongedoBtn = document.getElementById('addCongedoBtn');
-            const congediContainer = document.getElementById('congediContainer');
-            let turniPerDeposito = {};
-            let congediDaOffrire = [];
-            let depositoPrecedente = depositoReportSelect.value;
-            const pasteArea = document.getElementById('paste-area');
-            const analyzeBtn = document.getElementById('analyze-btn');
-            const quickAddTurnoInput = document.getElementById('quick-add-turno');
-            const quickAddBtn = document.getElementById('quick-add-btn');
-            const addEventModal = document.getElementById('addEventModal');
-            const modalEntryForm = document.getElementById('modalEntryForm');
-            const closeAddEventModalBtn = document.getElementById('closeAddEventModalBtn');
-            const standbyPasteArea = document.getElementById('standby-paste-area');
-            const processStandbyBtn = document.getElementById('process-standby-btn');
-            const standbyResultsContainer = document.getElementById('standby-results-container');
+        function saveAndRerender() {
+            localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
+            calendar.removeAllEvents();
+            calendar.addEventSource(calendarEvents);
+        }
+
+        function addOrUpdateCalendarEvent(date, type, shift, quantity) {
+            if (!date || !type || !shift || isNaN(quantity)) {
+                showToast("Per favore, compila tutti i campi.");
+                return;
+            }
+            const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
+            const eventId = `${date}-${type}-${shift}`;
+            const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
             
-            // --- GESTIONE CALENDARIO ---
-            const storageKey = 'calendarEvents_v20';
-            let calendarEvents = [];
-            try {
-                const storedEvents = localStorage.getItem(storageKey);
-                if (storedEvents) calendarEvents = JSON.parse(storedEvents);
-            } catch (e) { console.error("Errore localStorage", e); }
+            const newTitle = (currentQty) => `${typeTranslations[type] || 'Evento'}: ${currentQty} ${shiftTranslations[shift]}`;
 
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth', locale: 'it',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
-                events: calendarEvents,
-                dateClick: function(info) {
-                    document.getElementById('modalEntryDate').value = info.dateStr;
-                    addEventModal.classList.remove('hidden');
-                },
-                eventClick: function(info) {
-                    const eventId = info.event.id;
-                    const eventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
-                    if (eventIndex > -1) {
-                        calendarEvents[eventIndex].extendedProps.quantity--;
-                        if (calendarEvents[eventIndex].extendedProps.quantity <= 0) {
-                            calendarEvents.splice(eventIndex, 1);
-                            showToast('Gruppo di eventi rimosso.');
-                        } else {
-                            const eventData = calendarEvents[eventIndex];
-                            const props = eventData.extendedProps;
-                            const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                            eventData.title = `${typeTranslations[props.type] || 'Evento'}: ${props.quantity} ${shiftTranslations[props.shift]}`;
-                            showToast('Quantità ridotta.');
-                        }
-                        saveAndRerender();
-                    }
-                },
-                editable: false, dayMaxEvents: 4, height: '100%'
-            });
-            calendar.render();
-            
-            function showToast(message) {
-                toastMessage.textContent = message;
-                toast.classList.remove('opacity-0', 'translate-y-10');
-                setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 3000);
-            }
-
-            function saveAndRerender() {
-                localStorage.setItem(storageKey, JSON.stringify(calendarEvents));
-                calendar.removeAllEvents();
-                calendar.addEventSource(calendarEvents);
-            }
-
-            function addOrUpdateCalendarEvent(date, type, shift, quantity) {
-                if (!date || !type || !shift || isNaN(quantity)) {
-                    showToast("Per favore, compila tutti i campi.");
-                    return;
-                }
-                const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                const eventId = `${date}-${type}-${shift}`;
-                const existingEventIndex = calendarEvents.findIndex(ev => ev.id === eventId);
-                
-                const newTitle = (currentQty) => `${typeTranslations[type] || 'Evento'}: ${currentQty} ${shiftTranslations[shift]}`;
-
-                if (existingEventIndex > -1) {
-                    calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
-                    calendarEvents[existingEventIndex].title = newTitle(calendarEvents[existingEventIndex].extendedProps.quantity);
-                } else {
-                    calendarEvents.push({ 
-                        id: eventId, 
-                        title: newTitle(quantity), 
-                        start: date, 
-                        allDay: true, 
-                        color: typeColors[type] || '#808080', 
-                        extendedProps: { type, quantity, shift } 
-                    });
-                }
-                saveAndRerender();
-                showToast('Calendario aggiornato.');
-            }
-
-            function creaRigaTurno(data = {}) {
-                const rigaDiv = document.createElement('div');
-                rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
-                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
-                turniContainer.appendChild(rigaDiv);
-            }
-            
-            function creaRigaCongedo(data = {}) {
-                const rigaDiv = document.createElement('div');
-                rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
-                rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
-                congediContainer.appendChild(rigaDiv);
-            }
-
-            function salvaTurni(deposito) {
-                turniPerDeposito[deposito] = Array.from(turniContainer.querySelectorAll('.turno-riga')).map(riga => ({ data: riga.querySelector('.data-turno-input').value, numero: riga.querySelector('.numero-turno-input').value, inizio: riga.querySelector('.inizio-turno-input').value, fine: riga.querySelector('.fine-turno-input').value, }));
-            }
-            function salvaCongedi() {
-                congediDaOffrire = Array.from(congediContainer.querySelectorAll('.congedo-riga')).map(riga => ({ data: riga.querySelector('.data-congedo-input').value, fascia: riga.querySelector('.fascia-congedo-input').value, quantita: riga.querySelector('.quantita-congedo-input').value, }));
-            }
-            function caricaTurni(deposito) {
-                turniContainer.innerHTML = '';
-                const turniSalvati = turniPerDeposito[deposito] || [];
-                turniSalvati.forEach(turno => creaRigaTurno(turno));
-            }
-
-            function generateMonthlyReportData() {
-                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                
-                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.need}"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
-                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.leave}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
-                const availabilityIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.availability}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
-
-                const currentCalendarDate = calendar.getDate();
-                const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
-                const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
-                const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
-                
-                let mainTableHtml = '';
-                if(filteredEvents.length===0){ mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`; }
-                else {
-                    const groupedData={};
-                    filteredEvents.forEach(event=>{
-                        const date=event.start.split('T')[0];
-                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}, availabilities:{early:0,medium:0,late:0}}; }
-                        const p=event.extendedProps;
-                        if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
-                        else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
-                        else if(p.type==='availability'){ groupedData[date].availabilities[p.shift]+=p.quantity; }
-                    });
-
-                    const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
-                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
-                    const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
-                    const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
-                    const iconCellStyle = "padding: 8px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
-                    
-                    for(const dateStr of sortedDates){
-                        const data = groupedData[dateStr];
-                        const date = new Date(dateStr+'T00:00:00');
-                        
-                        const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        const availabilityParts = Object.entries(data.availabilities).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-
-                        const rowsForDate = [];
-                        if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
-                        if (leaveParts.length > 0) rowsForDate.push({ icon: leaveIcon, text: `Congedi disponibili: ${leaveParts.join(' + ')}` });
-                        if (availabilityParts.length > 0) rowsForDate.push({ icon: availabilityIcon, text: `Disponibilità: ${availabilityParts.join(' + ')}` });
-
-                        if (rowsForDate.length > 0) {
-                            const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
-                            mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[0].text}</td></tr>`;
-                            for (let i = 1; i < rowsForDate.length; i++) {
-                                mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[i].text}</td></tr>`;
-                            }
-                        }
-                    }
-                    mainTableHtml += `</tbody></table>`;
-                }
-
-                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
-                const totalRequests = stats.approved + stats.pending + stats.rejected;
-                let statsHtmlBlock = '';
-
-                if (totalRequests > 0) {
-                    const percApproved = ((stats.approved / totalRequests) * 100).toFixed(0);
-                    const percPending = ((stats.pending / totalRequests) * 100).toFixed(0);
-                    const percRejected = ((stats.rejected / totalRequests) * 100).toFixed(0);
-                    statsHtmlBlock = `
-                        <div style="margin-top: 20px; width: 100%;">
-                            <div style="width: 60%; margin: 0 auto;">
-                                <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
-                                <table class="summary-table">
-                                    <thead style="background-color:#e0e0e0;">
-                                        <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
-                                        <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>`;
-                }
-                
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
-                    <style>
-                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
-                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
-                        .page-break-avoid { page-break-inside: avoid !important; }
-                    </style>
-                    <div>
-                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
-                        <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
-                            <tr>
-                                <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
-                            </tr>
-                            <tr>
-                                <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
-                            </tr>
-                            <tr>
-                                <td style="border:none;padding:2px;"></td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div style="flex-grow: 1;">${mainTableHtml}</div>
-                    <div class="page-break-avoid">
-                        ${statsHtmlBlock}
-                        <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
-                        <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
-                        <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
-                    </div>
-                </div>`;
-                return { html: fullHtml };
-            }
-
-            function openModal(reportGenerator, title) {
-                try {
-                    const reportData = reportGenerator();
-                    if (!reportData) return;
-                    currentReportGenerator = reportGenerator;
-                    reportModalTitle.textContent = title;
-                    reportContent.innerHTML = reportData.html;
-                    reportModal.classList.remove('hidden');
-                } catch (error) { console.error("ERRORE in openModal:", error); showToast(`Errore: ${error.message}.`); }
-            }
-
-            function closeModal() { reportModal.classList.add('hidden'); }
-
-            function generateUnifiedAnnouncementData() {
-                salvaTurni(depositoReportSelect.value);
-                salvaCongedi();
-
-                const startDateVal = document.getElementById('startDate').value;
-                const endDateVal = document.getElementById('endDate').value;
-
-                if (!startDateVal || !endDateVal) {
-                    showToast("Per favore, imposta un intervallo di date (Da/A).");
-                    return null;
-                }
-
-                const startDate = new Date(startDateVal + 'T00:00:00');
-                const endDate = new Date(endDateVal + 'T23:59:59');
-                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                
-                let turniHtml = '';
-                let hasTurni = false;
-
-                for (const deposito in turniPerDeposito) {
-                    if (turniPerDeposito.hasOwnProperty(deposito) && turniPerDeposito[deposito].length > 0) {
-                        const turniFiltrati = turniPerDeposito[deposito]
-                            .filter(t => {
-                                if (!t.data) return false;
-                                const turnoDate = new Date(t.data + 'T00:00:00');
-                                return turnoDate >= startDate && turnoDate <= endDate;
-                            })
-                            .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                        if (turniFiltrati.length > 0) {
-                            hasTurni = true;
-                            turniHtml += `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire - ${deposito}</h3>`;
-                            turniHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #eff6ff;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Numero</th><th style="padding: 8px;">Inizio</th><th style="padding: 8px;">Fine</th></tr></thead><tbody>`;
-                            turniFiltrati.forEach(t => {
-                                turniHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(t.data)}</td><td style="padding: 8px;">${t.numero || ''}</td><td style="padding: 8px;">${t.inizio || ''}</td><td style="padding: 8px;">${t.fine || ''}</td></tr>`;
-                            });
-                            turniHtml += `</tbody></table>`;
-                        }
-                    }
-                }
-                if (!hasTurni) {
-                    turniHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire</h3><p style="margin-top: 10px; font-style: italic;">Nessun turno da coprire per il periodo selezionato.</p>`;
-                }
-
-                let congediHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #059669; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Congedi da offrire</h3>`;
-                const congediFiltrati = congediDaOffrire
-                    .filter(c => {
-                        if (!c.data) return false;
-                        const congedoDate = new Date(c.data + 'T00:00:00');
-                        return congedoDate >= startDate && congedoDate <= endDate;
-                    })
-                    .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                if (congediFiltrati.length > 0) {
-                    congediHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #f0fdfa;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Fascia Oraria</th><th style="padding: 8px;">Quantità</th></tr></thead><tbody>`;
-                    congediFiltrati.forEach(c => {
-                        congediHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(c.data)}</td><td style="padding: 8px;">${c.fascia || ''}</td><td style="padding: 8px;">${c.quantita || ''}</td></tr>`;
-                    });
-                    congediHtml += `</tbody></table>`;
-                } else {
-                    congediHtml += `<p style="margin-top: 10px; font-style: italic;">Nessun congedo da offrire per il periodo selezionato.</p>`;
-                }
-
-                const fullHtml = `
-                    <div id="pdf-content" style="font-family: Arial, sans-serif; color: #333;">
-                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Annuncio Stato Effettivi</h2>
-                        <p style="text-align:center; font-size: 16px; margin-bottom: 20px; color: #555;">
-                            Periodo: <strong>${formatDate(startDateVal)}</strong> - <strong>${formatDate(endDateVal)}</strong>
-                        </p>
-                        ${turniHtml}
-                        ${congediHtml}
-                        <p style="margin-top:30px; font-size:12px;">Se interessati, siete pregati di inserire la richiesta in Sopre o contattare la ripartizione del personale.</p>
-                        <p style="font-size:12px;">Grazie per la collaborazione.</p>
-                    </div>`;
-
-                return { html: fullHtml };
-            }
-
-            // --- LISTENERS ---
-            generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
-            generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            closeModalBtn.addEventListener('click', closeModal);
-            downloadPdfBtn.addEventListener('click', function() {
-                const element = document.getElementById('pdf-content');
-                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
-                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
-                html2pdf().from(element).set(opt).save();
-            });
-            entryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(entryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); });
-            modalEntryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(modalEntryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); addEventModal.classList.add('hidden'); });
-            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
-            openNewTabBtn.addEventListener('click', () => { if (!currentReportGenerator) return; const reportData = currentReportGenerator(); if(!reportData) return; const newWindow = window.open(); newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); newWindow.document.close(); });
-            copyHtmlBtn.addEventListener('click', () => { const reportHtmlElement = document.getElementById('pdf-content'); if(!reportHtmlElement) return; navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.')); });
-            sendEmailBtn.addEventListener('click', function() { const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); window.location.href = `mailto:?subject=${subject}&body=${body}`; });
-            depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
-            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
-            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
-            
-            clearAllBtn.addEventListener('click', function() {
-                if (confirm("Sei sicuro di voler pulire tutti i dati per l'annuncio? Questa operazione non può essere annullata e non influisce sul calendario.")) {
-                    try {
-                        document.getElementById('startDate').value = '';
-                        document.getElementById('endDate').value = '';
-                        document.getElementById('quick-add-turno').value = '';
-                        Object.keys(turniPerDeposito).forEach(key => delete turniPerDeposito[key]);
-                        congediDaOffrire.length = 0;
-                        turniContainer.innerHTML = '';
-                        congediContainer.innerHTML = '';
-                        showToast('I dati per l\'annuncio sono stati puliti.');
-                    } catch (e) { console.error("Errore durante la pulizia dei dati annuncio:", e); showToast("Si è verificato un errore imprevisto."); }
-                }
-            });
-
-            quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split(/\s{2,}|\t/).filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
-            analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
-            processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
-            standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
-
-            // --- LOGICA PER CAMBIO TURNO (PANE 4) ---
-            const today_YYYY_MM_DD = new Date().toISOString().slice(0, 10);
-            let proposalSetCounter = 0;
-            
-            function createShiftInputRow(isOriginal = false) {
-                const rigaDiv = document.createElement('div');
-                rigaDiv.className = 'turno-riga-scambio p-3 border rounded-lg bg-gray-50 relative';
-                rigaDiv.innerHTML = `
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2 items-end">
-                        <div><label class="block text-xs font-medium">Data</label><input type="date" class="data-turno-input form-input-box mt-1" value="${today_YYYY_MM_DD}"></div>
-                        <div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 112" class="numero-turno-input form-input-box mt-1"></div>
-                        <div><label class="block text-xs font-medium">Inizio</label><input type="time" class="inizio-turno-input form-input-box mt-1"></div>
-                        <div><label class="block text-xs font-medium">Fine</label><input type="time" class="fine-turno-input form-input-box mt-1"></div>
-                    </div>
-                    ${!isOriginal ? `<button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600 remove-shift-row" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>` : ''}
-                `;
-                return rigaDiv;
-            }
-
-            function getShiftDataFromElement(el) {
-                if (!el) return null;
-                const data = {
-                    data: el.querySelector('.data-turno-input').value,
-                    numero: el.querySelector('.numero-turno-input').value,
-                    inizio: el.querySelector('.inizio-turno-input').value,
-                    fine: el.querySelector('.fine-turno-input').value,
-                };
-                if (!data.data || !data.numero.trim()) return null;
-                return data;
-            };
-
-            function generateSwapProposalEmailHTML(data) {
-                const originalShiftDate = new Date(data.originalShift.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const proposedShiftsHTML = data.proposedShifts.map(s => {
-                    const proposedDate = new Date(s.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    return `<li>Turno <strong>${s.numero}</strong> del ${proposedDate}</li>`;
-                }).join('');
-
-                const greeting = data.driverFullName ? `<p>Buongiorno ${data.driverFullName},</p>` : `<p>Buongiorno,</p>`;
-
-                return `
-                    <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000;">
-                        ${greeting}
-                        <p>nell'ambito della gestione dei turni, ti viene proposto il seguente scambio:</p>
-                        <table style="width: 100%; margin-top: 20px; margin-bottom: 20px; border-collapse: collapse; text-align: left;">
-                             <thead>
-                                <tr>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Turno da rotazione</th>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Opzioni per nuovo turno</th>
-                                    <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Motivazione</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">Turno <strong>${data.originalShift.numero}</strong> del ${originalShiftDate}</td>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;"><ul style="margin:0; padding-left: 20px;">${proposedShiftsHTML}</ul></td>
-                                    <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.motivation}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p>Se interessato, ti invitiamo a rispondere a questa email per confermare la tua scelta.</p>
-                        <p>Nel caso in cui non fossi interessato o avessi domande, puoi contattare il distributore al numero <strong>051 285 11 11</strong>.</p>
-                        <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
-                        <br>
-                        <p style="margin: 0; line-height: 1.4;">Ripartizione del personale<br>P-O-BP-ZFR-MSD-EIN</p>
-                        <br>
-                        <p style="margin: 0; line-height: 1.4;">
-                            <strong>Ferrovie Federali Svizzere - FFS</strong><br>
-                            Produzione ferroviaria,<br>
-                            Condotta dei treni e manovra,<br>
-                            Ripartizione del personale,<br>
-                            6500 Bellinzona
-                        </p>
-                    </div>
-                `;
-            }
-
-            function highlightError(element, remove = false) {
-                if (!element) return;
-                if (remove) {
-                    element.classList.remove('validation-error');
-                } else {
-                    element.classList.add('validation-error');
-                    setTimeout(() => {
-                       element.classList.remove('validation-error');
-                    }, 3500);
-                }
-            }
-            
-            function attachProposalSetListeners(proposalSetDiv) {
-                proposalSetDiv.addEventListener('click', (e) => {
-                    const target = e.target;
-
-                    if (target.closest('.remove-proposal-set-btn')) {
-                        if (confirm("Sei sicuro di voler rimuovere questo intero blocco di proposta?")) {
-                            proposalSetDiv.remove();
-                            showToast("Blocco proposta rimosso.");
-                        }
-                    } else if (target.closest('.add-another-swap-btn-local')) {
-                        const swapWrapper = proposalSetDiv.querySelector('.swap-shifts-wrapper');
-                        swapWrapper.appendChild(createShiftInputRow());
-                    } else if (target.closest('.remove-shift-row')) {
-                        target.closest('.turno-riga-scambio').remove();
-                    } else if (target.closest('.shift-paste-btn-local')) {
-                        const pasteBtn = target.closest('.shift-paste-btn-local');
-                        const inputField = pasteBtn.previousElementSibling;
-                        const text = inputField.value;
-                        const isOriginal = pasteBtn.closest('.original-shift-wrapper') !== null;
-                        const container = isOriginal ? 
-                            pasteBtn.closest('.original-shift-wrapper').querySelector('.shift-manual-container-local') : 
-                            pasteBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
-                        
-                        try {
-                            if (!text.trim()) throw new Error('Incolla del testo prima di aggiungere.');
-                            const columns = text.split(/\s{2,}|\t/).filter(Boolean);
-                            const dateParts = columns[0].match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-                            if (!dateParts) throw new Error('Formato data non valido. Usare GG.MM.AAAA.');
-
-                            const formattedDate = `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}`;
-                            let depotIndex = columns.findIndex(col => ['CHI', 'BEL'].includes(col.trim()));
-                            let numero, inizio, fine;
-
-                            if (depotIndex !== -1 && columns.length >= depotIndex + 3) {
-                                numero = columns[1];
-                                inizio = columns[depotIndex + 1];
-                                fine = columns[depotIndex + 2];
-                            } else if (columns.length >= 4) {
-                                numero = columns[1];
-                                inizio = columns[2];
-                                fine = columns[3];
-                            } else {
-                                throw new Error("Formato turno non riconosciuto. Dati insufficienti.");
-                            }
-
-                            const newShiftRow = createShiftInputRow();
-                            newShiftRow.querySelector('.data-turno-input').value = formattedDate;
-                            newShiftRow.querySelector('.numero-turno-input').value = numero;
-                            newShiftRow.querySelector('.inizio-turno-input').value = inizio;
-                            newShiftRow.querySelector('.fine-turno-input').value = fine;
-                            
-                            if (isOriginal) {
-                                newShiftRow.querySelector('.remove-shift-row').remove(); 
-                                container.innerHTML = ''; 
-                                container.appendChild(newShiftRow);
-                            } else {
-                                container.appendChild(newShiftRow);
-                            }
-                            inputField.value = '';
-                        } catch (error) {
-                            showToast(error.message);
-                        }
-                    } else if (target.closest('.process-drivers-btn')) {
-                        const block = target.closest('.proposal-set');
-                        const driversText = block.querySelector('.driver-paste-area-local').value;
-                        const resultsContainer = block.querySelector('.processed-drivers-container');
-                        resultsContainer.innerHTML = '';
-
-                        if (!driversText.trim()) {
-                            showToast("Incolla la lista dei macchinisti prima di elaborare.");
-                            return;
-                        }
-                        
-                        const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/g;
-                        let match;
-                        let foundCount = 0;
-                        while ((match = nameRegex.exec(driversText)) !== null) {
-                            foundCount++;
-                            const lastName = match[1];
-                            const firstName = match[2];
-                            const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                            const emailAddress = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
-
-                            const driverDiv = document.createElement('div');
-                            driverDiv.className = "flex items-center justify-between p-2 bg-gray-100 rounded-md";
-                            driverDiv.innerHTML = `
-                                <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
-                                <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-fullname="${firstName} ${lastName}">
-                                  Invia Email
-                                </button>
-                            `;
-                            resultsContainer.appendChild(driverDiv);
-                        }
-
-                        if (foundCount === 0) {
-                            showToast("Nessun macchinista valido trovato. Controllare il formato: Cognome Nome Matricola");
-                        } else {
-                            showToast(`${foundCount} macchinisti elaborati.`);
-                        }
-                    } else if (target.closest('.send-single-driver-email-btn')) {
-                        const singleSendBtn = target.closest('.send-single-driver-email-btn');
-                        const block = singleSendBtn.closest('.proposal-set');
-                        let allValid = true;
-
-                        block.querySelectorAll('.validation-error').forEach(el => highlightError(el, true));
-                        
-                        const originalShiftEl = block.querySelector('.original-shift-wrapper .turno-riga-scambio');
-                        const originalShift = getShiftDataFromElement(originalShiftEl);
-                        if (!originalShift) {
-                            allValid = false;
-                            highlightError(originalShiftEl);
-                        }
-                        
-                        const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
-                        const proposedShifts = Array.from(swapShiftEls).map(el => {
-                            const data = getShiftDataFromElement(el);
-                            if (!data) {
-                                allValid = false;
-                                highlightError(el);
-                            }
-                            return data;
-                        }).filter(Boolean);
-
-                        if (swapShiftEls.length === 0 || proposedShifts.length < 1) {
-                            allValid = false;
-                            showToast("Aggiungere almeno un turno proposto valido.");
-                        }
-
-                        const motivationInput = block.querySelector('.motivation-input');
-                        const motivation = motivationInput.value.trim();
-                        if (!motivation) {
-                            allValid = false;
-                            highlightError(motivationInput);
-                        }
-
-                        if (!allValid) {
-                             showToast("Compilare i campi evidenziati in rosso.");
-                             return;
-                        }
-
-                        const emailData = {
-                            driverEmail: singleSendBtn.dataset.email,
-                            driverFullName: singleSendBtn.dataset.fullname,
-                            originalShift: originalShift,
-                            proposedShifts: proposedShifts,
-                            motivation: motivation
-                        };
-                        
-                        const emailBody = generateSwapProposalEmailHTML(emailData);
-                        const subject = `Proposta di modifica turno`;
-                        window.location.href = `mailto:${emailData.driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-                    }
+            if (existingEventIndex > -1) {
+                calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
+                calendarEvents[existingEventIndex].title = newTitle(calendarEvents[existingEventIndex].extendedProps.quantity);
+            } else {
+                calendarEvents.push({ 
+                    id: eventId, 
+                    title: newTitle(quantity), 
+                    start: date, 
+                    allDay: true, 
+                    color: typeColors[type] || '#808080', 
+                    extendedProps: { type, quantity, shift } 
                 });
             }
+            saveAndRerender();
+            showToast('Calendario aggiornato.');
+        }
 
-            function addSwapProposalSet() {
-                proposalSetCounter++;
-                const proposalSetDiv = document.createElement('div');
-                proposalSetDiv.className = 'proposal-set border border-gray-300 rounded-xl p-4 bg-white shadow-sm relative';
-                const uniqueIdOrig = `shift-paste-input-${proposalSetCounter}-orig`;
-                const uniqueIdSwap = `shift-paste-input-${proposalSetCounter}-swap`;
+        function creaRigaTurno(data = {}) {
+            const rigaDiv = document.createElement('div');
+            rigaDiv.className = 'turno-riga p-3 border rounded-lg bg-gray-50 relative';
+            rigaDiv.innerHTML = `<div class="grid grid-cols-4 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 8317" value="${data.numero || ''}" class="numero-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Inizio</label><input type="time" value="${data.inizio || ''}" class="inizio-turno-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fine</label><input type="time" value="${data.fine || ''}" class="fine-turno-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+            rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
+            turniContainer.appendChild(rigaDiv);
+        }
+        
+        function creaRigaCongedo(data = {}) {
+            const rigaDiv = document.createElement('div');
+            rigaDiv.className = 'congedo-riga p-3 border rounded-lg bg-gray-50 relative';
+            rigaDiv.innerHTML = `<div class="grid grid-cols-3 gap-x-2 items-end"><div><label class="block text-xs font-medium">Data</label><input type="date" value="${data.data || ''}" class="data-congedo-input form-input-box mt-1"></div><div><label class="block text-xs font-medium">Fascia Oraria</label><select class="fascia-congedo-input form-input-box mt-1"><option value="Presto" ${data.fascia === 'Presto' ? 'selected' : ''}>Presto</option><option value="Medio" ${data.fascia === 'Medio' ? 'selected' : ''}>Medio</option><option value="Tardi" ${data.fascia === 'Tardi' ? 'selected' : ''}>Tardi</option></select></div><div><label class="block text-xs font-medium">Quantità</label><input type="number" min="1" value="${data.quantita || '1'}" class="quantita-congedo-input form-input-box mt-1"></div></div><button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>`;
+            rigaDiv.querySelector('button').addEventListener('click', () => rigaDiv.remove());
+            congediContainer.appendChild(rigaDiv);
+        }
 
-                proposalSetDiv.innerHTML = `
-                    <button type="button" class="remove-proposal-set-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Proposta">&times;</button>
+        function salvaTurni(deposito) {
+            turniPerDeposito[deposito] = Array.from(turniContainer.querySelectorAll('.turno-riga')).map(riga => ({ data: riga.querySelector('.data-turno-input').value, numero: riga.querySelector('.numero-turno-input').value, inizio: riga.querySelector('.inizio-turno-input').value, fine: riga.querySelector('.fine-turno-input').value, }));
+        }
+        function salvaCongedi() {
+            congediDaOffrire = Array.from(congediContainer.querySelectorAll('.congedo-riga')).map(riga => ({ data: riga.querySelector('.data-congedo-input').value, fascia: riga.querySelector('.fascia-congedo-input').value, quantita: riga.querySelector('.quantita-congedo-input').value, }));
+        }
+        function caricaTurni(deposito) {
+            turniContainer.innerHTML = '';
+            const turniSalvati = turniPerDeposito[deposito] || [];
+            turniSalvati.forEach(turno => creaRigaTurno(turno));
+        }
+
+        function generateMonthlyReportData() {
+            const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.need}"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+            const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.leave}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+            const availabilityIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.availability}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+
+            const currentCalendarDate = calendar.getDate();
+            const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
+            const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
+            const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
+            
+            let mainTableHtml = '';
+            if(filteredEvents.length===0){ mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`; }
+            else {
+                const groupedData={};
+                filteredEvents.forEach(event=>{
+                    const date=event.start.split('T')[0];
+                    if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}, availabilities:{early:0,medium:0,late:0}}; }
+                    const p=event.extendedProps;
+                    if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
+                    else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
+                    else if(p.type==='availability'){ groupedData[date].availabilities[p.shift]+=p.quantity; }
+                });
+
+                const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
+                mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
+                const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
+                const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
+                const iconCellStyle = "padding: 8px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
+                
+                for(const dateStr of sortedDates){
+                    const data = groupedData[dateStr];
+                    const date = new Date(dateStr+'T00:00:00');
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Dettagli Scambio</h3>
-                            <div class="original-shift-wrapper space-y-2">
-                                <label class="block text-sm font-medium">Turno Originale (da cedere)</label>
-                                <div>
-                                    <label for="${uniqueIdOrig}" class="block text-xs font-medium">Incolla Turno</label>
-                                    <div class="flex gap-2 mt-1">
-                                        <input type="text" id="${uniqueIdOrig}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
-                                        <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
-                                    </div>
-                                </div>
-                                <div class="shift-manual-container-local space-y-3 mt-2"></div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mt-2">Motivazione dello scambio</label>
-                                <input type="text" placeholder="Es: Suddivisione turno, necessità di servizio..." class="motivation-input form-input-box w-full mt-1">
-                            </div>
-                            
-                            <hr class="my-4">
+                    const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                    const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                    const availabilityParts = Object.entries(data.availabilities).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
 
-                            <div class="space-y-4">
-                                <label class="block text-sm font-medium">Turni Proposti (in cambio)</label>
-                                 <div class="space-y-2">
-                                    <label for="${uniqueIdSwap}" class="block text-xs font-medium">Incolla Turno da Proporre</label>
-                                    <div class="flex gap-2 mt-1">
-                                        <input type="text" id="${uniqueIdSwap}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
-                                        <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
-                                    </div>
-                                </div>
-                                <div class="swap-shifts-wrapper space-y-3 mt-2"></div>
-                                <button type="button" class="add-another-swap-btn-local w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Opzione di Scambio</button>
-                            </div>
+                    const rowsForDate = [];
+                    if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
+                    if (leaveParts.length > 0) rowsForDate.push({ icon: leaveIcon, text: `Congedi disponibili: ${leaveParts.join(' + ')}` });
+                    if (availabilityParts.length > 0) rowsForDate.push({ icon: availabilityIcon, text: `Disponibilità: ${availabilityParts.join(' + ')}` });
+
+                    if (rowsForDate.length > 0) {
+                        const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
+                        mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[0].text}</td></tr>`;
+                        for (let i = 1; i < rowsForDate.length; i++) {
+                            mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[i].text}</td></tr>`;
+                        }
+                    }
+                }
+                mainTableHtml += `</tbody></table>`;
+            }
+
+            const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
+            const totalRequests = stats.approved + stats.pending + stats.rejected;
+            let statsHtmlBlock = '';
+
+            if (totalRequests > 0) {
+                const percApproved = ((stats.approved / totalRequests) * 100).toFixed(0);
+                const percPending = ((stats.pending / totalRequests) * 100).toFixed(0);
+                const percRejected = ((stats.rejected / totalRequests) * 100).toFixed(0);
+                statsHtmlBlock = `
+                    <div style="margin-top: 20px; width: 100%;">
+                        <div style="width: 60%; margin: 0 auto;">
+                            <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
+                            <table class="summary-table">
+                                <thead style="background-color:#e0e0e0;">
+                                    <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr>
+                                    <tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr>
+                                </tbody>
+                            </table>
                         </div>
+                    </div>`;
+            }
+            
+            let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
+                <style>
+                    .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
+                    .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
+                    .page-break-avoid { page-break-inside: avoid !important; }
+                </style>
+                <div>
+                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
+                    <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
+                        <tr>
+                            <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
+                            <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
+                        </tr>
+                        <tr>
+                            <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
+                            <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
+                        </tr>
+                        <tr>
+                            <td style="border:none;padding:2px;"></td>
+                            <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="flex-grow: 1;">${mainTableHtml}</div>
+                <div class="page-break-avoid">
+                    ${statsHtmlBlock}
+                    <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
+                    <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
+                    <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
+                </div>
+            </div>`;
+            return { html: fullHtml };
+        }
 
-                        <div class="space-y-4 flex flex-col mt-4 md:mt-0">
-                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Macchinisti da Contattare</h3>
+        function openModal(reportGenerator, title) {
+            try {
+                const reportData = reportGenerator();
+                if (!reportData) return;
+                currentReportGenerator = reportGenerator;
+                reportModalTitle.textContent = title;
+                reportContent.innerHTML = reportData.html;
+                reportModal.classList.remove('hidden');
+            } catch (error) { console.error("ERRORE in openModal:", error); showToast(`Errore: ${error.message}.`); }
+        }
+
+        function closeModal() { reportModal.classList.add('hidden'); }
+
+        function generateUnifiedAnnouncementData() {
+            salvaTurni(depositoReportSelect.value);
+            salvaCongedi();
+
+            const startDateVal = document.getElementById('startDate').value;
+            const endDateVal = document.getElementById('endDate').value;
+
+            if (!startDateVal || !endDateVal) {
+                showToast("Per favore, imposta un intervallo di date (Da/A).");
+                return null;
+            }
+
+            const startDate = new Date(startDateVal + 'T00:00:00');
+            const endDate = new Date(endDateVal + 'T23:59:59');
+            const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            let turniHtml = '';
+            let hasTurni = false;
+
+            for (const deposito in turniPerDeposito) {
+                if (turniPerDeposito.hasOwnProperty(deposito) && turniPerDeposito[deposito].length > 0) {
+                    const turniFiltrati = turniPerDeposito[deposito]
+                        .filter(t => {
+                            if (!t.data) return false;
+                            const turnoDate = new Date(t.data + 'T00:00:00');
+                            return turnoDate >= startDate && turnoDate <= endDate;
+                        })
+                        .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+                    if (turniFiltrati.length > 0) {
+                        hasTurni = true;
+                        turniHtml += `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire - ${deposito}</h3>`;
+                        turniHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #eff6ff;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Numero</th><th style="padding: 8px;">Inizio</th><th style="padding: 8px;">Fine</th></tr></thead><tbody>`;
+                        turniFiltrati.forEach(t => {
+                            turniHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(t.data)}</td><td style="padding: 8px;">${t.numero || ''}</td><td style="padding: 8px;">${t.inizio || ''}</td><td style="padding: 8px;">${t.fine || ''}</td></tr>`;
+                        });
+                        turniHtml += `</tbody></table>`;
+                    }
+                }
+            }
+            if (!hasTurni) {
+                turniHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire</h3><p style="margin-top: 10px; font-style: italic;">Nessun turno da coprire per il periodo selezionato.</p>`;
+            }
+
+            let congediHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #059669; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Congedi da offrire</h3>`;
+            const congediFiltrati = congediDaOffrire
+                .filter(c => {
+                    if (!c.data) return false;
+                    const congedoDate = new Date(c.data + 'T00:00:00');
+                    return congedoDate >= startDate && congedoDate <= endDate;
+                })
+                .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+            if (congediFiltrati.length > 0) {
+                congediHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #f0fdfa;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Fascia Oraria</th><th style="padding: 8px;">Quantità</th></tr></thead><tbody>`;
+                congediFiltrati.forEach(c => {
+                    congediHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(c.data)}</td><td style="padding: 8px;">${c.fascia || ''}</td><td style="padding: 8px;">${c.quantita || ''}</td></tr>`;
+                });
+                congediHtml += `</tbody></table>`;
+            } else {
+                congediHtml += `<p style="margin-top: 10px; font-style: italic;">Nessun congedo da offrire per il periodo selezionato.</p>`;
+            }
+
+            const fullHtml = `
+                <div id="pdf-content" style="font-family: Arial, sans-serif; color: #333;">
+                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Annuncio Stato Effettivi</h2>
+                    <p style="text-align:center; font-size: 16px; margin-bottom: 20px; color: #555;">
+                        Periodo: <strong>${formatDate(startDateVal)}</strong> - <strong>${formatDate(endDateVal)}</strong>
+                    </p>
+                    ${turniHtml}
+                    ${congediHtml}
+                    <p style="margin-top:30px; font-size:12px;">Se interessati, siete pregati di inserire la richiesta in Sopre o contattare la ripartizione del personale.</p>
+                    <p style="font-size:12px;">Grazie per la collaborazione.</p>
+                </div>`;
+
+            return { html: fullHtml };
+        }
+
+        // --- LISTENERS ---
+        generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
+        generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
+        closeModalBtn.addEventListener('click', closeModal);
+        downloadPdfBtn.addEventListener('click', function() {
+            const element = document.getElementById('pdf-content');
+            if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
+            const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
+            const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
+            html2pdf().from(element).set(opt).save();
+        });
+        entryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(entryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); });
+        modalEntryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(modalEntryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); addEventModal.classList.add('hidden'); });
+        closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
+        openNewTabBtn.addEventListener('click', () => { if (!currentReportGenerator) return; const reportData = currentReportGenerator(); if(!reportData) return; const newWindow = window.open(); newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); newWindow.document.close(); });
+        copyHtmlBtn.addEventListener('click', () => { const reportHtmlElement = document.getElementById('pdf-content'); if(!reportHtmlElement) return; navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.')); });
+        sendEmailBtn.addEventListener('click', function() { const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); window.location.href = `mailto:?subject=${subject}&body=${body}`; });
+        depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
+        addTurnoBtn.addEventListener('click', () => creaRigaTurno());
+        addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+        
+        clearAllBtn.addEventListener('click', function() {
+            if (confirm("Sei sicuro di voler pulire tutti i dati per l'annuncio? Questa operazione non può essere annullata e non influisce sul calendario.")) {
+                try {
+                    document.getElementById('startDate').value = '';
+                    document.getElementById('endDate').value = '';
+                    document.getElementById('quick-add-turno').value = '';
+                    Object.keys(turniPerDeposito).forEach(key => delete turniPerDeposito[key]);
+                    congediDaOffrire.length = 0;
+                    turniContainer.innerHTML = '';
+                    congediContainer.innerHTML = '';
+                    showToast('I dati per l\'annuncio sono stati puliti.');
+                } catch (e) { console.error("Errore durante la pulizia dei dati annuncio:", e); showToast("Si è verificato un errore imprevisto."); }
+            }
+        });
+
+        quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split(/\s{2,}|\t/).filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
+        analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
+        processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
+        standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
+
+        // --- LOGICA PER CAMBIO TURNO (PANE 4) ---
+        const today_YYYY_MM_DD = new Date().toISOString().slice(0, 10);
+        let proposalSetCounter = 0;
+        
+        function createShiftInputRow(isOriginal = false) {
+            const rigaDiv = document.createElement('div');
+            rigaDiv.className = 'turno-riga-scambio p-3 border rounded-lg bg-gray-50 relative';
+            rigaDiv.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2 items-end">
+                    <div><label class="block text-xs font-medium">Data</label><input type="date" class="data-turno-input form-input-box mt-1" value="${today_YYYY_MM_DD}"></div>
+                    <div><label class="block text-xs font-medium">Numero</label><input type="text" placeholder="Es: 112" class="numero-turno-input form-input-box mt-1"></div>
+                    <div><label class="block text-xs font-medium">Inizio</label><input type="time" class="inizio-turno-input form-input-box mt-1"></div>
+                    <div><label class="block text-xs font-medium">Fine</label><input type="time" class="fine-turno-input form-input-box mt-1"></div>
+                </div>
+                ${!isOriginal ? `<button type="button" class="absolute -top-2 -right-2 bg-white rounded-full text-red-400 hover:text-red-600 remove-shift-row" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>` : ''}
+            `;
+            return rigaDiv;
+        }
+
+        function getShiftDataFromElement(el) {
+            if (!el) return null;
+            const data = {
+                data: el.querySelector('.data-turno-input').value,
+                numero: el.querySelector('.numero-turno-input').value,
+                inizio: el.querySelector('.inizio-turno-input').value,
+                fine: el.querySelector('.fine-turno-input').value,
+            };
+            if (!data.data || !data.numero.trim() || !data.inizio.trim() || !data.fine.trim()) return null;
+            return data;
+        };
+
+        function generateSwapProposalEmailHTML(data) {
+            const originalShiftDate = new Date(data.originalShift.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const proposedShiftsHTML = data.proposedShifts.map(s => {
+                const proposedDate = new Date(s.data + 'T00:00:00').toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                return `<li>Turno <strong>${s.numero}</strong> del ${proposedDate} (${s.inizio} - ${s.fine})</li>`;
+            }).join('');
+
+            const greeting = data.driverFullName ? `<p>Buongiorno ${data.driverFullName},</p>` : `<p>Buongiorno,</p>`;
+
+            return `
+                <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000;">
+                    ${greeting}
+                    <p>nell'ambito della gestione dei turni, ti viene proposto il seguente scambio:</p>
+                    <table style="width: 100%; margin-top: 20px; margin-bottom: 20px; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Turno da rotazione</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Opzioni per nuovo turno</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #000; font-weight: bold;">Motivazione</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #ccc;">Turno <strong>${data.originalShift.numero}</strong> del ${originalShiftDate} (${data.originalShift.inizio} - ${data.originalShift.fine})</td>
+                                <td style="padding: 8px; border-bottom: 1px solid #ccc;"><ul style="margin:0; padding-left: 20px;">${proposedShiftsHTML}</ul></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #ccc;">${data.motivation}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>Se interessato, ti invitiamo a rispondere a questa email per confermare la tua scelta.</p>
+                    <p>Nel caso in cui non fossi interessato o avessi domande, puoi contattare il distributore al numero <strong>051 285 11 11</strong>.</p>
+                    <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
+                    <br>
+                    <p style="margin: 0; line-height: 1.4;">Ripartizione del personale<br>P-O-BP-ZFR-MSD-EIN</p>
+                    <br>
+                    <p style="margin: 0; line-height: 1.4;">
+                        <strong>Ferrovie Federali Svizzere - FFS</strong><br>
+                        Produzione ferroviaria,<br>
+                        Condotta dei treni e manovra,<br>
+                        Ripartizione del personale,<br>
+                        6500 Bellinzona
+                    </p>
+                </div>
+            `;
+        }
+
+        function highlightError(element, remove = false) {
+            if (!element) return;
+            if (remove) {
+                element.classList.remove('validation-error');
+            } else {
+                element.classList.add('validation-error');
+                setTimeout(() => {
+                   element.classList.remove('validation-error');
+                }, 3500);
+            }
+        }
+        
+        function attachProposalSetListeners(proposalSetDiv) {
+            proposalSetDiv.addEventListener('click', (e) => {
+                const target = e.target;
+
+                if (target.closest('.remove-proposal-set-btn')) {
+                    if (confirm("Sei sicuro di voler rimuovere questo intero blocco di proposta?")) {
+                        proposalSetDiv.remove();
+                        showToast("Blocco proposta rimosso.");
+                    }
+                } else if (target.closest('.add-another-swap-btn-local')) {
+                    const swapWrapper = proposalSetDiv.querySelector('.swap-shifts-wrapper');
+                    swapWrapper.appendChild(createShiftInputRow());
+                } else if (target.closest('.remove-shift-row')) {
+                    target.closest('.turno-riga-scambio').remove();
+                } else if (target.closest('.shift-paste-btn-local')) {
+                    const pasteBtn = target.closest('.shift-paste-btn-local');
+                    const inputField = pasteBtn.previousElementSibling;
+                    const text = inputField.value;
+                    const isOriginal = pasteBtn.closest('.original-shift-wrapper') !== null;
+                    const container = isOriginal ? 
+                        pasteBtn.closest('.original-shift-wrapper').querySelector('.shift-manual-container-local') : 
+                        pasteBtn.closest('.proposal-set').querySelector('.swap-shifts-wrapper');
+                    
+                    try {
+                        if (!text.trim()) throw new Error('Incolla del testo prima di aggiungere.');
+                        const columns = text.split(/\s{2,}|\t/).filter(Boolean);
+                        const dateParts = columns[0].match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+                        if (!dateParts) throw new Error('Formato data non valido. Usare GG.MM.AAAA.');
+
+                        const formattedDate = `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}`;
+                        let depotIndex = columns.findIndex(col => ['CHI', 'BEL'].includes(col.trim()));
+                        let numero, inizio, fine;
+
+                        if (depotIndex !== -1 && columns.length >= depotIndex + 3) {
+                            numero = columns[1];
+                            inizio = columns[depotIndex + 1];
+                            fine = columns[depotIndex + 2];
+                        } else if (columns.length >= 4) {
+                            numero = columns[1];
+                            inizio = columns[2];
+                            fine = columns[3];
+                        } else {
+                            throw new Error("Formato turno non riconosciuto. Dati insufficienti.");
+                        }
+
+                        const newShiftRow = createShiftInputRow();
+                        newShiftRow.querySelector('.data-turno-input').value = formattedDate;
+                        newShiftRow.querySelector('.numero-turno-input').value = numero;
+                        newShiftRow.querySelector('.inizio-turno-input').value = inizio;
+                        newShiftRow.querySelector('.fine-turno-input').value = fine;
+                        
+                        if (isOriginal) {
+                            newShiftRow.querySelector('.remove-shift-row')?.remove(); 
+                            container.innerHTML = ''; 
+                            container.appendChild(newShiftRow);
+                        } else {
+                            container.appendChild(newShiftRow);
+                        }
+                        inputField.value = '';
+                    } catch (error) {
+                        showToast(error.message);
+                    }
+                } else if (target.closest('.process-drivers-btn')) {
+                    const block = target.closest('.proposal-set');
+                    let allValid = true;
+                    block.querySelectorAll('.validation-error').forEach(el => highlightError(el, true));
+                    const originalShiftEl = block.querySelector('.original-shift-wrapper .turno-riga-scambio');
+                    const originalShift = getShiftDataFromElement(originalShiftEl);
+                    if (!originalShift) {
+                        allValid = false;
+                        highlightError(originalShiftEl);
+                    }
+                    const swapShiftEls = block.querySelectorAll('.swap-shifts-wrapper .turno-riga-scambio');
+                    const proposedShifts = Array.from(swapShiftEls).map(el => {
+                        const data = getShiftDataFromElement(el);
+                        if (!data) {
+                            allValid = false;
+                            highlightError(el);
+                        }
+                        return data;
+                    }).filter(Boolean);
+                    if (proposedShifts.length < 1) {
+                        allValid = false;
+                        if (swapShiftEls.length > 0) {
+                             showToast("Compilare tutti i campi dei turni proposti.");
+                        } else {
+                             showToast("Aggiungere almeno un turno proposto valido.");
+                        }
+                    }
+                    const motivationInput = block.querySelector('.motivation-input');
+                    const motivation = motivationInput.value.trim();
+                    if (!motivation) {
+                        allValid = false;
+                        highlightError(motivationInput);
+                    }
+                    if (!allValid) {
+                        showToast("Errore: Compilare tutti i campi del cambio turno prima di elaborare la lista.");
+                        return; 
+                    }
+                    const driversText = block.querySelector('.driver-paste-area-local').value;
+                    const resultsContainer = block.querySelector('.processed-drivers-container');
+                    resultsContainer.innerHTML = '';
+                    if (!driversText.trim()) {
+                        showToast("Incolla la lista dei macchinisti prima di elaborare.");
+                        return;
+                    }
+                    const emailData = { originalShift, proposedShifts, motivation };
+                    const emailBody = generateSwapProposalEmailHTML(emailData);
+                    const subject = `Proposta di modifica turno`;
+                    const nameRegex = /([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+\d{6}/g;
+                    let match;
+                    let foundCount = 0;
+                    while ((match = nameRegex.exec(driversText)) !== null) {
+                        foundCount++;
+                        const lastName = match[1];
+                        const firstName = match[2];
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                        const emailAddress = `${normalize(firstName)}.${normalize(lastName)}@sbb.ch`;
+                        const driverDiv = document.createElement('div');
+                        driverDiv.className = "flex items-center justify-between p-2 bg-gray-100 rounded-md";
+                        driverDiv.innerHTML = `
+                            <span class="text-sm font-medium text-gray-800">${lastName} ${firstName}</span>
+                            <button type="button" class="send-single-driver-email-btn px-3 py-1 bg-teal-600 text-white text-xs rounded-md hover:bg-teal-700" 
+                                    data-email="${emailAddress}" 
+                                    data-fullname="${firstName} ${lastName}"
+                                    data-subject="${encodeURIComponent(subject)}"
+                                    data-body="${encodeURIComponent(emailBody)}">
+                                Invia Email
+                            </button>
+                        `;
+                        resultsContainer.appendChild(driverDiv);
+                    }
+                    if (foundCount === 0) {
+                        showToast("Nessun macchinista valido trovato. Controllare il formato: Cognome Nome Matricola");
+                    } else {
+                        showToast(`${foundCount} macchinisti elaborati e pronti per l'invio.`);
+                    }
+                } else if (target.closest('.send-single-driver-email-btn')) {
+                    const button = target.closest('.send-single-driver-email-btn');
+                    const email = button.dataset.email;
+                    const subject = button.dataset.subject;
+                    const body = button.dataset.body;
+                    if (!email || !subject || !body) {
+                        showToast("Errore: dati email mancanti. Rielaborare la lista.");
+                        return;
+                    }
+                    window.location.href = `mailto:${email}?subject=${decodeURIComponent(subject)}&body=${decodeURIComponent(body)}`;
+                }
+            });
+        }
+
+        function addSwapProposalSet() {
+            proposalSetCounter++;
+            const proposalSetDiv = document.createElement('div');
+            proposalSetDiv.className = 'proposal-set border border-gray-300 rounded-xl p-4 bg-white shadow-sm relative';
+            const uniqueIdOrig = `shift-paste-input-${proposalSetCounter}-orig`;
+            const uniqueIdSwap = `shift-paste-input-${proposalSetCounter}-swap`;
+            proposalSetDiv.innerHTML = `
+                <button type="button" class="remove-proposal-set-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Proposta">&times;</button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Dettagli Scambio</h3>
+                        <div class="original-shift-wrapper space-y-2">
+                            <label class="block text-sm font-medium">Turno Originale (da cedere)</label>
                             <div>
-                                <label class="block text-sm font-medium">Incolla lista macchinisti</label>
-                                <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="5" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
+                                <label for="${uniqueIdOrig}" class="block text-xs font-medium">Incolla Turno</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" id="${uniqueIdOrig}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
+                                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
+                                </div>
                             </div>
-                            <button type="button" class="process-drivers-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700">Elabora Lista Macchinisti</button>
-                            <hr>
-                            <div class="processed-drivers-container flex-grow space-y-2 overflow-y-auto" style="min-height: 100px;"></div>
+                            <div class="shift-manual-container-local space-y-3 mt-2"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mt-2">Motivazione dello scambio</label>
+                            <input type="text" placeholder="Es: Suddivisione turno, necessità di servizio..." class="motivation-input form-input-box w-full mt-1">
+                        </div>
+                        <hr class="my-4">
+                        <div class="space-y-4">
+                            <label class="block text-sm font-medium">Turni Proposti (in cambio)</label>
+                            <div class="space-y-2">
+                                <label for="${uniqueIdSwap}" class="block text-xs font-medium">Incolla Turno da Proporre</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" id="${uniqueIdSwap}" placeholder="Incolla riga turno..." class="form-input-box flex-grow shift-paste-input-local">
+                                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shift-paste-btn-local">Aggiungi</button>
+                                </div>
+                            </div>
+                            <div class="swap-shifts-wrapper space-y-3 mt-2"></div>
+                            <button type="button" class="add-another-swap-btn-local w-full flex justify-center items-center mt-2 py-2 px-4 border border-dashed rounded-lg text-sm">+ Aggiungi Opzione di Scambio</button>
                         </div>
                     </div>
-                `;
-                
-                attachProposalSetListeners(proposalSetDiv);
-                
-                const originalContainer = proposalSetDiv.querySelector('.original-shift-wrapper .shift-manual-container-local');
-                originalContainer.appendChild(createShiftInputRow(true));
-
-                const proposedContainer = proposalSetDiv.querySelector('.swap-shifts-wrapper');
-                proposedContainer.appendChild(createShiftInputRow());
-
-                document.getElementById('swap-proposals-container').appendChild(proposalSetDiv);
-            }
-            document.getElementById('add-swap-proposal-set-btn').addEventListener('click', addSwapProposalSet);
-            addSwapProposalSet();
-
-        } catch (error) {
-            console.error("ERRORE FATALE in initializeApp:", error);
-            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p><p>Dettagli: ${error.message}</p></div>`;
+                    <div class="space-y-4 flex flex-col mt-4 md:mt-0">
+                        <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Macchinisti da Contattare</h3>
+                        <div>
+                            <label class="block text-sm font-medium">Incolla lista macchinisti</label>
+                            <textarea class="driver-paste-area-local form-input-box w-full mt-1" rows="5" placeholder="Incolla qui una o più righe del personale (formato: Cognome Nome Matricola)..."></textarea>
+                        </div>
+                        <button type="button" class="process-drivers-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700">Elabora Lista Macchinisti</button>
+                        <hr>
+                        <div class="processed-drivers-container flex-grow space-y-2 overflow-y-auto" style="min-height: 100px;"></div>
+                    </div>
+                </div>
+            `;
+            attachProposalSetListeners(proposalSetDiv);
+            const originalContainer = proposalSetDiv.querySelector('.original-shift-wrapper .shift-manual-container-local');
+            originalContainer.appendChild(createShiftInputRow(true));
+            const proposedContainer = proposalSetDiv.querySelector('.swap-shifts-wrapper');
+            proposedContainer.appendChild(createShiftInputRow());
+            document.getElementById('swap-proposals-container').appendChild(proposalSetDiv);
         }
-    });
-    </script>
+        document.getElementById('add-swap-proposal-set-btn').addEventListener('click', addSwapProposalSet);
+        addSwapProposalSet();
+
+        // --- INIZIO LOGICA PER PANE 6 ---
+        const p6_recipientNameInput = document.getElementById('p6_recipientName');
+        const p6_recipientEmailInput = document.getElementById('p6_recipientEmail');
+        const p6_referenceMonthSelect = document.getElementById('p6_referenceMonth');
+        const p6_referenceYearInput = document.getElementById('p6_referenceYear');
+        const p6_shiftRowsContainer = document.getElementById('p6_shift-rows-container');
+        const p6_addShiftBtn = document.getElementById('p6_add-shift-btn');
+        const p6_generateEmailBtn = document.getElementById('p6_generate-email-btn');
+        const p6_errorMessage = document.getElementById('error-message-pane6');
+
+        const mesi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+        mesi.forEach((mese, index) => {
+            const option = document.createElement('option');
+            option.value = mese;
+            option.textContent = mese.charAt(0).toUpperCase() + mese.slice(1);
+            if (index === 3) { option.selected = true; } // Aprile preselezionato
+            p6_referenceMonthSelect.appendChild(option);
+        });
+
+        function p6_createShiftRow() {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'shift-change-row';
+            rowDiv.innerHTML = `
+                <div class="form-group">
+                    <label class="text-xs">Data</label>
+                    <input type="date" class="form-input-box p6-shift-date">
+                </div>
+                <div class="form-group">
+                    <label class="text-xs">Nuovo turno</label>
+                    <input type="text" class="form-input-box p6-shift-new" placeholder="Es: 8002">
+                </div>
+                <div class="form-group">
+                    <label class="text-xs">T. rotazione</label>
+                    <input type="text" class="form-input-box p6-shift-rotation" placeholder="Es: 116">
+                </div>
+                <div class="form-group">
+                    <label class="text-xs">Motivazione</label>
+                    <input type="text" class="form-input-box p6-shift-motivation">
+                </div>
+                <div>
+                    <button class="btn-danger p6-remove-shift-btn" title="Rimuovi riga">&times;</button>
+                </div>
+            `;
+            rowDiv.querySelector('.p6-remove-shift-btn').addEventListener('click', () => rowDiv.remove());
+            p6_shiftRowsContainer.appendChild(rowDiv);
+        }
+        
+        p6_createShiftRow(); // Aggiungi prima riga all'avvio
+        p6_addShiftBtn.addEventListener('click', p6_createShiftRow);
+        
+        p6_generateEmailBtn.addEventListener('click', function() {
+            p6_errorMessage.style.display = 'none';
+            let isValid = true;
+            [p6_recipientNameInput, p6_recipientEmailInput].forEach(input => {
+                if (!input.value.trim()) { isValid = false; input.classList.add('validation-error'); }
+                else { input.classList.remove('validation-error'); }
+            });
+            const shiftRows = p6_shiftRowsContainer.querySelectorAll('.shift-change-row');
+            if (shiftRows.length === 0) isValid = false;
+            shiftRows.forEach(row => {
+                row.querySelectorAll('.form-input-box').forEach(input => {
+                    if (!input.value.trim()) { isValid = false; input.classList.add('validation-error'); }
+                    else { input.classList.remove('validation-error'); }
+                });
+            });
+
+            if (!isValid) {
+                p6_errorMessage.textContent = 'Per favore, compila tutti i campi.';
+                p6_errorMessage.style.display = 'block';
+                return;
+            }
+
+            let tableRowsHtml = '';
+            shiftRows.forEach(row => {
+                const dateVal = row.querySelector('.p6-shift-date').value;
+                const formattedDate = new Date(dateVal).toLocaleDateString('it-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const newShift = row.querySelector('.p6-shift-new').value.trim();
+                const rotationShift = row.querySelector('.p6-shift-rotation').value.trim();
+                const motivation = row.querySelector('.p6-shift-motivation').value.trim();
+                tableRowsHtml += `
+                    <tr>
+                        <td style="padding: 8px; border-top: 1px solid #dee2e6;">${formattedDate}</td>
+                        <td style="padding: 8px; border-top: 1px solid #dee2e6;">${newShift}</td>
+                        <td style="padding: 8px; border-top: 1px solid #dee2e6;">${rotationShift}</td>
+                        <td style="padding: 8px; border-top: 1px solid #dee2e6;">${motivation}</td>
+                    </tr>
+                `;
+            });
+            
+            const month = p6_referenceMonthSelect.value;
+            const year = p6_referenceYearInput.value;
+            const emailBodyHtml = `
+                <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #333;">
+                    <p>Buongiorno,</p>
+                    <p>nell'ambito dell'allestimento della distribuzione mensile per <strong>${month} ${year}</strong>, sono stati modificati i seguenti turni a tuo carico:</p>
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; margin: 20px 0;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 8px; border-bottom: 2px solid #333;">Data</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #333;">Nuovo turno</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #333;">Turno da rotazione</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #333;">Motivazione</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRowsHtml}</tbody>
+                    </table>
+                    <p>Nel caso in cui non ti fosse possibile svolgere il nuovo turno assegnato, ti invitiamo a contattare il distributore al numero <strong>051 285 11 11</strong> oppure a rispondere direttamente a questa email.</p>
+                    <p>Ti ringraziamo per la collaborazione e ti porgiamo cordiali saluti.</p>
+                </div>
+            `;
+            const subject = `Modifica turni per ${month} ${year}`;
+            const mailtoLink = `mailto:${p6_recipientEmailInput.value.trim()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBodyHtml)}`;
+            window.location.href = mailtoLink;
+        });
+        // --- FINE LOGICA PER PANE 6 ---
+
+    } catch (error) {
+        console.error("ERRORE FATALE in initializeApp:", error);
+        document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p><p>Dettagli: ${error.message}</p></div>`;
+    }
+});
+</script>
+
 </body>
 </html>
