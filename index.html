@@ -816,63 +816,64 @@
                     const subject = `Modifica piano di servizio del ${s_orig.date}`;
                     
                     const body = `
-<div style="font-family: Arial, sans-serif; font-size: 11pt; color: #333;">
-  <p>Buongiorno ${driver.name},</p>
-  <p>la informiamo di una modifica al suo piano di servizio.</p>
-  
-  <p style="margin-top: 20px; margin-bottom: 5px; font-weight: bold;">Turno stornato:</p>
-  <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt;">
-    <tbody>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold; width: 80px;">Turno</td>
-        <td style="padding: 8px;">${s_orig.number}</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold;">Data</td>
-        <td style="padding: 8px;">${s_orig.date}</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold;">Orario</td>
-        <td style="padding: 8px;">${s_orig.start} – ${s_orig.end}</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold;">Motivo</td>
-        <td style="padding: 8px;">${motivo}</td>
-      </tr>
-    </tbody>
-  </table>
+                    <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #333;">
+                      <p>Buongiorno ${driver.name},</p>
+                      <p>la informiamo di una modifica al suo piano di servizio.</p>
+                      
+                      <p style="margin-top: 20px; margin-bottom: 10px; font-weight: bold;">Turno stornato:</p>
+                      <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt; border-top: 1px solid #ddd;">
+                        <tbody>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; width: 100px; background-color: #f8f8f8;">Turno</td>
+                            <td style="padding: 8px;">${s_orig.number}</td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Data</td>
+                            <td style="padding: 8px;">${s_orig.date}</td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Orario</td>
+                            <td style="padding: 8px;">${s_orig.start} – ${s_orig.end}</td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Motivo</td>
+                            <td style="padding: 8px;">${motivo}</td>
+                          </tr>
+                        </tbody>
+                      </table>
 
-  <p style="margin-top: 20px; margin-bottom: 5px; font-weight: bold;">Nuovo turno assegnato:</p>
-  <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt;">
-     <tbody>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold; width: 80px;">Turno</td>
-        <td style="padding: 8px;">${s_new.number}</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold;">Data</td>
-        <td style="padding: 8px;">${s_new.date}</td>
-      </tr>
-       <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px 8px 8px 0; font-weight: bold;">Orario</td>
-        <td style="padding: 8px;">${s_new.start} – ${s_new.end}</td>
-      </tr>
-    </tbody>
-  </table>
+                      <p style="margin-top: 20px; margin-bottom: 10px; font-weight: bold;">Nuovo turno assegnato:</p>
+                      <table style="width: 100%; max-width: 600px; border-collapse: collapse; font-size: 11pt; border-top: 1px solid #ddd;">
+                         <tbody>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; width: 100px; background-color: #f8f8f8;">Turno</td>
+                            <td style="padding: 8px;">${s_new.number}</td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Data</td>
+                            <td style="padding: 8px;">${s_new.date}</td>
+                          </tr>
+                           <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; font-weight: bold; background-color: #f8f8f8;">Orario</td>
+                            <td style="padding: 8px;">${s_new.start} – ${s_new.end}</td>
+                          </tr>
+                        </tbody>
+                      </table>
 
-  <p style="margin-top: 25px;">La preghiamo di prenderne nota.</p>
-  <div style="margin-top: 15px; line-height: 1.4;">
-    Cordiali saluti,<br>
-    Ripartizione del Personale<br><br>
-    P-O-BP-ZFR-MSD-EIN<br><br>
-    Ferrovie Federali Svizzere FFS<br>
-    Produzione ferroviaria – Condotta dei treni e manovra<br>
-    6500 Bellinzona
-  </div>
-</div>
-`;
+                      <p style="margin-top: 25px;">La preghiamo di prenderne nota.</p>
+                      <div style="margin-top: 20px; line-height: 1.5; font-size: 10pt;">
+                        Cordiali saluti,<br>
+                        <strong>Ripartizione del Personale</strong><br><br>
+                        P-O-BP-ZFR-MSD-EIN<br><br>
+                        <strong>Ferrovie Federali Svizzere FFS</strong><br>
+                        Produzione ferroviaria – Condotta dei treni e manovra<br>
+                        6500 Bellinzona
+                      </div>
+                    </div>`;
 
-                    window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    const newWindow = window.open();
+                    newWindow.document.write(`<html><head><title>${subject}</title></head><body>${body}</body></html>`);
+                    newWindow.document.close();
                 }
             });
 
