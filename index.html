@@ -649,12 +649,17 @@
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-700">Turno Originale (da annullare)</label>
+                        <label class="text-sm font-medium text-gray-700">Turno Originale (da stornare)</label>
                         <div class="flex gap-2 mt-1">
                             <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno originale..."></textarea>
                             <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
                         </div>
                         <div class="shift-original-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Motivo dello storno</label>
+                        <input type="text" class="motivo-input form-input-box w-full mt-1" placeholder="Es: Necessità di servizio, cambio programma...">
                     </div>
 
                     <div>
@@ -705,15 +710,14 @@
                 const depot = columns.find(c => c === 'BEL' || c === 'CHI') || null;
                 const times = columns.filter(c => /^\d{1,2}:\d{2}$/.test(c.trim()));
                 const start = times.length > 0 ? times[0] : null;
-                // Heuristic: The end time is often the last time listed, but not always. We take the one after the start time if available.
-                const startIndex = columns.findIndex(c => c === start);
+                
+                const startIndex = columns.findIndex(c => c.trim() === start);
                 let end = null;
                 if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
                      end = columns[startIndex + 1].trim();
                 } else if (times.length > 1) {
-                     end = times[1]; // Fallback to second found time
+                     end = times[1]; 
                 }
-
 
                 if (date && number && depot && start && end) {
                     return { date, number, depot, start, end };
@@ -733,6 +737,7 @@
                     if (confirm('Sei sicuro di voler rimuovere questo blocco?')) {
                         parentBlock.remove();
                     }
+                    return;
                 }
 
                 // Handle Process Button
@@ -772,6 +777,7 @@
                          infoDiv.classList.remove('valid');
                          infoDiv.classList.add('invalid');
                     }
+                    return;
                 }
 
                 // Handle Generate Email Button
@@ -779,6 +785,7 @@
                     const driverInfoDiv = parentBlock.querySelector('.driver-info');
                     const originalShiftInfoDiv = parentBlock.querySelector('.shift-original-info');
                     const newShiftInfoDiv = parentBlock.querySelector('.shift-new-info');
+                    const motivoInput = parentBlock.querySelector('.motivo-input');
 
                     const allDivs = [driverInfoDiv, originalShiftInfoDiv, newShiftInfoDiv];
                     let allValid = true;
@@ -791,6 +798,11 @@
                              div.classList.remove('invalid');
                         }
                     });
+                    
+                    let motivo = motivoInput.value.trim();
+                    if(!motivo){
+                        motivo = "[motivo non specificato]";
+                    }
 
                     if (!allValid) {
                         showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
@@ -801,27 +813,33 @@
                     const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
                     const s_new = JSON.parse(newShiftInfoDiv.dataset.parsed);
 
-                    const subject = `Variazione turno del ${s_orig.date}`;
+                    const subject = `Modifica piano di servizio del ${s_orig.date}`;
                     
                     const body = `Buongiorno ${driver.name},
+la informiamo di una modifica al suo piano di servizio.
 
-La informiamo di una variazione al suo piano di servizio.
+Turno stornato:
+Turno: ${s_orig.number}
+Data: ${s_orig.date}
+Orario: ${s_orig.start} – ${s_orig.end}
+Motivo: ${motivo}
 
-Il seguente turno è stato annullato:
-- Turno: ${s_orig.number}
-- Data: ${s_orig.date}
-- Orario: ${s_orig.start} - ${s_orig.end}
-
-Le è stato assegnato il seguente nuovo turno:
-- Turno: ${s_new.number}
-- Data: ${s_new.date}
-- Orario: ${s_new.start} - ${s_new.end}
+Nuovo turno assegnato:
+Turno: ${s_new.number}
+Data: ${s_new.date}
+Orario: ${s_new.start} – ${s_new.end}
 
 La preghiamo di prenderne nota.
 
 Cordiali saluti,
-Ripartizione del personale
-                    `.trim().replace(/^ +/gm, '');
+Ripartizione del Personale
+
+P-O-BP-ZFR-MSD-EIN
+
+Ferrovie Federali Svizzere FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+                    `.trim();
 
                     window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }
