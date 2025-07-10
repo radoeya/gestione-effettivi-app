@@ -31,11 +31,9 @@
         .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
         #bottom-split-pane { display: flex; flex-direction: column; background-color: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .fc-event { cursor: pointer; }
-        .validation-error {
-            box-shadow: 0 0 0 2px #ef4444; /* red-500 */
-            transition: box-shadow 0.2s ease-in-out;
-            border-radius: 0.5rem;
-        }
+        .parsed-info { min-height: 44px; border-width: 1px; border-color: #d1d5db; transition: all 0.2s ease-in-out; }
+        .parsed-info.valid { border-color: #22c55e; background-color: #f0fdf4; }
+        .parsed-info.invalid { border-color: #ef4444; background-color: #fef2f2; }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -128,57 +126,14 @@
                                 <button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button>
                             </div>
                         </div>
-                        <div class="pane-content flex-grow flex flex-col space-y-4" id="swap-management-content">
-                             <div class="swap-block border p-4 rounded-lg bg-white shadow-sm space-y-4">
-                                
-                                <div class="border-b-2 border-gray-200 pb-4">
-                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Macchinista 1 (cede il turno)</h3>
-                                    <div class="space-y-2">
-                                        <div>
-                                            <label class="text-sm font-medium text-gray-700">Incolla dati macchinista 1</label>
-                                            <div class="flex gap-2 mt-1">
-                                                <textarea data-target="driver1" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del macchinista..."></textarea>
-                                                <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                                            </div>
-                                            <div id="driver1-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
-                                        </div>
-                                        <div>
-                                            <label class="text-sm font-medium text-gray-700">Incolla turno originale (da cedere)</label>
-                                             <div class="flex gap-2 mt-1">
-                                                <textarea data-target="shift-original" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del turno originale..."></textarea>
-                                                <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                                            </div>
-                                            <div id="shift-original-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                    
-                                <div class="border-b-2 border-gray-200 pb-4">
-                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Macchinista 2 (riceve il turno)</h3>
-                                     <div class="space-y-2">
-                                        <div>
-                                            <label class="text-sm font-medium text-gray-700">Incolla dati macchinista 2</label>
-                                            <div class="flex gap-2 mt-1">
-                                                <textarea data-target="driver2" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del macchinista..."></textarea>
-                                                <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                                            </div>
-                                            <div id="driver2-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
-                                        </div>
-                                        <div>
-                                            <label class="text-sm font-medium text-gray-700">Incolla turno proposto (da ricevere)</label>
-                                            <div class="flex gap-2 mt-1">
-                                                <textarea data-target="shift-proposed" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del turno proposto..."></textarea>
-                                                <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                                            </div>
-                                            <div id="shift-proposed-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="pt-2">
-                                    <button id="generate-swap-email-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Genera Email di Scambio</button>
-                                </div>
-                            </div>
+                        <div class="pane-content flex-grow flex flex-col space-y-4">
+                             <div id="swap-blocks-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
+                                 </div>
+                             <div class="pt-4 border-t">
+                                <button id="add-new-swap-block-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold">
+                                    + Aggiungi Blocco Cambio
+                                </button>
+                             </div>
                         </div>
                     </div>
                     <div id="pane5" class="split-pane flex flex-col">
@@ -675,7 +630,57 @@
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
             // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
-            const swapManagementContent = document.getElementById('swap-management-content');
+            const swapBlocksContainer = document.getElementById('swap-blocks-container');
+
+            function createSwapBlockHTML() {
+                return `
+                <div class="change-block border p-4 rounded-lg bg-white shadow-sm space-y-3 relative">
+                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Blocco">&times;</button>
+                    
+                    <h3 class="font-semibold text-lg text-gray-800 border-b pb-2">Gestione Cambio Macchinista</h3>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Dati Macchinista</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla dati: Cognome Nome Matricola..."></textarea>
+                            <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="driver-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Turno Originale (da annullare)</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno originale..."></textarea>
+                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="shift-original-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Turno Nuovo (da assegnare)</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno nuovo..."></textarea>
+                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="shift-new-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button class="generate-change-email-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Genera Email di Avviso</button>
+                    </div>
+                </div>`;
+            }
+            
+            function addNewChangeBlock() {
+                const blockHTML = createSwapBlockHTML();
+                swapBlocksContainer.insertAdjacentHTML('beforeend', blockHTML);
+            }
+            
+            document.getElementById('add-new-swap-block-btn').addEventListener('click', addNewChangeBlock);
+            // Add one block by default on load
+            addNewChangeBlock();
+
 
             function parseDriverInfo(text) {
                 const match = text.match(/\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
@@ -700,30 +705,50 @@
                 const depot = columns.find(c => c === 'BEL' || c === 'CHI') || null;
                 const times = columns.filter(c => /^\d{1,2}:\d{2}$/.test(c.trim()));
                 const start = times.length > 0 ? times[0] : null;
-                const end = times.length > 1 ? times[times.length - 1] : null;
+                // Heuristic: The end time is often the last time listed, but not always. We take the one after the start time if available.
+                const startIndex = columns.findIndex(c => c === start);
+                let end = null;
+                if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
+                     end = columns[startIndex + 1].trim();
+                } else if (times.length > 1) {
+                     end = times[1]; // Fallback to second found time
+                }
+
 
                 if (date && number && depot && start && end) {
                     return { date, number, depot, start, end };
                 }
                 return null;
             }
+            
+            swapBlocksContainer.addEventListener('click', function(e) {
+                const button = e.target.closest('button');
+                if (!button) return;
 
-            swapManagementContent.addEventListener('click', function(e) {
-                if (e.target.classList.contains('process-paste-btn')) {
-                    const button = e.target;
+                const parentBlock = e.target.closest('.change-block');
+                if (!parentBlock) return;
+
+                // Handle Remove Button
+                if (button.classList.contains('remove-change-block-btn')) {
+                    if (confirm('Sei sicuro di voler rimuovere questo blocco?')) {
+                        parentBlock.remove();
+                    }
+                }
+
+                // Handle Process Button
+                if (button.classList.contains('process-paste-btn')) {
                     const type = button.dataset.type;
                     const textarea = button.previousElementSibling;
-                    const targetDivId = textarea.dataset.target + '-info';
-                    const targetDiv = document.getElementById(targetDivId);
                     const text = textarea.value;
-
+                    const infoDiv = textarea.parentElement.nextElementSibling;
+                    
                     if (!text.trim()) {
                         showToast("Incolla del testo prima di elaborare.");
                         return;
                     }
 
                     let parsedData = null;
-                    let displayText = '<p class="text-red-600">Dati non validi o formato non riconosciuto.</p>';
+                    let displayText = '<p class="text-red-500">Dati non validi o formato non riconosciuto.</p>';
 
                     if (type === 'driver') {
                         parsedData = parseDriverInfo(text);
@@ -737,78 +762,69 @@
                         }
                     }
                     
-                    targetDiv.innerHTML = displayText;
+                    infoDiv.innerHTML = displayText;
                     if (parsedData) {
-                        targetDiv.dataset.parsed = JSON.stringify(parsedData);
-                        targetDiv.classList.remove('border-red-500');
-                        targetDiv.classList.add('border-green-500');
-
+                        infoDiv.dataset.parsed = JSON.stringify(parsedData);
+                        infoDiv.classList.remove('invalid');
+                        infoDiv.classList.add('valid');
                     } else {
-                         delete targetDiv.dataset.parsed;
-                         targetDiv.classList.add('border-red-500');
-                         targetDiv.classList.remove('border-green-500');
+                         delete infoDiv.dataset.parsed;
+                         infoDiv.classList.remove('valid');
+                         infoDiv.classList.add('invalid');
                     }
                 }
-            });
 
-            document.getElementById('generate-swap-email-btn').addEventListener('click', function() {
-                const driver1InfoDiv = document.getElementById('driver1-info');
-                const driver2InfoDiv = document.getElementById('driver2-info');
-                const originalShiftInfoDiv = document.getElementById('shift-original-info');
-                const proposedShiftInfoDiv = document.getElementById('shift-proposed-info');
+                // Handle Generate Email Button
+                if (button.classList.contains('generate-change-email-btn')) {
+                    const driverInfoDiv = parentBlock.querySelector('.driver-info');
+                    const originalShiftInfoDiv = parentBlock.querySelector('.shift-original-info');
+                    const newShiftInfoDiv = parentBlock.querySelector('.shift-new-info');
 
-                const allDivs = [driver1InfoDiv, driver2InfoDiv, originalShiftInfoDiv, proposedShiftInfoDiv];
-                let allValid = true;
+                    const allDivs = [driverInfoDiv, originalShiftInfoDiv, newShiftInfoDiv];
+                    let allValid = true;
 
-                allDivs.forEach(div => {
-                    if (!div.dataset.parsed) {
-                        div.classList.add('border-red-500');
-                        allValid = false;
-                    } else {
-                         div.classList.remove('border-red-500');
+                    allDivs.forEach(div => {
+                        if (!div.dataset.parsed) {
+                            div.classList.add('invalid');
+                            allValid = false;
+                        } else {
+                             div.classList.remove('invalid');
+                        }
+                    });
+
+                    if (!allValid) {
+                        showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
+                        return;
                     }
-                });
 
-                if (!allValid) {
-                    showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
-                    return;
-                }
+                    const driver = JSON.parse(driverInfoDiv.dataset.parsed);
+                    const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
+                    const s_new = JSON.parse(newShiftInfoDiv.dataset.parsed);
 
-                const d1 = JSON.parse(driver1InfoDiv.dataset.parsed);
-                const d2 = JSON.parse(driver2InfoDiv.dataset.parsed);
-                const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
-                const s_prop = JSON.parse(proposedShiftInfoDiv.dataset.parsed);
+                    const subject = `Variazione turno del ${s_orig.date}`;
+                    
+                    const body = `Buongiorno ${driver.name},
 
-                const subject = `Proposta di scambio turno del ${s_orig.date}`;
-                const mailto_to = `${d1.email},${d2.email}`;
+La informiamo di una variazione al suo piano di servizio.
 
-                const body = `
-Buongiorno ${d1.name} e ${d2.name},
+Il seguente turno è stato annullato:
+- Turno: ${s_orig.number}
+- Data: ${s_orig.date}
+- Orario: ${s_orig.start} - ${s_orig.end}
 
-Si propone il seguente scambio di turni per la giornata del ${s_orig.date}:
+Le è stato assegnato il seguente nuovo turno:
+- Turno: ${s_new.number}
+- Data: ${s_new.date}
+- Orario: ${s_new.start} - ${s_new.end}
 
-----------------------------------------------------
-${d1.surname} ${d1.name} cederebbe:
-Turno: ${s_orig.number}
-Orario: ${s_orig.start} - ${s_orig.end}
-Deposito: ${s_orig.depot}
-----------------------------------------------------
-${d2.surname} ${d2.name} cederebbe:
-Turno: ${s_prop.number}
-Orario: ${s_prop.start} - ${s_prop.end}
-Deposito: ${s_prop.depot}
-----------------------------------------------------
-
-Siete pregati di confermare la vostra disponibilità per questo scambio rispondendo a questa email.
-
-In caso di domande, contattare la ripartizione del personale.
+La preghiamo di prenderne nota.
 
 Cordiali saluti,
 Ripartizione del personale
-                `.trim().replace(/^ +/gm, ''); // a simple trim for each line
+                    `.trim().replace(/^ +/gm, '');
 
-                 window.location.href = `mailto:${mailto_to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
+                    window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                }
             });
 
         } catch (error) {
