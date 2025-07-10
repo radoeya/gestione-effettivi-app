@@ -120,6 +120,67 @@
                             </div>
                         </div>
                     </div>
+                    <div id="pane4" class="split-pane flex flex-col">
+                        <div class="pane-header flex justify-between items-center">
+                            <h2 class="text-xl font-semibold text-gray-800">Gestione Cambi</h2>
+                            <div class="pane-controls flex gap-2">
+                                <button data-action="maximize" data-pane-index="3" title="Massimizza">□</button>
+                                <button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button>
+                            </div>
+                        </div>
+                        <div class="pane-content flex-grow flex flex-col space-y-4" id="swap-management-content">
+                             <div class="swap-block border p-4 rounded-lg bg-white shadow-sm space-y-4">
+                                
+                                <div class="border-b-2 border-gray-200 pb-4">
+                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Macchinista 1 (cede il turno)</h3>
+                                    <div class="space-y-2">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700">Incolla dati macchinista 1</label>
+                                            <div class="flex gap-2 mt-1">
+                                                <textarea data-target="driver1" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del macchinista..."></textarea>
+                                                <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                                            </div>
+                                            <div id="driver1-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700">Incolla turno originale (da cedere)</label>
+                                             <div class="flex gap-2 mt-1">
+                                                <textarea data-target="shift-original" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del turno originale..."></textarea>
+                                                <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                                            </div>
+                                            <div id="shift-original-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="border-b-2 border-gray-200 pb-4">
+                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Macchinista 2 (riceve il turno)</h3>
+                                     <div class="space-y-2">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700">Incolla dati macchinista 2</label>
+                                            <div class="flex gap-2 mt-1">
+                                                <textarea data-target="driver2" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del macchinista..."></textarea>
+                                                <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                                            </div>
+                                            <div id="driver2-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-700">Incolla turno proposto (da ricevere)</label>
+                                            <div class="flex gap-2 mt-1">
+                                                <textarea data-target="shift-proposed" class="parser-input form-input-box w-full" rows="2" placeholder="Incolla qui la riga del turno proposto..."></textarea>
+                                                <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                                            </div>
+                                            <div id="shift-proposed-info" class="parsed-info p-2 bg-gray-50 mt-2 rounded-md text-sm min-h-[3em] border"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <button id="generate-swap-email-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Genera Email di Scambio</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="pane5" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
@@ -199,8 +260,8 @@
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
-            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane5'];
-            const initialSizesH = [25, 30, 25, 20];
+            const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5'];
+            const initialSizesH = [15, 20, 15, 30, 20];
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
             
             const initialSizesV = [60, 40];
@@ -214,14 +275,14 @@
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
                 if (action === 'toggle') {
                     const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    const originalSizes = [25, 30, 25, 20];
+                    const originalSizes = [15, 20, 15, 30, 20];
                     if (isCollapsed) { horizontalSplit.setSizes(originalSizes); } else { horizontalSplit.collapse(paneIndex); }
                 } else if (action === 'maximize') {
                     const pane = document.getElementById(`pane${paneIndex + 1}`);
                     const isMaximized = pane.dataset.maximized === 'true';
                     if (isMaximized) {
                         pane.dataset.maximized = 'false';
-                        const originalSizes = [25, 30, 25, 20];
+                        const originalSizes = [15, 20, 15, 30, 20];
                         horizontalSplit.setSizes(originalSizes);
                     } else {
                         document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
@@ -612,6 +673,143 @@
             analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
             processStandbyBtn.addEventListener('click', function() { const text = standbyPasteArea.value; if (!text.trim()) { showToast('Incolla il testo da elaborare.'); return; } standbyResultsContainer.innerHTML = '';  const lines = text.trim().split('\n'); lines.forEach(line => { if (line.trim().length === 0) return;  const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); if (dateMatch && nameMatch) { const date = dateMatch[0]; const surname = nameMatch[1]; const name = nameMatch[2]; const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; const emailBody = `Buongiorno,\n\nvi scriviamo per chiedere se fosse possibile attendere l’assegnazione\ndel turno previsto per il giorno ${date}, in modo da poter garantire una\nprestazione lavorativa da parte nostra, vista la situazione di esubero del\npersonale prevista per quella data.\n\nRingraziandovi per l’attenzione, porgiamo cordiali saluti.\n\nRipartizione del personale\nP-O-BP-ZFR-MSD-EIN\n\nFerrovie Federali Svizzere - FFS\nProduzione ferroviaria,\nCondotta dei treni e manovra,\nRipartizione del personale,\n6500 Bellinzona`; const resultDiv = document.createElement('div'); resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent("Posticipo assegnazione turno")}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; standbyResultsContainer.appendChild(resultDiv); } }); standbyPasteArea.value = ''; if(standbyResultsContainer.children.length > 0){ showToast('Lista elaborata!'); } else { showToast('Nessun dato valido trovato nel testo.'); } });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
+
+            // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
+            const swapManagementContent = document.getElementById('swap-management-content');
+
+            function parseDriverInfo(text) {
+                const match = text.match(/\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
+                if (match) {
+                    const surname = match[1];
+                    const name = match[2];
+                    const matricola = match[3];
+                    const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                    const email = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
+                    return { name, surname, matricola, email };
+                }
+                return null;
+            }
+
+            function parseShiftInfo(text) {
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean);
+                if (columns.length < 4) return null;
+
+                const dateMatch = columns[0].match(/(\d{2}\.\d{2}\.\d{4})/);
+                const date = dateMatch ? dateMatch[1] : null;
+                const number = columns[1] || null;
+                const depot = columns.find(c => c === 'BEL' || c === 'CHI') || null;
+                const times = columns.filter(c => /^\d{1,2}:\d{2}$/.test(c.trim()));
+                const start = times.length > 0 ? times[0] : null;
+                const end = times.length > 1 ? times[times.length - 1] : null;
+
+                if (date && number && depot && start && end) {
+                    return { date, number, depot, start, end };
+                }
+                return null;
+            }
+
+            swapManagementContent.addEventListener('click', function(e) {
+                if (e.target.classList.contains('process-paste-btn')) {
+                    const button = e.target;
+                    const type = button.dataset.type;
+                    const textarea = button.previousElementSibling;
+                    const targetDivId = textarea.dataset.target + '-info';
+                    const targetDiv = document.getElementById(targetDivId);
+                    const text = textarea.value;
+
+                    if (!text.trim()) {
+                        showToast("Incolla del testo prima di elaborare.");
+                        return;
+                    }
+
+                    let parsedData = null;
+                    let displayText = '<p class="text-red-600">Dati non validi o formato non riconosciuto.</p>';
+
+                    if (type === 'driver') {
+                        parsedData = parseDriverInfo(text);
+                        if (parsedData) {
+                            displayText = `<strong>Macch:</strong> ${parsedData.surname} ${parsedData.name} (${parsedData.matricola})<br><strong>Email:</strong> ${parsedData.email}`;
+                        }
+                    } else if (type === 'shift') {
+                        parsedData = parseShiftInfo(text);
+                         if (parsedData) {
+                            displayText = `<strong>Turno:</strong> ${parsedData.number} del ${parsedData.date}<br><strong>Orario:</strong> ${parsedData.start} - ${parsedData.end} (${parsedData.depot})`;
+                        }
+                    }
+                    
+                    targetDiv.innerHTML = displayText;
+                    if (parsedData) {
+                        targetDiv.dataset.parsed = JSON.stringify(parsedData);
+                        targetDiv.classList.remove('border-red-500');
+                        targetDiv.classList.add('border-green-500');
+
+                    } else {
+                         delete targetDiv.dataset.parsed;
+                         targetDiv.classList.add('border-red-500');
+                         targetDiv.classList.remove('border-green-500');
+                    }
+                }
+            });
+
+            document.getElementById('generate-swap-email-btn').addEventListener('click', function() {
+                const driver1InfoDiv = document.getElementById('driver1-info');
+                const driver2InfoDiv = document.getElementById('driver2-info');
+                const originalShiftInfoDiv = document.getElementById('shift-original-info');
+                const proposedShiftInfoDiv = document.getElementById('shift-proposed-info');
+
+                const allDivs = [driver1InfoDiv, driver2InfoDiv, originalShiftInfoDiv, proposedShiftInfoDiv];
+                let allValid = true;
+
+                allDivs.forEach(div => {
+                    if (!div.dataset.parsed) {
+                        div.classList.add('border-red-500');
+                        allValid = false;
+                    } else {
+                         div.classList.remove('border-red-500');
+                    }
+                });
+
+                if (!allValid) {
+                    showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
+                    return;
+                }
+
+                const d1 = JSON.parse(driver1InfoDiv.dataset.parsed);
+                const d2 = JSON.parse(driver2InfoDiv.dataset.parsed);
+                const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
+                const s_prop = JSON.parse(proposedShiftInfoDiv.dataset.parsed);
+
+                const subject = `Proposta di scambio turno del ${s_orig.date}`;
+                const mailto_to = `${d1.email},${d2.email}`;
+
+                const body = `
+Buongiorno ${d1.name} e ${d2.name},
+
+Si propone il seguente scambio di turni per la giornata del ${s_orig.date}:
+
+----------------------------------------------------
+${d1.surname} ${d1.name} cederebbe:
+Turno: ${s_orig.number}
+Orario: ${s_orig.start} - ${s_orig.end}
+Deposito: ${s_orig.depot}
+----------------------------------------------------
+${d2.surname} ${d2.name} cederebbe:
+Turno: ${s_prop.number}
+Orario: ${s_prop.start} - ${s_prop.end}
+Deposito: ${s_prop.depot}
+----------------------------------------------------
+
+Siete pregati di confermare la vostra disponibilità per questo scambio rispondendo a questa email.
+
+In caso di domande, contattare la ripartizione del personale.
+
+Cordiali saluti,
+Ripartizione del personale
+                `.trim().replace(/^ +/gm, ''); // a simple trim for each line
+
+                 window.location.href = `mailto:${mailto_to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            });
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
