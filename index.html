@@ -797,8 +797,8 @@
                     () => showToast('Erro durante la copia.')
                 ); 
             });
-            // Old Send Email button (for general reports)
-            document.getElementById('sendEmailBtn').addEventListener('click', function() { // Ensure correct ID
+            // Original Send Email button for general reports
+            sendEmailBtn.addEventListener('click', function() { 
                 const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
                 const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
                 window.location.href = `mailto:?subject=${subject}&body=${body}`; 
@@ -1445,47 +1445,45 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
 
-                // Group by macchinista
-                const groupedShifts = {};
+                // Group by macchinista (though for this email format, it's a flat list)
+                const groupedShifts = {}; // Not strictly needed for this email format but kept for consistency
                 selectedShiftsData.forEach(shift => {
-                    if (!groupedShifts[shift.macchinistaId]) {
-                        groupedShifts[shift.macchinistaId] = {
+                    const personKey = `${shift.macchinistaName} ${shift.macchinistaSurname}`;
+                    if (!groupedShifts[personKey]) {
+                        groupedShifts[personKey] = {
                             name: shift.macchinistaName,
                             surname: shift.macchinistaSurname,
                             email: shift.macchinistaEmail,
                             shifts: []
                         };
                     }
-                    groupedShifts[shift.macchinistaId].shifts.push(shift);
+                    groupedShifts[personKey].shifts.push(shift);
                 });
 
                 let emailBody = "";
-                let uniqueRecipients = new Set(); // To store unique email addresses for 'To' field
-
-                // Assuming the email is primarily for Vincenzo (as per your example)
-                // You can add a default recipient here or let the user fill it.
-                // For now, let's assume one main recipient and CC the macchinisti involved.
-                const mainRecipientName = "Vincenzo"; // Replace with actual name if dynamic
-                const mainRecipientEmail = ""; // Add Vincenzo's email if fixed. If not, it will be empty and user fills.
+                let uniqueRecipients = new Set(); 
+                
+                // Assuming the email is primarily addressed to "Vincenzo" as per your example.
+                // You can make this dynamic if "Vincenzo" is selected elsewhere.
+                const mainRecipientName = "Vincenzo"; 
+                const mainRecipientEmail = ""; // If you have Vincenzo's email, put it here. E.g., "vincenzo.rossi@sbb.ch"
                 if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
 
-                let shiftsListHtml = "";
-
-                // Sort selected shifts by date for cleaner email list
-                selectedShiftsData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-                selectedShiftsData.forEach(shift => {
-                    const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    // Format like: • Data: 16/08/2025 - Turno: 107 - Fascia: Presto - Orario: 05:44-14:49
-                    shiftsListHtml += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
-                    // Add macchinista email to CC
-                    if (shift.macchinistaEmail) uniqueRecipients.add(shift.macchinistaEmail);
-                });
-
+                // Start email body as per your example screenshot
                 emailBody += `Buongiorno ${mainRecipientName},\n\n`;
                 emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
-                emailBody += shiftsListHtml;
-                emailBody += `\nRimaniamo a disposizione per eventuali chiarimenti.\n\n`;
+
+                // Add selected shifts list in the desired format
+                selectedShiftsData.forEach(shift => {
+                    const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
+                    // Add macchinista email to CC if not the main recipient
+                    if (shift.macchinistaEmail && shift.macchinistaEmail !== mainRecipientEmail) {
+                         uniqueRecipients.add(shift.macchinistaEmail);
+                    }
+                });
+
+                emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
                 emailBody += `Cordiali saluti,\n`;
                 emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
                 emailBody += `Ferrovie Federali Svizzere – FFS\n`;
@@ -1495,15 +1493,15 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
                 const subject = "Verifica Modifica Fascia Oraria Turni";
                 
-                // Construct mailto link, adding all unique emails to CC
-                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); // Only main recipient if exists
-                const ccEmails = Array.from(uniqueRecipients).filter(email => email !== mainRecipientEmail).join(','); // All other selected macchinisti
+                // Construct mailto link
+                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); 
+                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(','); 
 
                 let mailtoLink = `mailto:${toEmails}`;
                 if (ccEmails) {
                     mailtoLink += `?cc=${encodeURIComponent(ccEmails)}`;
                 }
-                mailtoLink += `${ccEmails ? '&' : '?' }subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                mailtoLink += `${(toEmails || ccEmails) ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
                 
                 window.location.href = mailtoLink;
             });
