@@ -205,7 +205,7 @@
                         </div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
                              <div id="swap-blocks-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
-                                 </div>
+                             </div>
                              <div class="pt-4 border-t">
                                 <button id="add-new-swap-block-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold">
                                     + Aggiungi Blocco Cambio
@@ -314,27 +314,27 @@
                 availability: 'Disponibilità'
             };
             const typeColors = {
-                need: '#ef4444',     // red-500
-                leave: '#22c55e',     // green-500
+                need: '#ef4444',      // red-500
+                leave: '#22c55e',      // green-500
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
             // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             // Aggiorna initialSizesH per bilanciare i 6 pannelli
-            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
-            let horizontalSplitInstance = null; 
+            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length);  
+            let horizontalSplitInstance = null;  
 
             function initializeHorizontalSplit() {
                 if (horizontalSplitInstance) {
-                    horizontalSplitInstance.destroy(); 
+                    horizontalSplitInstance.destroy();  
                 }
-                horizontalSplitInstance = Split(paneElementsH, { 
-                    sizes: initialSizesH, 
-                    minSize: 60, 
-                    gutterSize: 10, 
-                    direction: 'horizontal', 
-                    cursor: 'col-resize' 
+                horizontalSplitInstance = Split(paneElementsH, {  
+                    sizes: initialSizesH,  
+                    minSize: 60,  
+                    gutterSize: 10,  
+                    direction: 'horizontal',  
+                    cursor: 'col-resize'  
                 });
             }
 
@@ -342,15 +342,15 @@
             
             const initialSizesV = [60, 40];
             let calendar = null;
-            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { 
-                sizes: initialSizesV, 
-                minSize: 150, 
-                gutterSize: 10, 
-                direction: 'vertical', 
-                cursor: 'row-resize', 
-                onDragEnd: function() { 
-                    if(calendar) calendar.updateSize(); 
-                } 
+            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], {  
+                sizes: initialSizesV,  
+                minSize: 150,  
+                gutterSize: 10,  
+                direction: 'vertical',  
+                cursor: 'row-resize',  
+                onDragEnd: function() {  
+                    if(calendar) calendar.updateSize();  
+                }  
             });
             
             document.getElementById('top-split-pane').addEventListener('click', function(e) {
@@ -364,9 +364,9 @@
                     const isCollapsed = horizontalSplitInstance.getSizes()[paneIndex] < 5;
                     
                     if (isCollapsed) {
-                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
+                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length);  
                         horizontalSplitInstance.setSizes(defaultSizes);
-                        pane.style.display = 'flex'; 
+                        pane.style.display = 'flex';  
                     } else {
                         horizontalSplitInstance.collapse(paneIndex);
                     }
@@ -380,15 +380,15 @@
                             document.querySelector(selector).style.display = 'flex';
                         });
                     } else {
-                        document.querySelectorAll('.split-pane').forEach((p, i) => { 
-                            p.dataset.maximized = 'false'; 
+                        document.querySelectorAll('.split-pane').forEach((p, i) => {  
+                            p.dataset.maximized = 'false';  
                             if (i !== paneIndex) {
-                                p.style.display = 'none'; 
+                                p.style.display = 'none';  
                             }
                         });
-                        pane.style.display = 'flex'; 
+                        pane.style.display = 'flex';  
                         const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100; 
+                        newSizes[paneIndex] = 100;  
                         horizontalSplitInstance.setSizes(newSizes);
                         pane.dataset.maximized = 'true';
                     }
@@ -489,13 +489,13 @@
                     calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
                     calendarEvents[existingEventIndex].title = newTitle(calendarEvents[existingEventIndex].extendedProps.quantity);
                 } else {
-                    calendarEvents.push({ 
-                        id: eventId, 
-                        title: newTitle(quantity), 
-                        start: date, 
-                        allDay: true, 
-                        color: typeColors[type] || '#808080', 
-                        extendedProps: { type, quantity, shift } 
+                    calendarEvents.push({  
+                        id: eventId,  
+                        title: newTitle(quantity),  
+                        start: date,  
+                        allDay: true,  
+                        color: typeColors[type] || '#808080',  
+                        extendedProps: { type, quantity, shift }  
                     });
                 }
                 saveAndRerender();
@@ -612,8 +612,8 @@
                 
                 let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
                     <style>
-                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
-                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
+                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; }  
+                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; }  
                         .page-break-avoid { page-break-inside: avoid !important; }
                     </style>
                     <div>
@@ -678,17 +678,17 @@
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                     }
 
-                } catch (error) { 
-                    console.error("ERRORE in openModal:", error); 
-                    showToast(`Errore nell'apertura del report: ${error.message}.`); 
-                    reportModal.classList.add('hidden'); 
-                    document.body.classList.remove('overflow-hidden'); 
+                } catch (error) {  
+                    console.error("ERRORE in openModal:", error);  
+                    showToast(`Errore nell'apertura del report: ${error.message}.`);  
+                    reportModal.classList.add('hidden');  
+                    document.body.classList.remove('overflow-hidden');  
                 }
             }
 
-            function closeModal() { 
-                reportModal.classList.add('hidden'); 
-                document.body.classList.remove('overflow-hidden'); 
+            function closeModal() {  
+                reportModal.classList.add('hidden');  
+                document.body.classList.remove('overflow-hidden');  
                 // Hide the specific email button when any modal is closed
                 document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                 // Ensure the selection state is cleared visually when the modal closes
@@ -780,61 +780,61 @@
             // --- LISTENERS GENERALI ---
             generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
             generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            closeModalBtn.addEventListener('click', closeModal); 
-            openNewTabBtn.addEventListener('click', () => { 
-                if (!currentReportGenerator) return; 
-                const reportData = currentReportGenerator(); 
-                if(!reportData) return; 
-                const newWindow = window.open(); 
-                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); 
-                newWindow.document.close(); 
+            closeModalBtn.addEventListener('click', closeModal);  
+            openNewTabBtn.addEventListener('click', () => {  
+                if (!currentReportGenerator) return;  
+                const reportData = currentReportGenerator();  
+                if(!reportData) return;  
+                const newWindow = window.open();  
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);  
+                newWindow.document.close();  
             });
-            copyHtmlBtn.addEventListener('click', () => { 
-                const reportHtmlElement = document.getElementById('pdf-content'); 
+            copyHtmlBtn.addEventListener('click', () => {  
+                const reportHtmlElement = document.getElementById('pdf-content');  
                 if(!reportHtmlElement) { showToast('Contenuto del report non trovato.'); return; }
                 navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(
-                    () => showToast('Codice HTML copiato!'), 
+                    () => showToast('Codice HTML copiato!'),  
                     () => showToast('Erro durante la copia.')
-                ); 
+                );  
             });
             // Original Send Email button for general reports
-            sendEmailBtn.addEventListener('click', function() { 
-                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
-                const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
-                window.location.href = `mailto:?subject=${subject}&body=${body}`; 
+            sendEmailBtn.addEventListener('click', function() {  
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");  
+                const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti.");  
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;  
             });
 
 
             // Listeners per Pane 1 (Calendario)
-            entryForm.addEventListener('submit', function(e) { 
-                e.preventDefault(); 
-                const formData = new FormData(entryForm); 
-                addOrUpdateCalendarEvent( 
-                    formData.get('entryDate'), 
-                    formData.get('entryType'), 
-                    formData.get('shiftType'), 
-                    parseInt(formData.get('quantity'), 10) 
-                ); 
+            entryForm.addEventListener('submit', function(e) {  
+                e.preventDefault();  
+                const formData = new FormData(entryForm);  
+                addOrUpdateCalendarEvent(  
+                    formData.get('entryDate'),  
+                    formData.get('entryType'),  
+                    formData.get('shiftType'),  
+                    parseInt(formData.get('quantity'), 10)  
+                );  
             });
-            modalEntryForm.addEventListener('submit', function(e) { 
-                e.preventDefault(); 
-                const formData = new FormData(modalEntryForm); 
-                addOrUpdateCalendarEvent( 
-                    formData.get('entryDate'), 
-                    formData.get('entryType'), 
-                    formData.get('shiftType'), 
-                    parseInt(formData.get('quantity'), 10) 
-                ); 
-                addEventModal.classList.add('hidden'); 
+            modalEntryForm.addEventListener('submit', function(e) {  
+                e.preventDefault();  
+                const formData = new FormData(modalEntryForm);  
+                addOrUpdateCalendarEvent(  
+                    formData.get('entryDate'),  
+                    formData.get('entryType'),  
+                    formData.get('shiftType'),  
+                    parseInt(formData.get('quantity'), 10)  
+                );  
+                addEventModal.classList.add('hidden');  
             });
             closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
             
             // Listeners per Pane 2 (Annuncio Effettivi)
-            depositoReportSelect.addEventListener('change', (e) => { 
-                salvaTurni(depositoPrecedente); 
-                const nd=e.target.value; 
-                caricaTurni(nd); 
-                depositoPrecedente=nd; 
+            depositoReportSelect.addEventListener('change', (e) => {  
+                salvaTurni(depositoPrecedente);  
+                const nd=e.target.value;  
+                caricaTurni(nd);  
+                depositoPrecedente=nd;  
             });
             addTurnoBtn.addEventListener('click', () => creaRigaTurno());
             addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
@@ -857,11 +857,11 @@
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
                 if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
-                const columns = text.split(/\s{2,}|\t/).filter(Boolean); 
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean);  
                 
                 const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
                 const timeRegex = /(\d{1,2}:\d{2})/;
-                const numberRegex = /(\d{3,4})/; 
+                const numberRegex = /(\d{3,4})/;  
                 
                 let dateStr = null;
                 let numero = null;
@@ -873,7 +873,7 @@
                     const col = columns[i].trim();
                     if (dateRegex.test(col) && !dateStr) {
                         dateStr = col;
-                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) { 
+                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) {  
                         numero = col;
                     } else if (timeRegex.test(col)) {
                         foundTimes.push(col);
@@ -890,9 +890,9 @@
 
                 const dateParts = dateStr.split('.');
                 if (dateParts.length !== 3) { showToast('Formato data non valido (gg.mm.aaaa).'); return; }
-                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;  
 
-                let depotName = document.getElementById('depositoReport').value; 
+                let depotName = document.getElementById('depositoReport').value;  
                 const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
                 for (const col of columns) {
                     if (depotMap[col]) {
@@ -903,7 +903,7 @@
 
                 if (depositoReportSelect.value !== depotName) {
                     depositoReportSelect.value = depotName;
-                    depositoReportSelect.dispatchEvent(new Event('change')); 
+                    depositoReportSelect.dispatchEvent(new Event('change'));  
                     setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
                 } else {
                     creaRigaTurno({ data: formattedDate, numero, inizio, fine });
@@ -913,66 +913,66 @@
             });
 
             // Listeners per Pane 3 (Statistiche e Analisi)
-            analyzeBtn.addEventListener('click', function() { 
-                const text = pasteArea.value; 
-                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } 
-                let accepted = 0, pending = 0, rejected = 0; 
-                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; 
-                const lines = text.trim().split('\n'); 
-                const records = []; 
-                let currentRecordLines = []; 
-                lines.forEach((line, index) => { 
-                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; 
-                    if (isNewRecordStart && currentRecordLines.length > 0) { 
-                        records.push(currentRecordLines.join(' ')); 
-                        currentRecordLines = []; 
-                    } 
-                    currentRecordLines.push(line); 
-                }); 
-                if (currentRecordLines.length > 0) { 
-                    records.push(currentRecordLines.join(' ')); 
-                } 
-                records.forEach(record => { 
-                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); 
-                    if (hasTargetType) { 
-                        const recordLC = record.toLowerCase(); 
-                        if (recordLC.includes('annullato')) { } 
-                        else if (recordLC.includes('accordato')) { accepted++; } 
-                        else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } 
-                        else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } 
-                    } 
-                }); 
-                statsAcceptedInput.value = accepted; 
-                statsPendingInput.value = pending; 
-                statsRejectedInput.value = rejected; 
-                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); 
+            analyzeBtn.addEventListener('click', function() {  
+                const text = pasteArea.value;  
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }  
+                let accepted = 0, pending = 0, rejected = 0;  
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3'];  
+                const lines = text.trim().split('\n');  
+                const records = [];  
+                let currentRecordLines = [];  
+                lines.forEach((line, index) => {  
+                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0;  
+                    if (isNewRecordStart && currentRecordLines.length > 0) {  
+                        records.push(currentRecordLines.join(' '));  
+                        currentRecordLines = [];  
+                    }  
+                    currentRecordLines.push(line);  
+                });  
+                if (currentRecordLines.length > 0) {  
+                    records.push(currentRecordLines.join(' '));  
+                }  
+                records.forEach(record => {  
+                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));  
+                    if (hasTargetType) {  
+                        const recordLC = record.toLowerCase();  
+                        if (recordLC.includes('annullato')) { }  
+                        else if (recordLC.includes('accordato')) { accepted++; }  
+                        else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; }  
+                        else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; }  
+                    }  
+                });  
+                statsAcceptedInput.value = accepted;  
+                statsPendingInput.value = pending;  
+                statsRejectedInput.value = rejected;  
+                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);  
             });
             
             // --- LOGICA PER ATTESA TURNO (PANE 5) ---
-            processStandbyBtn.addEventListener('click', function() { 
-                const text = standbyPasteArea.value; 
-                if (!text.trim()) { 
-                    showToast('Incolla il testo da elaborare.'); 
-                    return; 
-                } 
+            processStandbyBtn.addEventListener('click', function() {  
+                const text = standbyPasteArea.value;  
+                if (!text.trim()) {  
+                    showToast('Incolla il testo da elaborare.');  
+                    return;  
+                }  
                 standbyResultsContainer.innerHTML = '';  
-                const lines = text.trim().split('\n'); 
+                const lines = text.trim().split('\n');  
                 
-                lines.forEach(line => { 
+                lines.forEach(line => {  
                     if (line.trim().length === 0) return;  
-                    const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/); 
-                    const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+(?:\s+[A-Z][a-zÀ-ÿ']+){0,2})\s+(\d{6})/); 
+                    const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/);  
+                    const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+(?:\s+[A-Z][a-zÀ-ÿ']+){0,2})\s+(\d{6})/);  
                     
-                    if (dateMatch && nameSurnameMatricolaMatch) { 
-                        const date = dateMatch[1]; 
+                    if (dateMatch && nameSurnameMatricolaMatch) {  
+                        const date = dateMatch[1];  
                         const fullName = nameSurnameMatricolaMatch[1];
-                        const nameParts = fullName.split(/\s+/).filter(Boolean); 
+                        const nameParts = fullName.split(/\s+/).filter(Boolean);  
                         const surname = nameParts[0];
-                        const name = nameParts.slice(1).join(' '); 
+                        const name = nameParts.slice(1).join(' ');  
                         const matricola = nameSurnameMatricolaMatch[2];
 
-                        const normalizeForEmail = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
-                        const emailAddress = `${normalizeForEmail(name)}.${normalizeForEmail(surname)}@sbb.ch`; 
+                        const normalizeForEmail = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, '');  
+                        const emailAddress = `${normalizeForEmail(name)}.${normalizeForEmail(surname)}@sbb.ch`;  
                         
                         const subject = `Assegnazione turno del ${date}`;
                         const emailBody = `Buongiorno ${name},
@@ -986,21 +986,21 @@ Ferrovie Federali Svizzere – FFS
 Produzione ferroviaria – Condotta dei treni e manovra
 6500 Bellinzona
 `;
-                        const resultDiv = document.createElement('div'); 
-                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; 
-                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} (${matricola}) - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; 
-                        standbyResultsContainer.appendChild(resultDiv); 
+                        const resultDiv = document.createElement('div');  
+                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';  
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} (${matricola}) - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;  
+                        standbyResultsContainer.appendChild(resultDiv);  
                     } else {
                         console.warn('Skipping malformed or unrecognized standby line:', line);
                         showToast(`Errore parsing riga attesa: "${line.substring(0, Math.min(line.length, 50))}..."`);
                     }
-                }); 
-                standbyPasteArea.value = ''; 
-                if(standbyResultsContainer.children.length > 0){ 
-                    showToast('Lista elaborata!'); 
-                } else { 
-                    showToast('Nessun dato valido trovato nel testo.'); 
-                } 
+                });  
+                standbyPasteArea.value = '';  
+                if(standbyResultsContainer.children.length > 0){  
+                    showToast('Lista elaborata!');  
+                } else {  
+                    showToast('Nessun dato valido trovato nel testo.');  
+                }  
             });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
@@ -1010,7 +1010,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
             function createSwapBlockHTML() {
                 return `
                 <div class="change-block border p-4 rounded-lg bg-white shadow-sm space-y-3 relative">
-                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Blocco">&times;</button>
+                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg">&times;</button>
                     
                     <h3 class="font-semibold text-lg text-gray-800 border-b pb-2">Gestione Cambio Macchinista</h3>
                     
@@ -1089,9 +1089,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const startIndex = columns.findIndex(c => c.trim() === start);
                 let end = null;
                 if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
-                     end = columns[startIndex + 1].trim();
+                    end = columns[startIndex + 1].trim();
                 } else if (times.length > 1) {
-                     end = times[1]; 
+                    end = times[1];  
                 }
 
                 if (date && number && depot && start && end) {
@@ -1137,7 +1137,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         }
                     } else if (type === 'shift') {
                         parsedData = parseShiftInfo(text);
-                           if (parsedData) {
+                            if (parsedData) {
                             displayText = `<strong>Turno:</strong> ${parsedData.number} del ${parsedData.date}<br><strong>Orario:</strong> ${parsedData.start} - ${parsedData.end} (${parsedData.depot})`;
                         }
                     }
@@ -1148,9 +1148,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         infoDiv.classList.remove('invalid');
                         infoDiv.classList.add('valid');
                     } else {
-                           delete infoDiv.dataset.parsed;
-                           infoDiv.classList.remove('valid');
-                           infoDiv.classList.add('invalid');
+                            delete infoDiv.dataset.parsed;
+                            infoDiv.classList.remove('valid');
+                            infoDiv.classList.add('invalid');
                     }
                     return;
                 }
@@ -1221,7 +1221,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
             function calculateFascia(startTime, endTime) {
                 const parseTime = (timeStr) => {
                     const [hours, minutes] = timeStr.split(':').map(Number);
-                    const date = new Date(2000, 0, 1); 
+                    const date = new Date(2000, 0, 1);  
                     date.setHours(hours, minutes, 0, 0);
                     return date;
                 };
@@ -1230,29 +1230,29 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 let end = parseTime(endTime);
 
                 if (end.getTime() < start.getTime()) {
-                    end.setDate(end.getDate() + 1); 
+                    end.setDate(end.getDate() + 1);  
                 }
                 
-                const F_START_MIN = parseTime('02:00'); 
-                const F_START_MAX = parseTime('05:59'); 
-                const F_END_MAX = parseTime('15:00');   
+                const F_START_MIN = parseTime('02:00');  
+                const F_START_MAX = parseTime('05:59');  
+                const F_END_MAX = parseTime('15:00');    
 
-                const M_START_MIN = parseTime('06:00'); 
-                const M_START_MAX = parseTime('11:59'); 
-                const M_END_MAX = parseTime('17:00');   
+                const M_START_MIN = parseTime('06:00');  
+                const M_START_MAX = parseTime('11:59');  
+                const M_END_MAX = parseTime('17:00');    
 
-                const T_START_MIN_DAY = parseTime('12:00'); 
-                const OVERNIGHT_START_MIN = parseTime('00:00'); 
-                const OVERNIGHT_END_MAX = parseTime('06:00');   
+                const T_START_MIN_DAY = parseTime('12:00');  
+                const OVERNIGHT_START_MIN = parseTime('00:00');  
+                const OVERNIGHT_END_MAX = parseTime('06:00');    
 
                 // Presto: starts between 02:00 and 05:59, ends by 15:00
                 if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
                     return 'Presto';
-                } 
+                }  
                 // Medio: starts between 06:00 and 11:59, ends by 17:00
                 else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
-                } 
+                }  
                 // Tardi: starts from 12:00 onwards OR is a night shift (starts between 00:00 and 01:59 and ends next morning by 06:00)
                 // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
                 // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
@@ -1262,22 +1262,22 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // 2. It's an overnight shift: starts between 00:00 and 01:59 AND ends after starting time AND ends by 06:00 next day
                 // OR
                 // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
-                else if (start >= T_START_MIN_DAY || 
+                else if (start >= T_START_MIN_DAY ||  
                          (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
-                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) 
+                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime()))  
                 {
                     return 'Tardi';
                 }
                 
-                return 'Sconosciuta'; 
+                return 'Sconosciuta';  
             }
 
             function parseAndOrganizeShiftDataForFascia(text) {
                 const lines = text.trim().split('\n');
-                const organizedData = {}; 
+                const organizedData = {};  
 
                 lines.forEach(line => {
-                    try { 
+                    try {  
                         // Robust regex:
                         // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
                         // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
@@ -1286,28 +1286,28 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         // (?:.*?(\d{6}))? : Optional Matricola (6 digits) anywhere after times
                         const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/);
                         
-                        if (match) { 
+                        if (match) {  
                             const surname = match[1];
                             const name = match[2];
                             const dateStr = match[3];
                             const shiftNumber = match[4];
                             const startTime = match[5];
                             const endTime = match[6];
-                            let matricola = match[7] || null; 
+                            let matricola = match[7] || null;  
 
-                            if (!matricola) { 
+                            if (!matricola) {  
                                 const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
-                                matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
+                                matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`;  
                             }
 
                             const [day, month, year] = dateStr.split('.');
                             const isoDate = `${year}-${month}-${day}`;
 
                             const fascia = calculateFascia(startTime, endTime);
-                            const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
+                            const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, '');  
                             const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
 
-                            const macchinistaKey = matricola; 
+                            const macchinistaKey = matricola;  
                             if (!organizedData[macchinistaKey]) {
                                 organizedData[macchinistaKey] = {
                                     name: name,
@@ -1318,12 +1318,12 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                 };
                             }
                             organizedData[macchinistaKey].shifts.push({
-                                date: isoDate, 
+                                date: isoDate,  
                                 number: shiftNumber,
                                 start: startTime,
                                 end: endTime,
                                 fascia: fascia,
-                                originalLine: line 
+                                originalLine: line  
                             });
                         } else {
                             console.warn('Skipping malformed or unrecognized line in Cambio Fascia Oraria:', line);
@@ -1349,7 +1349,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 
                 if (Object.keys(organizedData).length === 0) {
                     html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
-                    return html; 
+                    return html;  
                 }
 
                 for (const macchinistaKey in organizedData) {
@@ -1410,7 +1410,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     `;
                 }
 
-                return html; 
+                return html;  
             }
 
             // Function to update the state of the "Genera Email Selezionati" button
@@ -1445,28 +1445,12 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
 
-                // Group by macchinista (though for this email format, it's a flat list)
-                const groupedShifts = {}; // Not strictly needed for this email format but kept for consistency
-                selectedShiftsData.forEach(shift => {
-                    const personKey = `${shift.macchinistaName} ${shift.macchinistaSurname}`;
-                    if (!groupedShifts[personKey]) {
-                        groupedShifts[personKey] = {
-                            name: shift.macchinistaName,
-                            surname: shift.macchinistaSurname,
-                            email: shift.macchinistaEmail,
-                            shifts: []
-                        };
-                    }
-                    groupedShifts[personKey].shifts.push(shift);
-                });
-
                 let emailBody = "";
-                let uniqueRecipients = new Set(); 
+                let uniqueRecipients = new Set();
                 
-                // Assuming the email is primarily addressed to "Vincenzo" as per your example.
-                // You can make this dynamic if "Vincenzo" is selected elsewhere.
-                const mainRecipientName = "Vincenzo"; 
-                const mainRecipientEmail = ""; // If you have Vincenzo's email, put it here. E.g., "vincenzo.rossi@sbb.ch"
+                // Define the main recipient as per your example
+                const mainRecipientName = "Vincenzo";
+                const mainRecipientEmail = "vincenzo.cartulano@sbb.ch"; // Assuming Vincenzo's email based on the screenshot, adjust if needed
                 if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
 
                 // Start email body as per your example screenshot
@@ -1479,12 +1463,12 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
                     // Add macchinista email to CC if not the main recipient
                     if (shift.macchinistaEmail && shift.macchinistaEmail !== mainRecipientEmail) {
-                         uniqueRecipients.add(shift.macchinistaEmail);
+                        uniqueRecipients.add(shift.macchinistaEmail);
                     }
                 });
 
                 emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
-                emailBody += `Cordiali saluti,\n`;
+                emailBody += `Cordiali saluti,\n\n`; // Added an extra newline for spacing as in example
                 emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
                 emailBody += `Ferrovie Federali Svizzere – FFS\n`;
                 emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
@@ -1494,8 +1478,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const subject = "Verifica Modifica Fascia Oraria Turni";
                 
                 // Construct mailto link
-                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); 
-                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(','); 
+                const toEmails = [mainRecipientEmail].filter(Boolean).join(',');  
+                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(',');  
 
                 let mailtoLink = `mailto:${toEmails}`;
                 if (ccEmails) {
@@ -1517,16 +1501,16 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 
                 // Set the report modal content and open it
                 reportModalTitle.textContent = 'Turni Organizzati per Fascia Oraria';
-                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts); 
+                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts);  
                 reportModal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
 
                 // Clear existing proposals in pane6 and the set of added proposals
                 fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
-                addedProposals.clear();
+                addedProposals.clear(); // Assuming 'addedProposals' is defined elsewhere for Pane 6, otherwise remove this line.
 
                 // Generate and display proposals in pane6 (this is the automatic block detection logic)
-                generateSwapProposals(organizedShifts); 
+                generateSwapProposals(organizedShifts); // Assuming 'generateSwapProposals' is defined elsewhere for Pane 6, otherwise remove this line.
             });
 
 
