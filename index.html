@@ -924,11 +924,12 @@
                 const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
                 if (svgDoc.querySelector("parsererror")) { throw new Error("File SVG non valido o malformato."); }
 
-                const elements = Array.from(svgDoc.querySelectorAll('text, rect'));
+                const texts = Array.from(svgDoc.querySelectorAll('text'));
                 const yTolerance = 5;
                 const rows = new Map();
 
-                elements.forEach(el => {
+                // Raggruppa elementi di testo per riga (coordinata Y)
+                texts.forEach(el => {
                     const y = parseFloat(el.getAttribute('y'));
                     let foundRow = false;
                     for (const [rowY, rowElements] of rows.entries()) {
@@ -943,36 +944,30 @@
 
                 const scheduleData = [];
                 const sortedRows = new Map([...rows.entries()].sort((a, b) => a[0] - b[0]));
-
+                
+                // Estrai dati da ogni riga
                 for (const [, rowElements] of sortedRows.entries()) {
-                    const texts = rowElements.filter(el => el.tagName === 'text').sort((a,b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
-                    const rects = rowElements.filter(el => el.tagName === 'rect' && parseFloat(el.getAttribute('width')) > 10);
+                    const sortedTexts = rowElements.sort((a,b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
+                    if (sortedTexts.length < 2) continue;
                     
-                    if (texts.length < 2) continue;
-                    
-                    const potentialName = texts[0].textContent.trim();
+                    const potentialName = sortedTexts[0].textContent.trim();
                     if (!potentialName || !potentialName.includes(',')) continue;
 
                     const colleagueShifts = [];
-                    rects.forEach(rect => {
-                        const rx = parseFloat(rect.getAttribute('x'));
-                        const rwidth = parseFloat(rect.getAttribute('width'));
-                        
-                        const associatedTexts = texts.filter(t => {
-                            const tx = parseFloat(t.getAttribute('x'));
-                            return tx >= rx && tx < (rx + rwidth);
-                        });
-                        
-                        const times = associatedTexts.map(t => t.textContent.match(/\d{1,2}:\d{2}/g)).flat().filter(Boolean);
+                    sortedTexts.forEach(textEl => {
+                        const content = textEl.textContent.trim();
+                        // Cerca un numero di turno (3+ cifre) e due orari
+                        const shiftMatch = content.match(/\b(\d{3,})\b/);
+                        const timeMatches = content.match(/\d{1,2}:\d{2}/g);
 
-                        if(times.length >= 2) {
-                           const start = times[0];
-                           const end = times[1];
-                           const startHour = parseInt(start.split(':')[0], 10);
-                           let type = 'Medio';
-                           if(startHour < 7) type = 'Presto';
-                           else if(startHour >= 13) type = 'Tardi';
-                           colleagueShifts.push({ start, end, type });
+                        if (shiftMatch && timeMatches && timeMatches.length >= 2) {
+                            const start = timeMatches[0];
+                            const end = timeMatches[1];
+                            const startHour = parseInt(start.split(':')[0], 10);
+                            let type = 'Medio';
+                            if(startHour < 7) type = 'Presto';
+                            else if(startHour >= 13) type = 'Tardi';
+                            colleagueShifts.push({ start, end, type });
                         }
                     });
 
