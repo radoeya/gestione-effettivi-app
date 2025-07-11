@@ -120,21 +120,23 @@
                     </div>
                     <div id="pane4" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center">
-                            <h2 class="text-xl font-semibold text-gray-800">Gestione Cambi</h2>
+                            <h2 class="text-xl font-semibold text-gray-800">Cambio Fascia Oraria</h2>
                             <div class="pane-controls flex gap-2">
                                 <button data-action="maximize" data-pane-index="3" title="Massimizza">□</button>
                                 <button data-action="toggle" data-pane-index="3" title="Chiudi/Ripristina">X</button>
                             </div>
                         </div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
-                             <div id="swap-blocks-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
-                                 </div>
-                             <div class="pt-4 border-t">
-                                <button id="add-new-swap-block-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold">
-                                    + Aggiungi Blocco Cambio
-                                </button>
-                             </div>
-                        </div>
+                            <div>
+                                <label for="shift-data-paste-area" class="block text-sm font-medium">Incolla Dati Turni Macchinista:</label>
+                                <textarea id="shift-data-paste-area" class="form-input-box w-full mt-1" rows="8" placeholder="Incolla qui le righe complete dei turni..."></textarea>
+                                <button id="process-shift-data-btn" class="w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold mt-2">Organizza Turni</button>
+                            </div>
+                            <hr class="my-4">
+                            <div id="cambi-proposti-container" class="flex-grow space-y-3 overflow-y-auto pr-2">
+                                <p class="text-gray-500 text-sm">Le proposte di cambio appariranno qui dopo l'elaborazione dei turni e l'analisi con il calendario.</p>
+                            </div>
+                            </div>
                     </div>
                     <div id="pane5" class="split-pane flex flex-col">
                         <div class="pane-header flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800">Attesa Turno</h2><div class="pane-controls flex gap-2"><button data-action="maximize" data-pane-index="4" title="Massimizza">□</button><button data-action="toggle" data-pane-index="4" title="Chiudi/Ripristina">X</button></div></div>
@@ -329,7 +331,7 @@
 
             function addOrUpdateCalendarEvent(date, type, shift, quantity) {
                 if (!date || !type || !shift || isNaN(quantity)) {
-                    showToast("Per favore, compila tutti i campi.");
+                    showToast("Per favor, compila tutti i campi.");
                     return;
                 }
                 const shiftTranslations = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
@@ -624,7 +626,71 @@
                 }
             });
 
-            quickAddBtn.addEventListener('click', function() { const text = quickAddTurnoInput.value; if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; } const columns = text.split(/\s{2,}|\t/).filter(Boolean); const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' }; let depotCode = null, depotIndex = -1, depotName = null; for (let i = 0; i < columns.length; i++) { const col = columns[i].trim(); if (depotMap[col]) { depotCode = col; depotName = depotMap[col]; depotIndex = i; break; } } if (depotIndex === -1) { showToast('Nessun deposito valido (CHI/BEL) trovato.'); return; } if (columns.length < depotIndex + 3) { showToast('Formato testo non valido. Orari non trovati dopo il deposito.'); return; } const dateStr = columns[0]; const numero = columns[1]; const inizio = columns[depotIndex + 1]; const fine = columns[depotIndex + 2]; const dateParts = dateStr.split('.'); if (dateParts.length !== 3) { showToast('Formato data non valido.'); return; } const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; if (depositoReportSelect.value !== depotName) { depositoReportSelect.value = depotName; depositoReportSelect.dispatchEvent(new Event('change')); setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100); } else { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); } quickAddTurnoInput.value = ''; showToast(`Turno ${numero} aggiunto a ${depotName}!`); });
+            quickAddBtn.addEventListener('click', function() {
+                const text = quickAddTurnoInput.value;
+                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean); // Split by 2 or more spaces or tab
+                
+                // Try to find known parts robustly
+                const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
+                const timeRegex = /(\d{1,2}:\d{2})/;
+                const numberRegex = /(\d{3,4})/; // Example: 8001, 113, 106
+                
+                let dateStr = null;
+                let numero = null;
+                let inizio = null;
+                let fine = null;
+                let foundTimes = [];
+
+                // Simple state machine or iteration to find components
+                for(let i = 0; i < columns.length; i++) {
+                    const col = columns[i].trim();
+                    if (dateRegex.test(col) && !dateStr) {
+                        dateStr = col;
+                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) { // Heuristic: 3-4 digits, not a time
+                        numero = col;
+                    } else if (timeRegex.test(col)) {
+                        foundTimes.push(col);
+                    }
+                }
+
+                // Assign times if found
+                if (foundTimes.length >= 1) inizio = foundTimes[0];
+                if (foundTimes.length >= 2) fine = foundTimes[1];
+
+                if (!dateStr || !numero || !inizio || !fine) {
+                    showToast('Formato testo non valido. Impossibile estrarre data, numero o orari.');
+                    console.log("Debug: dateStr", dateStr, "numero", numero, "inizio", inizio, "fine", fine);
+                    return;
+                }
+
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) { showToast('Formato data non valido (gg.mm.aaaa).'); return; }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // YYYY-MM-DD
+
+                // Simple depot mapping
+                let depotName = document.getElementById('depositoReport').value; // Default to current selected depot
+
+                // Try to find depot in columns
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                for (const col of columns) {
+                    if (depotMap[col]) {
+                        depotName = depotMap[col];
+                        break;
+                    }
+                }
+
+                if (depositoReportSelect.value !== depotName) {
+                    depositoReportSelect.value = depotName;
+                    depositoReportSelect.dispatchEvent(new Event('change')); // Trigger change to load correct depot data
+                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
+                } else {
+                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
+                }
+                quickAddTurnoInput.value = '';
+                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
+            });
+
             analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
             
             // --- LOGICA PER ATTESA TURNO (PANE 5) ---
@@ -644,7 +710,7 @@
                         const date = dateMatch[0]; 
                         const surname = nameMatch[1]; 
                         const name = nameMatch[2]; 
-                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
                         const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; 
                         
                         const subject = `Assegnazione turno del ${date}`;
@@ -674,212 +740,181 @@ Produzione ferroviaria – Condotta dei treni e manovra
             });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
-            // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
-            const swapBlocksContainer = document.getElementById('swap-blocks-container');
+            // --- LOGICA PER CAMBIO FASCIA ORARIA (PANE 4) ---
+            const shiftDataPasteArea = document.getElementById('shift-data-paste-area');
+            const processShiftDataBtn = document.getElementById('process-shift-data-btn');
+            const cambiPropostiContainer = document.getElementById('cambi-proposti-container');
 
-            function createSwapBlockHTML() {
-                return `
-                <div class="change-block border p-4 rounded-lg bg-white shadow-sm space-y-3 relative">
-                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Blocco">&times;</button>
-                    
-                    <h3 class="font-semibold text-lg text-gray-800 border-b pb-2">Gestione Cambio Macchinista</h3>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700">Dati Macchinista</label>
-                        <div class="flex gap-2 mt-1">
-                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla dati: Cognome Nome Matricola..."></textarea>
-                            <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                        </div>
-                        <div class="driver-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700">Turno Originale (da stornare)</label>
-                        <div class="flex gap-2 mt-1">
-                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno originale..."></textarea>
-                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                        </div>
-                        <div class="shift-original-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700">Motivo dello storno</label>
-                        <input type="text" class="motivo-input form-input-box w-full mt-1" placeholder="Es: Necessità di servizio, cambio programma...">
-                    </div>
+            function calculateShiftFascia(startTime, endTime) {
+                // Ensure times are Date objects for comparison, using a dummy date
+                const dummyDate = '2000-01-01T';
+                const start = new Date(dummyDate + startTime + ':00');
+                const end = new Date(dummyDate + endTime + ':00');
 
-                    <div>
-                        <label class="text-sm font-medium text-gray-700">Turno Nuovo (da assegnare)</label>
-                        <div class="flex gap-2 mt-1">
-                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno nuovo..."></textarea>
-                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
-                        </div>
-                        <div class="shift-new-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
-                    </div>
-                    
-                    <div class="pt-2">
-                        <button class="generate-change-email-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Genera Email di Avviso</button>
-                    </div>
-                </div>`;
-            }
-            
-            function addNewChangeBlock() {
-                const blockHTML = createSwapBlockHTML();
-                swapBlocksContainer.insertAdjacentHTML('beforeend', blockHTML);
-            }
-            
-            document.getElementById('add-new-swap-block-btn').addEventListener('click', addNewChangeBlock);
-            // Add one block by default on load
-            addNewChangeBlock();
-
-
-            function parseDriverInfo(text) {
-                const match = text.match(/\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
-                if (match) {
-                    const surname = match[1];
-                    const name = match[2];
-                    const matricola = match[3];
-                    const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                    const email = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
-                    return { name, surname, matricola, email };
-                }
-                return null;
-            }
-
-            function parseShiftInfo(text) {
-                const columns = text.split(/\s{2,}|\t/).filter(Boolean);
-                if (columns.length < 4) return null;
-
-                const dateMatch = columns[0].match(/(\d{2}\.\d{2}\.\d{4})/);
-                const date = dateMatch ? dateMatch[1] : null;
-                const number = columns[1] || null;
-                const depot = columns.find(c => c === 'BEL' || c === 'CHI') || null;
-                const times = columns.filter(c => /^\d{1,2}:\d{2}$/.test(c.trim()));
-                const start = times.length > 0 ? times[0] : null;
-                
-                const startIndex = columns.findIndex(c => c.trim() === start);
-                let end = null;
-                if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
-                     end = columns[startIndex + 1].trim();
-                } else if (times.length > 1) {
-                     end = times[1]; 
+                // Handle overnight shifts by adjusting end time
+                if (end < start) {
+                    end.setDate(end.getDate() + 1); // Add a day to end time if it's past midnight
                 }
 
-                if (date && number && depot && start && end) {
-                    return { date, number, depot, start, end };
+                const prestoStart = new Date(dummyDate + '02:00:00');
+                const prestoEnd = new Date(dummyDate + '15:00:00'); // Updated Presto end time
+                const medioStart = new Date(dummyDate + '06:00:00');
+                const medioEnd = new Date(dummyDate + '17:00:00');
+                const tardiStart = new Date(dummyDate + '12:00:00');
+                // Tardi implicitly goes to 'night' as per definition
+
+                if (start >= prestoStart && start < medioStart && end <= prestoEnd) {
+                    return 'Presto';
+                } else if (start >= medioStart && start < tardiStart && end <= medioEnd) {
+                    return 'Medio';
+                } else if (start >= tardiStart || (start >= new Date(dummyDate + '00:00:00') && start < prestoStart && end > start)) { // Handles starts from 12:00 onwards, and also early morning if it's part of a 'night' shift type
+                    return 'Tardi';
                 }
-                return null;
+                return 'Sconosciuta'; // Fallback
             }
-            
-            swapBlocksContainer.addEventListener('click', function(e) {
-                const button = e.target.closest('button');
-                if (!button) return;
 
-                const parentBlock = e.target.closest('.change-block');
-                if (!parentBlock) return;
+            function parseAndOrganizeShiftData(text) {
+                const lines = text.trim().split('\n');
+                const organizedData = {}; // { matricola: { name, surname, email, shifts: [{date, number, start, end, fascia}] } }
 
-                // Handle Remove Button
-                if (button.classList.contains('remove-change-block-btn')) {
-                    if (confirm('Sei sicuro di voler rimuovere questo blocco?')) {
-                        parentBlock.remove();
-                    }
-                    return;
-                }
+                lines.forEach(line => {
+                    // Try to split robustly by multiple spaces or tabs
+                    const parts = line.split(/\s{2,}|\t/).filter(p => p.trim() !== '');
 
-                // Handle Process Button
-                if (button.classList.contains('process-paste-btn')) {
-                    const type = button.dataset.type;
-                    const textarea = button.previousElementSibling;
-                    const text = textarea.value;
-                    const infoDiv = textarea.parentElement.nextElementSibling;
-                    
-                    if (!text.trim()) {
-                        showToast("Incolla del testo prima di elaborare.");
-                        return;
-                    }
-
-                    let parsedData = null;
-                    let displayText = '<p class="text-red-500">Dati non validi o formato non riconosciuto.</p>';
-
-                    if (type === 'driver') {
-                        parsedData = parseDriverInfo(text);
-                        if (parsedData) {
-                            displayText = `<strong>Macch:</strong> ${parsedData.surname} ${parsedData.name} (${parsedData.matricola})<br><strong>Email:</strong> ${parsedData.email}`;
+                    if (parts.length >= 6) { // Minimum parts for a valid line (Name, Surname, Date, Number, Start, End)
+                        const surname = parts[0];
+                        const name = parts[1];
+                        const dateStr = parts[2];
+                        const shiftNumber = parts[3];
+                        const startTime = parts[4];
+                        const endTime = parts[5];
+                        
+                        // Extract matricola if available (typically 3rd last element or near end)
+                        let matricola = parts.find(p => /^\d{6}$/.test(p)); // Find 6-digit number
+                        if (!matricola && parts.length > 2) { // Fallback for 3rd position if no 6-digit found
+                            const potentialMatricola = parts[2];
+                            if (/^\d{6}$/.test(potentialMatricola)) {
+                                matricola = potentialMatricola;
+                            }
                         }
-                    } else if (type === 'shift') {
-                        parsedData = parseShiftInfo(text);
-                         if (parsedData) {
-                            displayText = `<strong>Turno:</strong> ${parsedData.number} del ${parsedData.date}<br><strong>Orario:</strong> ${parsedData.start} - ${parsedData.end} (${parsedData.depot})`;
+
+                        if (!matricola) { // Fallback to a simple concatenation if not explicitly found
+                             matricola = `${surname.substring(0,3).toUpperCase()}${name.substring(0,3).toUpperCase()}00`; // Placeholder
                         }
-                    }
-                    
-                    infoDiv.innerHTML = displayText;
-                    if (parsedData) {
-                        infoDiv.dataset.parsed = JSON.stringify(parsedData);
-                        infoDiv.classList.remove('invalid');
-                        infoDiv.classList.add('valid');
+
+                        // Date format conversion for consistency YYYY-MM-DD
+                        const [day, month, year] = dateStr.split('.');
+                        const isoDate = `${year}-${month}-${day}`;
+
+                        const fascia = calculateShiftFascia(startTime, endTime);
+                        const normalizeName = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                        const email = `${normalizeName(name)}.${normalizeName(surname)}@sbb.ch`;
+
+                        if (!organizedData[matricola]) {
+                            organizedData[matricola] = {
+                                name: name,
+                                surname: surname,
+                                matricola: matricola,
+                                email: email,
+                                shifts: []
+                            };
+                        }
+                        organizedData[matricola].shifts.push({
+                            date: isoDate,
+                            number: shiftNumber,
+                            start: startTime,
+                            end: endTime,
+                            fascia: fascia,
+                            originalLine: line // Keep original line for reference if needed
+                        });
                     } else {
-                         delete infoDiv.dataset.parsed;
-                         infoDiv.classList.remove('valid');
-                         infoDiv.classList.add('invalid');
+                        console.warn('Skipping malformed line:', line);
                     }
+                });
+
+                // Sort shifts by date for each person
+                for (const matricola in organizedData) {
+                    organizedData[matricola].shifts.sort((a, b) => new Date(a.date) - new Date(b.date));
+                }
+                return organizedData;
+            }
+            
+            function generateOrganizedShiftsReport(organizedData) {
+                let html = `
+                    <style>
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .person-header { background-color: #e0e7ff; font-weight: bold; }
+                        .fascia-presto { color: #1e40af; } /* blue-700 */
+                        .fascia-medio { color: #065f46; } /* green-800 */
+                        .fascia-tardi { color: #9a3412; } /* orange-800 */
+                        .fascia-sconosciuta { color: #6b7280; font-style: italic; }
+                    </style>
+                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin-bottom:20px;">Turni Organizzati per Fascia Oraria</h2>
+                `;
+                
+                if (Object.keys(organizedData).length === 0) {
+                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati.</p>';
+                    return { html: html };
+                }
+
+                for (const matricola in organizedData) {
+                    const person = organizedData[matricola];
+                    html += `
+                        <div class="person-block" style="margin-bottom: 30px; page-break-inside: avoid;">
+                            <h3 class="person-header" style="padding: 10px; margin-top: 20px; border: 1px solid #c7d2fe; border-bottom: none;">${person.surname} ${person.name} (${person.matricola}) - ${person.email}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Numero Turno</th>
+                                        <th>Inizio</th>
+                                        <th>Fine</th>
+                                        <th>Fascia Oraria</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    person.shifts.forEach(shift => {
+                        const formattedDate = new Date(shift.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        let fasciaClass = '';
+                        switch(shift.fascia) {
+                            case 'Presto': fasciaClass = 'fascia-presto'; break;
+                            case 'Medio': fasciaClass = 'fascia-medio'; break;
+                            case 'Tardi': fasciaClass = 'fascia-tardi'; break;
+                            default: fasciaClass = 'fascia-sconosciuta';
+                        }
+                        html += `
+                            <tr>
+                                <td>${formattedDate}</td>
+                                <td>${shift.number}</td>
+                                <td>${shift.start}</td>
+                                <td>${shift.end}</td>
+                                <td class="${fasciaClass}">${shift.fascia}</td>
+                            </tr>
+                        `;
+                    });
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                return { html: html };
+            }
+
+            processShiftDataBtn.addEventListener('click', function() {
+                const rawData = shiftDataPasteArea.value;
+                if (!rawData.trim()) {
+                    showToast("Incolla i dati dei turni prima di organizzare.");
                     return;
                 }
-
-                // Handle Generate Email Button
-                if (button.classList.contains('generate-change-email-btn')) {
-                    const driverInfoDiv = parentBlock.querySelector('.driver-info');
-                    const originalShiftInfoDiv = parentBlock.querySelector('.shift-original-info');
-                    const newShiftInfoDiv = parentBlock.querySelector('.shift-new-info');
-                    const motivoInput = parentBlock.querySelector('.motivo-input');
-
-                    const allDivs = [driverInfoDiv, originalShiftInfoDiv, newShiftInfoDiv];
-                    let allValid = true;
-
-                    allDivs.forEach(div => {
-                        if (!div.dataset.parsed) {
-                            div.classList.add('invalid');
-                            allValid = false;
-                        } else {
-                             div.classList.remove('invalid');
-                        }
-                    });
-                    
-                    let motivo = motivoInput.value.trim();
-                    if(!motivo){
-                        motivo = "necessità"; // Default reason
-                    }
-
-                    if (!allValid) {
-                        showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
-                        return;
-                    }
-
-                    const driver = JSON.parse(driverInfoDiv.dataset.parsed);
-                    const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
-                    const s_new = JSON.parse(newShiftInfoDiv.dataset.parsed);
-
-                    const subject = `Modifica piano di servizio del ${s_orig.date}`;
-                    
-                    const body = `Buongiorno ${driver.name},
-
-la informiamo che è stata apportata una modifica al suo piano di servizio.
-Il turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.
-In sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.
-
-La preghiamo di prenderne nota.
-
-Cordiali saluti,
-
-Ripartizione del Personale
-P-O-BP-ZFR-MSD-EIN
-Ferrovie Federali Svizzere FFS
-Produzione ferroviaria – Condotta dei treni e manovra
-6500 Bellinzona
-`;
-
-                    window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                }
+                const organizedShifts = parseAndOrganizeShiftData(rawData);
+                openModal(() => generateOrganizedShiftsReport(organizedShifts), 'Turni Organizzati per Fascia Oraria');
             });
+
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
