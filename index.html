@@ -245,41 +245,88 @@
             // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             // Aggiorna initialSizesH per bilanciare i 6 pannelli
-            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); // Distribute evenly
-            const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
+            // Distribuire equamente le dimensioni iniziali per 6 pannelli
+            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
+            let horizontalSplitInstance = null; // Store the Split.js instance
+
+            // Function to re-initialize Split.js (useful after pane visibility changes, though not directly used for maximize/toggle here)
+            function initializeHorizontalSplit() {
+                if (horizontalSplitInstance) {
+                    horizontalSplitInstance.destroy(); // Destroy previous instance if it exists
+                }
+                horizontalSplitInstance = Split(paneElementsH, { 
+                    sizes: initialSizesH, 
+                    minSize: 60, 
+                    gutterSize: 10, 
+                    direction: 'horizontal', 
+                    cursor: 'col-resize' 
+                });
+            }
+
+            // Call it initially
+            initializeHorizontalSplit();
             
             const initialSizesV = [60, 40];
             let calendar = null;
-            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { sizes: initialSizesV, minSize: 150, gutterSize: 10, direction: 'vertical', cursor: 'row-resize', onDragEnd: function() { if(calendar) calendar.updateSize(); } });
+            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { 
+                sizes: initialSizesV, 
+                minSize: 150, 
+                gutterSize: 10, 
+                direction: 'vertical', 
+                cursor: 'row-resize', 
+                onDragEnd: function() { 
+                    if(calendar) calendar.updateSize(); 
+                } 
+            });
             
             document.getElementById('top-split-pane').addEventListener('click', function(e) {
                 const button = e.target.closest('button[data-action]');
                 if (!button) return;
                 const action = button.dataset.action;
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
+                const pane = document.getElementById(`pane${paneIndex + 1}`);
+
                 if (action === 'toggle') {
-                    const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    // Restore to equal distribution when toggling back
-                    const currentTotalPanes = paneElementsH.length;
-                    const defaultSizes = Array(currentTotalPanes).fill(100 / currentTotalPanes); 
+                    // Check if the pane is collapsed based on its current size (very small size indicates collapsed)
+                    const isCollapsed = horizontalSplitInstance.getSizes()[paneIndex] < 5;
                     
-                    if (isCollapsed) { horizontalSplit.setSizes(defaultSizes); } else { horizontalSplit.collapse(paneIndex); }
+                    if (isCollapsed) {
+                        // Restore to equal distribution
+                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
+                        horizontalSplitInstance.setSizes(defaultSizes);
+                        pane.style.display = 'flex'; // Ensure it's visible if it was hidden
+                    } else {
+                        // Collapse the pane
+                        horizontalSplitInstance.collapse(paneIndex);
+                    }
                 } else if (action === 'maximize') {
-                    const pane = document.getElementById(`pane${paneIndex + 1}`);
                     const isMaximized = pane.dataset.maximized === 'true';
                     if (isMaximized) {
+                        // Restore to default distribution
                         pane.dataset.maximized = 'false';
-                        const currentTotalPanes = paneElementsH.length;
-                        const defaultSizes = Array(currentTotalPanes).fill(100 / currentTotalPanes); // Restore to equal distribution
-                        horizontalSplit.setSizes(defaultSizes);
+                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length);
+                        horizontalSplitInstance.setSizes(defaultSizes);
+                        // Ensure all panes are flex to be visible
+                        paneElementsH.forEach(selector => {
+                            document.querySelector(selector).style.display = 'flex';
+                        });
                     } else {
-                        document.querySelectorAll('.split-pane').forEach((p, i) => { p.dataset.maximized = i === paneIndex ? 'true' : 'false'; });
+                        // Maximize clicked pane, hide others
+                        document.querySelectorAll('.split-pane').forEach((p, i) => { 
+                            p.dataset.maximized = 'false'; // Reset all
+                            if (i !== paneIndex) {
+                                p.style.display = 'none'; // Hide other panes
+                            }
+                        });
+                        pane.style.display = 'flex'; // Ensure target pane is visible
                         const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100;
+                        newSizes[paneIndex] = 100; // Give 100% to the maximized pane
+                        horizontalSplitInstance.setSizes(newSizes);
                         pane.dataset.maximized = 'true';
-                        horizontalSplit.setSizes(newSizes);
                     }
                 }
+                // Update calendar size after split changes
+                if(calendar) calendar.updateSize();
             });
 
             const generateShortReportBtn = document.getElementById('generateShortReportBtn');
@@ -538,10 +585,20 @@
                     reportModalTitle.textContent = title;
                     reportContent.innerHTML = reportData.html;
                     reportModal.classList.remove('hidden');
-                } catch (error) { console.error("ERRORE in openModal:", error); showToast(`Errore: ${error.message}.`); }
+                    // Add a class to body to prevent scrolling when modal is open
+                    document.body.classList.add('overflow-hidden');
+                } catch (error) { 
+                    console.error("ERRORE in openModal:", error); 
+                    showToast(`Errore: ${error.message}.`); 
+                    reportModal.classList.add('hidden'); // Ensure modal is hidden on error
+                    document.body.classList.remove('overflow-hidden'); // Ensure scrolling is re-enabled
+                }
             }
 
-            function closeModal() { reportModal.classList.add('hidden'); }
+            function closeModal() { 
+                reportModal.classList.add('hidden'); 
+                document.body.classList.remove('overflow-hidden'); // Restore body scrolling
+            }
 
             function generateUnifiedAnnouncementData() {
                 salvaTurni(depositoReportSelect.value);
@@ -834,9 +891,10 @@ Produzione ferroviaria – Condotta dei treni e manovra
             const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
 
             function calculateFascia(startTime, endTime) {
+                // Helper to parse time strings into a Date object for comparison
                 const parseTime = (timeStr) => {
                     const [hours, minutes] = timeStr.split(':').map(Number);
-                    const date = new Date(); 
+                    const date = new Date(2000, 0, 1); // Use a fixed dummy date (Jan 1, 2000) for time comparisons
                     date.setHours(hours, minutes, 0, 0);
                     return date;
                 };
@@ -844,55 +902,33 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const start = parseTime(startTime);
                 let end = parseTime(endTime);
 
-                // Handle overnight shifts for accurate duration/fascia determination
-                if (end < start) {
-                    end.setDate(end.getDate() + 1); 
+                // Adjust end time for overnight shifts. If end time is earlier than start time, it means it's the next day.
+                if (end.getTime() < start.getTime()) {
+                    end.setDate(end.getDate() + 1); // Increment day to make comparison valid
                 }
 
-                // Define fascia time boundaries (as Date objects for comparison)
-                // Use a common dummy date for all comparisons to avoid date-crossing issues
-                const dummyDate = new Date();
-                dummyDate.setHours(0,0,0,0); // Reset to beginning of day
+                const F_START_MIN = parseTime('02:00');
+                const F_START_MAX = parseTime('05:59'); 
+                const F_END_MAX = parseTime('15:00');   
 
-                const boundary = (h, m) => {
-                    const d = new Date(dummyDate);
-                    d.setHours(h, m, 0, 0);
-                    return d;
-                };
-                
-                const F_START_MIN = boundary(2,0);  // 02:00
-                const F_START_MAX = boundary(5,59); // 05:59
-                const F_END_MAX = boundary(15,0);   // 15:00
+                const M_START_MIN = parseTime('06:00');
+                const M_START_MAX = parseTime('11:59'); 
+                const M_END_MAX = parseTime('17:00');   
 
-                const M_START_MIN = boundary(6,0);  // 06:00
-                const M_START_MAX = boundary(11,59); // 11:59
-                const M_END_MAX = boundary(17,0);   // 17:00
+                const T_START_MIN = parseTime('12:00'); 
+                const T_END_MAX_OVERNIGHT = parseTime('06:00'); // For shifts ending early next morning
 
-                const T_START_MIN = boundary(12,0); // 12:00
-
-                // Normalize start/end for comparison to the same dummy day to ignore date component for fascia classification
-                const normalizedStart = parseTime(startTime);
-                let normalizedEnd = parseTime(endTime);
-                if (normalizedEnd < normalizedStart) { // If it's an overnight shift, conceptually it ends 'later' on the same day for fascia logic
-                    normalizedEnd.setDate(normalizedEnd.getDate() + 1); 
-                }
-
-                // --- Fascia Logic ---
-                // Presto: starts between 02:00 and 05:59 AND ends by 15:00 (on the same day or conceptually same day)
-                if (normalizedStart.getHours() >= F_START_MIN.getHours() && normalizedStart.getHours() <= F_START_MAX.getHours() &&
-                    (normalizedStart.getHours() < F_START_MAX.getHours() || (normalizedStart.getHours() === F_START_MAX.getHours() && normalizedStart.getMinutes() <= F_START_MAX.getMinutes())) &&
-                    (normalizedEnd.getHours() < F_END_MAX.getHours() || (normalizedEnd.getHours() === F_END_MAX.getHours() && normalizedEnd.getMinutes() <= F_END_MAX.getMinutes()))) {
+                // Presto: starts between 02:00 and 05:59, ends by 15:00
+                if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
                     return 'Presto';
                 } 
-                // Medio: starts between 06:00 and 11:59 AND ends by 17:00
-                else if (normalizedStart.getHours() >= M_START_MIN.getHours() && normalizedStart.getHours() <= M_START_MAX.getHours() &&
-                        (normalizedStart.getHours() < M_START_MAX.getHours() || (normalizedStart.getHours() === M_START_MAX.getHours() && normalizedStart.getMinutes() <= M_START_MAX.getMinutes())) &&
-                        (normalizedEnd.getHours() < M_END_MAX.getHours() || (normalizedEnd.getHours() === M_END_MAX.getHours() && normalizedEnd.getMinutes() <= M_END_MAX.getMinutes()))) {
+                // Medio: starts between 06:00 and 11:59, ends by 17:00
+                else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
                 } 
-                // Tardi: starts from 12:00 onwards OR is an overnight shift not caught by Presto/Medio (e.g., starts late and ends early next morning)
-                // This will capture shifts like 14:39-23:30, 16:50-01:12, 03:48-11:53 (if not Presto)
-                else if (normalizedStart.getHours() >= T_START_MIN.getHours() || (normalizedStart < F_START_MIN && normalizedEnd > normalizedStart)) { // Starts 12:00+ OR is an overnight shift starting before 2am
+                // Tardi: starts from 12:00 onwards OR is an overnight shift (starts late, crosses midnight, ends early next day)
+                // The overnight check needs to be careful: if start is, say, 23:00 and end is 06:00 (next day)
+                else if (start >= T_START_MIN || (start >= parseTime('00:00') && start < F_START_MIN && end > start && end <= T_END_MAX_OVERNIGHT)) {
                     return 'Tardi';
                 }
                 
@@ -901,12 +937,11 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
             function parseAndOrganizeShiftDataForFascia(text) {
                 const lines = text.trim().split('\n');
-                const organizedData = {}; // { macchinistaKey: { name, surname, matricola, email, shifts: [{date, number, start, end, fascia, originalLine}] } }
+                const organizedData = {}; 
 
                 lines.forEach(line => {
-                    // Regex to robustly capture Name, Surname, Date, Shift Number, Start Time, End Time
-                    // This regex tries to match:
-                    // Word (Surname) + Word (Name) + Date (DD.MM.YYYY) + Number (Shift No) + Time (HH:MM) + Time (HH:MM)
+                    // Robust regex to capture: Surname, Name, Date, Shift Number, Start Time, End Time
+                    // It looks for non-space characters for name/surname, then date, then shift number, then two times.
                     const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})/);
                     
                     if (match) { 
@@ -917,22 +952,22 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         const startTime = match[5];
                         const endTime = match[6];
                         
-                        // Attempt to find matricola (assuming it's a 6-digit number anywhere in the line)
+                        // Attempt to find matricola (6-digit number anywhere in the line)
                         let matricolaMatch = line.match(/\b(\d{6})\b/);
                         let matricola = matricolaMatch ? matricolaMatch[1] : null;
                         
                         if (!matricola) { 
-                            // Fallback if 6-digit matricola not found, create a temporary one for grouping
-                            const normalizeNamePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
-                            matricola = `${normalizeNamePart(surname)}${normalizeNamePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
+                            // Fallback: create a temporary one for grouping if not found
+                            const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
+                            matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
                         }
 
-                        // Sanitize date string to YYYY-MM-DD
+                        // Sanitize date string to YYYY-MM-DD for correct date object creation
                         const [day, month, year] = dateStr.split('.');
                         const isoDate = `${year}-${month}-${day}`;
 
                         const fascia = calculateFascia(startTime, endTime);
-                        const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s]/g, '');
+                        const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); // Remove dots too for email
                         const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
 
                         const macchinistaKey = matricola; 
@@ -955,7 +990,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         });
                     } else {
                         console.warn('Skipping malformed or unrecognized line:', line);
-                        showToast(`Errore parsing riga: "${line.substring(0, 50)}..."`);
+                        showToast(`Errore parsing riga: "${line.substring(0, Math.min(line.length, 50))}..."`);
                     }
                 });
 
@@ -982,7 +1017,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 `;
                 
                 if (Object.keys(organizedData).length === 0) {
-                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati.</p>';
+                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
                     return { html: html };
                 }
 
@@ -1039,13 +1074,20 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
                 const organizedShifts = parseAndOrganizeShiftDataForFascia(rawData);
+                // The openModal function now correctly handles showing/hiding and preventing scroll
                 openModal(() => generateOrganizedShiftsReportForFascia(organizedShifts), 'Turni Organizzati per Fascia Oraria');
             });
 
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
-            document.body.innerHTML = `<div style="padding:2rem; text-align:center;"><h1>Errore Critico</h1><p>Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p><p>Dettagli: ${error.message}</p></div>`;
+            // Display a critical error message to the user if the app fails to initialize
+            document.body.innerHTML = `<div style="padding:2rem; text-align:center; background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 0.5rem; margin: 2rem;">
+                <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Errore Critico</h1>
+                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p>
+                <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">Dettagli tecnici: ${error.message}</p>
+                <p style="color: #ef4444; font-size: 0.875rem;">Si prega di segnalare questo errore all'amministratore.</p>
+            </div>`;
         }
     });
     </script>
