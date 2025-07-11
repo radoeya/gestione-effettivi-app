@@ -24,7 +24,7 @@
         #top-split-pane { display: flex; flex-direction: row; background-color: #fff; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
         .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
-        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bM/5+BgoEZZzBgRLMAwko5I0ZpBCGAo5EBAAXpSB6snyftAAAAAElFTkSuQmCC'); }
+        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAAAUVORK5CYII='); }
         .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
         .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
@@ -163,7 +163,7 @@
                         <div class="pane-content flex-grow flex flex-col space-y-4">
                             <div>
                                 <label for="shift-data-paste-area" class="block text-sm font-medium">Incolla Dati Turni Macchinista:</label>
-                                <textarea id="shift-data-paste-area" class="form-input-box w-full mt-1" rows="8" placeholder="Incolla qui le righe complete dei turni (es. Cerutti Marco 01.07.2025 8001 14:39 23:30)..."></textarea>
+                                <textarea id="shift-data-paste-area" class="form-input-box w-full mt-1" rows="8" placeholder="Incolla qui le righe complete dei turni (es. Cerutti	Marco	01.07.2025	8001	14:39	23:30	8:51	8:39		01.07.2025 15:33:27..."></textarea>
                                 <button id="process-shift-data-btn" class="w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold mt-2">Organizza Turni</button>
                             </div>
                             <hr class="my-4">
@@ -245,7 +245,7 @@
             // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             // Aggiorna initialSizesH per bilanciare i 6 pannelli
-            const initialSizesH = [15, 17, 15, 18, 17, 18]; // Adjusted sizes for 6 panes
+            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); // Distribute evenly
             const horizontalSplit = Split(paneElementsH, { sizes: initialSizesH, minSize: 60, gutterSize: 10, direction: 'horizontal', cursor: 'col-resize' });
             
             const initialSizesV = [60, 40];
@@ -259,10 +259,9 @@
                 const paneIndex = parseInt(button.dataset.paneIndex, 10);
                 if (action === 'toggle') {
                     const isCollapsed = horizontalSplit.getSizes()[paneIndex] < 5;
-                    // Ensure this uses the correct initial sizes array or a stored one for restoration
-                    const originalSizesToRestore = [15, 20, 15, 30, 20]; // Assuming for 5 panes, need to adjust for 6
+                    // Restore to equal distribution when toggling back
                     const currentTotalPanes = paneElementsH.length;
-                    const defaultSizes = Array(currentTotalPanes).fill(100 / currentTotalPanes); // Distribute evenly
+                    const defaultSizes = Array(currentTotalPanes).fill(100 / currentTotalPanes); 
                     
                     if (isCollapsed) { horizontalSplit.setSizes(defaultSizes); } else { horizontalSplit.collapse(paneIndex); }
                 } else if (action === 'maximize') {
@@ -622,156 +621,6 @@
                 return { html: fullHtml };
             }
 
-            // --- LISTENERS ---
-            generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
-            generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            closeModalBtn.addEventListener('click', closeModal);
-            downloadPdfBtn.addEventListener('click', function() {
-                const element = document.getElementById('pdf-content');
-                if(!element) { showToast('Errore: Contenuto del report non trovato.'); return; }
-                const filename = `${reportModalTitle.textContent.replace(/\s/g, '_') || 'report'}.pdf`;
-                const opt = { margin: 0.5, filename: filename, image: { type: 'png', quality: 1.0 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: '.page-break-avoid' } };
-                html2pdf().from(element).set(opt).save();
-            });
-            entryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(entryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); });
-            modalEntryForm.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(modalEntryForm); addOrUpdateCalendarEvent( formData.get('entryDate'), formData.get('entryType'), formData.get('shiftType'), parseInt(formData.get('quantity'), 10) ); addEventModal.classList.add('hidden'); });
-            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
-            openNewTabBtn.addEventListener('click', () => { if (!currentReportGenerator) return; const reportData = currentReportGenerator(); if(!reportData) return; const newWindow = window.open(); newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); newWindow.document.close(); });
-            copyHtmlBtn.addEventListener('click', () => { const reportHtmlElement = document.getElementById('pdf-content'); if(!reportHtmlElement) return; navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(() => showToast('Codice HTML copiato!'), () => showToast('Errore durante la copia.')); });
-            sendEmailBtn.addEventListener('click', function() { const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); window.location.href = `mailto:?subject=${subject}&body=${body}`; });
-            depositoReportSelect.addEventListener('change', (e) => { salvaTurni(depositoPrecedente); const nd=e.target.value; caricaTurni(nd); depositoPrecedente=nd; });
-            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
-            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
-            
-            clearAllBtn.addEventListener('click', function() {
-                if (confirm("Sei sicuro di voler pulire tutti i dati per l'annuncio? Questa operazione non può essere annullata e non influisce sul calendario.")) {
-                    try {
-                        document.getElementById('startDate').value = '';
-                        document.getElementById('endDate').value = '';
-                        document.getElementById('quick-add-turno').value = '';
-                        Object.keys(turniPerDeposito).forEach(key => delete turniPerDeposito[key]);
-                        congediDaOffrire.length = 0;
-                        turniContainer.innerHTML = '';
-                        congediContainer.innerHTML = '';
-                        showToast('I dati per l\'annuncio sono stati puliti.');
-                    } catch (e) { console.error("Errore durante la pulizia dei dati annuncio:", e); showToast("Si è verificato un errore imprevisto."); }
-                }
-            });
-
-            quickAddBtn.addEventListener('click', function() {
-                const text = quickAddTurnoInput.value;
-                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
-                const columns = text.split(/\s{2,}|\t/).filter(Boolean); // Split by 2 or more spaces or tab
-                
-                // Try to find known parts robustly
-                const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
-                const timeRegex = /(\d{1,2}:\d{2})/;
-                const numberRegex = /(\d{3,4})/; // Example: 8001, 113, 106
-                
-                let dateStr = null;
-                let numero = null;
-                let inizio = null;
-                let fine = null;
-                let foundTimes = [];
-
-                // Simple state machine or iteration to find components
-                for(let i = 0; i < columns.length; i++) {
-                    const col = columns[i].trim();
-                    if (dateRegex.test(col) && !dateStr) {
-                        dateStr = col;
-                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) { // Heuristic: 3-4 digits, not a time
-                        numero = col;
-                    } else if (timeRegex.test(col)) {
-                        foundTimes.push(col);
-                    }
-                }
-
-                // Assign times if found
-                if (foundTimes.length >= 1) inizio = foundTimes[0];
-                if (foundTimes.length >= 2) fine = foundTimes[1];
-
-                if (!dateStr || !numero || !inizio || !fine) {
-                    showToast('Formato testo non valido. Impossibile estrarre data, numero o orari.');
-                    console.log("Debug: dateStr", dateStr, "numero", numero, "inizio", inizio, "fine", fine);
-                    return;
-                }
-
-                const dateParts = dateStr.split('.');
-                if (dateParts.length !== 3) { showToast('Formato data non valido (gg.mm.aaaa).'); return; }
-                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // YYYY-MM-DD
-
-                // Simple depot mapping
-                let depotName = document.getElementById('depositoReport').value; // Default to current selected depot
-
-                // Try to find depot in columns
-                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
-                for (const col of columns) {
-                    if (depotMap[col]) {
-                        depotName = depotMap[col];
-                        break;
-                    }
-                }
-
-                if (depositoReportSelect.value !== depotName) {
-                    depositoReportSelect.value = depotName;
-                    depositoReportSelect.dispatchEvent(new Event('change')); // Trigger change to load correct depot data
-                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
-                } else {
-                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
-                }
-                quickAddTurnoInput.value = '';
-                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
-            });
-
-            analyzeBtn.addEventListener('click', function() { const text = pasteArea.value; if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } let accepted = 0, pending = 0, rejected = 0; const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; const lines = text.trim().split('\n'); const records = []; let currentRecordLines = []; lines.forEach((line, index) => { const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; if (isNewRecordStart && currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); currentRecordLines = []; } currentRecordLines.push(line); }); if (currentRecordLines.length > 0) { records.push(currentRecordLines.join(' ')); } records.forEach(record => { const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); if (hasTargetType) { const recordLC = record.toLowerCase(); if (recordLC.includes('annullato')) { } else if (recordLC.includes('accordato')) { accepted++; } else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } } }); statsAcceptedInput.value = accepted; statsPendingInput.value = pending; statsRejectedInput.value = rejected; showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); });
-            
-            // --- LOGICA PER ATTESA TURNO (PANE 5) ---
-            processStandbyBtn.addEventListener('click', function() { 
-                const text = standbyPasteArea.value; 
-                if (!text.trim()) { 
-                    showToast('Incolla il testo da elaborare.'); 
-                    return; 
-                } 
-                standbyResultsContainer.innerHTML = '';  
-                const lines = text.trim().split('\n'); 
-                lines.forEach(line => { 
-                    if (line.trim().length === 0) return;  
-                    const dateMatch = line.match(/\d{2}\.\d{2}\.\d{4}/); 
-                    const nameMatch = line.match(/([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); 
-                    if (dateMatch && nameMatch) { 
-                        const date = dateMatch[0]; 
-                        const surname = nameMatch[1]; 
-                        const name = nameMatch[2]; 
-                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
-                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; 
-                        
-                        const subject = `Assegnazione turno del ${date}`;
-                        const emailBody = `Buongiorno ${name},
-
-vi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.
-Ringraziandovi per l'attenzione, porgiamo cordiali saluti.
-
-Ripartizione del Personale
-P-O-BP-ZFR-MSD-EIN
-Ferrovie Federali Svizzere – FFS
-Produzione ferroviaria – Condotta dei treni e manovra
-6500 Bellinzona
-`;
-                        const resultDiv = document.createElement('div'); 
-                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; 
-                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; 
-                        standbyResultsContainer.appendChild(resultDiv); 
-                    } 
-                }); 
-                standbyPasteArea.value = ''; 
-                if(standbyResultsContainer.children.length > 0){ 
-                    showToast('Lista elaborata!'); 
-                } else { 
-                    showToast('Nessun dato valido trovato nel testo.'); 
-                } 
-            });
-            standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
-
             // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
             const swapBlocksContainer = document.getElementById('swap-blocks-container');
 
@@ -985,10 +834,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
             const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
 
             function calculateFascia(startTime, endTime) {
-                // Parse times for comparison. Use a dummy date to handle time comparisons easily.
                 const parseTime = (timeStr) => {
                     const [hours, minutes] = timeStr.split(':').map(Number);
-                    const date = new Date(); // Use current date, but only for time component
+                    const date = new Date(); 
                     date.setHours(hours, minutes, 0, 0);
                     return date;
                 };
@@ -996,31 +844,55 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const start = parseTime(startTime);
                 let end = parseTime(endTime);
 
-                // Adjust end time for overnight shifts (e.g., 23:00 - 06:00)
-                if (end.getHours() < start.getHours() || (end.getHours() === start.getHours() && end.getMinutes() < start.getMinutes())) {
-                    end.setDate(end.getDate() + 1); // Add a day to end time
+                // Handle overnight shifts for accurate duration/fascia determination
+                if (end < start) {
+                    end.setDate(end.getDate() + 1); 
                 }
 
                 // Define fascia time boundaries (as Date objects for comparison)
-                const two_am = parseTime('02:00');
-                const six_am = parseTime('06:00');
-                const twelve_pm = parseTime('12:00');
-                const three_pm = parseTime('15:00');
-                const five_pm = parseTime('17:00');
+                // Use a common dummy date for all comparisons to avoid date-crossing issues
+                const dummyDate = new Date();
+                dummyDate.setHours(0,0,0,0); // Reset to beginning of day
 
-                // Determine Fascia based on the updated rules
-                // Presto: starts 02:00-05:59, ends up to 15:00
-                if (start >= two_am && start < six_am && end <= three_pm) {
+                const boundary = (h, m) => {
+                    const d = new Date(dummyDate);
+                    d.setHours(h, m, 0, 0);
+                    return d;
+                };
+                
+                const F_START_MIN = boundary(2,0);  // 02:00
+                const F_START_MAX = boundary(5,59); // 05:59
+                const F_END_MAX = boundary(15,0);   // 15:00
+
+                const M_START_MIN = boundary(6,0);  // 06:00
+                const M_START_MAX = boundary(11,59); // 11:59
+                const M_END_MAX = boundary(17,0);   // 17:00
+
+                const T_START_MIN = boundary(12,0); // 12:00
+
+                // Normalize start/end for comparison to the same dummy day to ignore date component for fascia classification
+                const normalizedStart = parseTime(startTime);
+                let normalizedEnd = parseTime(endTime);
+                if (normalizedEnd < normalizedStart) { // If it's an overnight shift, conceptually it ends 'later' on the same day for fascia logic
+                    normalizedEnd.setDate(normalizedEnd.getDate() + 1); 
+                }
+
+                // --- Fascia Logic ---
+                // Presto: starts between 02:00 and 05:59 AND ends by 15:00 (on the same day or conceptually same day)
+                if (normalizedStart.getHours() >= F_START_MIN.getHours() && normalizedStart.getHours() <= F_START_MAX.getHours() &&
+                    (normalizedStart.getHours() < F_START_MAX.getHours() || (normalizedStart.getHours() === F_START_MAX.getHours() && normalizedStart.getMinutes() <= F_START_MAX.getMinutes())) &&
+                    (normalizedEnd.getHours() < F_END_MAX.getHours() || (normalizedEnd.getHours() === F_END_MAX.getHours() && normalizedEnd.getMinutes() <= F_END_MAX.getMinutes()))) {
                     return 'Presto';
                 } 
-                // Medio: starts 06:00-11:59, ends up to 17:00
-                else if (start >= six_am && start < twelve_pm && end <= five_pm) {
+                // Medio: starts between 06:00 and 11:59 AND ends by 17:00
+                else if (normalizedStart.getHours() >= M_START_MIN.getHours() && normalizedStart.getHours() <= M_START_MAX.getHours() &&
+                        (normalizedStart.getHours() < M_START_MAX.getHours() || (normalizedStart.getHours() === M_START_MAX.getHours() && normalizedStart.getMinutes() <= M_START_MAX.getMinutes())) &&
+                        (normalizedEnd.getHours() < M_END_MAX.getHours() || (normalizedEnd.getHours() === M_END_MAX.getHours() && normalizedEnd.getMinutes() <= M_END_MAX.getMinutes()))) {
                     return 'Medio';
                 } 
-                // Tardi: starts 12:00 onwards, or overnight shifts (which start late and end early next day)
-                // This 'Tardi' logic is broad and assumes any shift not 'Presto' or 'Medio' fits.
-                // For a more precise 'Tardi' which includes 'Notte', we'd need more rules or explicit 'Nacht' tag.
-                else if (start >= twelve_pm || (start < two_am && end >= six_am)) { // Example: A shift starting before 2am (e.g. 00:00) that ends after 6am might be considered 'Tardi/Notte'
+                // Tardi: starts from 12:00 onwards OR is an overnight shift not caught by Presto/Medio (e.g., starts late and ends early next morning)
+                // This will capture shifts like 14:39-23:30, 16:50-01:12, 03:48-11:53 (if not Presto)
+                else if (normalizedStart.getHours() >= T_START_MIN.getHours() || (normalizedStart < F_START_MIN && normalizedEnd > normalizedStart)) { // Starts 12:00+ OR is an overnight shift starting before 2am
                     return 'Tardi';
                 }
                 
@@ -1032,35 +904,27 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const organizedData = {}; // { macchinistaKey: { name, surname, matricola, email, shifts: [{date, number, start, end, fascia, originalLine}] } }
 
                 lines.forEach(line => {
-                    // Use a more robust split for different delimiters and potential empty parts
-                    const parts = line.split(/[\t\s]{2,}/).map(p => p.trim()).filter(p => p.length > 0);
-
-                    // Example data format: Cerutti	Marco	01.07.2025	8001	14:39	23:30	8:51	8:39		01.07.2025 15:33:27	25.05.2025 13:07:38	26.05.2025 0:00:00
-                    // Expected indices:
-                    // 0: Surname
-                    // 1: Name
-                    // 2: Date (DD.MM.YYYY)
-                    // 3: Shift Number
-                    // 4: Start Time (HH:MM)
-                    // 5: End Time (HH:MM)
-
-                    if (parts.length >= 6) { 
-                        const surname = parts[0];
-                        const name = parts[1];
-                        const dateStr = parts[2];
-                        const shiftNumber = parts[3];
-                        const startTime = parts[4];
-                        const endTime = parts[5];
+                    // Regex to robustly capture Name, Surname, Date, Shift Number, Start Time, End Time
+                    // This regex tries to match:
+                    // Word (Surname) + Word (Name) + Date (DD.MM.YYYY) + Number (Shift No) + Time (HH:MM) + Time (HH:MM)
+                    const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})/);
+                    
+                    if (match) { 
+                        const surname = match[1];
+                        const name = match[2];
+                        const dateStr = match[3];
+                        const shiftNumber = match[4];
+                        const startTime = match[5];
+                        const endTime = match[6];
                         
-                        // Attempt to find matricola (assuming it's a 6-digit number somewhere after name)
-                        let matricola = parts.find(p => /^\d{6}$/.test(p));
-                        if (!matricola) { // Fallback if 6-digit matricola not found, maybe after name or shift number
-                             // Look for it around where it should be, or create a placeholder
-                             if (parts.length > 3 && /^\d+$/.test(parts[3])) { // If 4th part is numeric (shift number)
-                                 // Matricola might be just before date or after date/shift number
-                                 // This is a weak heuristic, ideally matricola position is fixed
-                                 matricola = `AUTO${Math.floor(Math.random() * 9000) + 1000}`; // Placeholder if not found
-                             }
+                        // Attempt to find matricola (assuming it's a 6-digit number anywhere in the line)
+                        let matricolaMatch = line.match(/\b(\d{6})\b/);
+                        let matricola = matricolaMatch ? matricolaMatch[1] : null;
+                        
+                        if (!matricola) { 
+                            // Fallback if 6-digit matricola not found, create a temporary one for grouping
+                            const normalizeNamePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+                            matricola = `${normalizeNamePart(surname)}${normalizeNamePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
                         }
 
                         // Sanitize date string to YYYY-MM-DD
@@ -1068,10 +932,10 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         const isoDate = `${year}-${month}-${day}`;
 
                         const fascia = calculateFascia(startTime, endTime);
-                        const normalizeName = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-                        const email = `${normalizeName(name)}.${normalizeName(surname)}@sbb.ch`;
+                        const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s]/g, '');
+                        const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
 
-                        const macchinistaKey = matricola || `${normalizeName(surname)}_${normalizeName(name)}`; // Use matricola as key if available
+                        const macchinistaKey = matricola; 
                         if (!organizedData[macchinistaKey]) {
                             organizedData[macchinistaKey] = {
                                 name: name,
@@ -1090,7 +954,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                             originalLine: line 
                         });
                     } else {
-                        console.warn('Skipping malformed line (less than 6 parts):', line);
+                        console.warn('Skipping malformed or unrecognized line:', line);
+                        showToast(`Errore parsing riga: "${line.substring(0, 50)}..."`);
                     }
                 });
 
