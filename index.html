@@ -1151,10 +1151,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
             const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
 
             function calculateFascia(startTime, endTime) {
-                // Helper to parse time strings into a Date object for comparison
                 const parseTime = (timeStr) => {
                     const [hours, minutes] = timeStr.split(':').map(Number);
-                    const date = new Date(2000, 0, 1); // Use a fixed dummy date (Jan 1, 2000) for time comparisons
+                    const date = new Date(2000, 0, 1); 
                     date.setHours(hours, minutes, 0, 0);
                     return date;
                 };
@@ -1162,10 +1161,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const start = parseTime(startTime);
                 let end = parseTime(endTime);
 
-                // Adjust end time for overnight shifts. If end time is earlier than start time, it means it's the next day.
-                // This is crucial for correct fascia calculation across midnight.
                 if (end.getTime() < start.getTime()) {
-                    end.setDate(end.getDate() + 1); // Increment day to make comparison valid
+                    end.setDate(end.getDate() + 1); 
                 }
 
                 const F_START_MIN = parseTime('02:00');
@@ -1177,31 +1174,29 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const M_END_MAX = parseTime('17:00');   
 
                 const T_START_MIN = parseTime('12:00'); 
-                // Tardi "finisce a notte", quindi l'end time non è una limitazione per la classificazione Tardi,
-                // ma un turno Tardi può anche iniziare prima delle 02:00 e sconfinare.
-                // Quindi, se non è Presto o Medio, e inizia da 12:00 o è un turno di notte che termina a max 06:00 del giorno dopo.
-                const OVERNIGHT_END_MAX = parseTime('06:00'); // End time limit for a "Tardi/Nacht" shift
+                const OVERNIGHT_END_MAX = parseTime('06:00'); 
 
                 // Presto: starts between 02:00 and 05:59, ends by 15:00
                 if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
                     return 'Presto';
                 } 
                 // Medio: starts between 06:00 and 11:59, ends by 17:00
+                // This condition needs to ensure it's not a 'Presto' that extends into 'Medio' hours
                 else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
                 } 
-                // Tardi: starts from 12:00 onwards OR is an overnight shift
-                // An overnight shift typically starts late the previous day and ends early the next.
-                // `end >= start` after adjustment means it's the same day or next day after midnight.
-                else if (start >= T_START_MIN || (start < F_START_MIN && end.getTime() > start.getTime() && end <= (new Date(start).setDate(start.getDate()+1) && OVERNIGHT_END_MAX)) ) {
-                    // This `end <= (new Date(start).setDate(start.getDate()+1) && OVERNIGHT_END_MAX)` is a complex way to check across midnight.
-                    // A simpler way for Tardi: if it doesn't fit Presto/Medio, it's Tardi.
-                    // Or, if it starts from 12:00 (midday) OR starts before 2:00 AM AND ends on the next day by 6:00 AM (typical night shift)
-                    const endPlusOneDay = new Date(start);
-                    endPlusOneDay.setDate(start.getDate() + 1);
-                    endPlusOneDay.setHours(OVERNIGHT_END_MAX.getHours(), OVERNIGHT_END_MAX.getMinutes(), 0, 0);
+                // Tardi: starts from 12:00 onwards OR is an overnight shift that starts before 02:00
+                // and ends by 06:00 the next day.
+                else if (start >= T_START_MIN || (start < F_START_MIN && end.getTime() > start.getTime() && (end <= parseTime('24:00') || end <= (new Date(start).setDate(start.getDate()+1) && OVERNIGHT_END_MAX)))) {
+                    // Refined Tardi logic:
+                    // 1. Starts at or after 12:00 (e.g., 14:39 - 23:30)
+                    // OR
+                    // 2. Starts before 02:00 (e.g., 00:30, 01:00) AND crosses midnight (end > start after adjustment) AND ends by 06:00 next day
+                    const endOfNextDayForOvernight = new Date(start);
+                    endOfNextDayForOvernight.setDate(start.getDate() + 1);
+                    endOfNextDayForOvernight.setHours(OVERNIGHT_END_MAX.getHours(), OVERNIGHT_END_MAX.getMinutes(), 0, 0);
 
-                    if (start >= T_START_MIN || (start < F_START_MIN && end <= endPlusOneDay && end.getDate() > start.getDate())) {
+                    if (start >= T_START_MIN || (start < F_START_MIN && end > start && end <= endOfNextDayForOvernight)) {
                         return 'Tardi';
                     }
                 }
@@ -1214,15 +1209,11 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const organizedData = {}; 
 
                 lines.forEach(line => {
-                    try { // Added try-catch for individual line parsing
-                        // Robust regex:
-                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
-                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
-                        // \s+(\S+) : Shift Number (any non-whitespace characters)
-                        // \s+(\d{1,2}:\d{2}) : Start Time (HH:MM)
-                        // \s+(\d{1,2}:\d{2}) : End Time (HH:MM)
-                        // .*?(\d{6})? : Optional Matricola (6 digits) anywhere later in the line
-                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}).*?(\d{6})?/);
+                    try { 
+                        // Robust regex to capture: Surname, Name, Date, Shift Number, Start Time, End Time
+                        // It looks for non-space characters for name/surname, then date, then shift number, then two times.
+                        // Adjusted regex for more flexible parsing, allowing for varied spacing and optional additional data.
+                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/); // Optional matricola at the end
                         
                         if (match) { 
                             const surname = match[1];
@@ -1231,15 +1222,13 @@ Produzione ferroviaria – Condotta dei treni e manovra
                             const shiftNumber = match[4];
                             const startTime = match[5];
                             const endTime = match[6];
-                            let matricola = match[7] || null; // Matched matricola, or null
+                            let matricola = match[7] || null; 
 
                             if (!matricola) { 
-                                // Fallback: generate a temporary one if not found
                                 const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
                                 matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
                             }
 
-                            // Sanitize date string to YYYY-MM-DD for correct date object creation
                             const [day, month, year] = dateStr.split('.');
                             const isoDate = `${year}-${month}-${day}`;
 
@@ -1275,7 +1264,6 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     }
                 });
 
-                // Sort shifts by date for each person
                 for (const key in organizedData) {
                     organizedData[key].shifts.sort((a, b) => new Date(a.date) - new Date(b.date));
                 }
@@ -1350,7 +1338,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
             // Function to generate and display swap proposals within pane6
             function generateSwapProposals(organizedShiftsData) {
-                fasciaCambiPropostiContainer.innerHTML = ''; // Clear previous proposals
+                fasciaCambiPropostiContainer.innerHTML = '<h4 class="text-md font-semibold text-gray-700">Risultati delle Proposte:</h4>'; // Clear previous proposals and add a sub-heading
                 let hasProposals = false;
 
                 const calendarNeeds = {}; // Aggregate needs from the calendar for easier lookup
@@ -1366,45 +1354,53 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         calendarNeeds[date][shiftType] += quantity;
                     }
                 });
-
+                
                 for (const macchinistaKey in organizedShiftsData) {
                     const person = organizedShiftsData[macchinistaKey];
                     const shifts = person.shifts;
 
-                    // Analyze for blocks of 3+ consecutive shifts of the same fascia
-                    // Example: Presto (early) or Tardi (late)
                     let currentBlock = [];
                     for (let i = 0; i < shifts.length; i++) {
                         const currentShift = shifts[i];
-                        const nextShift = shifts[i + 1];
                         
-                        // Check for date continuity (important for "consecutive")
-                        const currentDate = new Date(currentShift.date);
-                        const nextDate = nextShift ? new Date(nextShift.date) : null;
-                        const isConsecutive = nextDate && (nextDate.getTime() - currentDate.getTime() === 24 * 60 * 60 * 1000);
+                        // Ensure fascia is not 'Sconosciuta' for block formation
+                        if (currentShift.fascia === 'Sconosciuta') {
+                            // If currentBlock has accumulated shifts, process it before clearing
+                            if (currentBlock.length >= 3) {
+                                analyzeBlockForProposal(person, currentBlock, calendarNeeds, i === shifts.length -1); // Pass `isLast` as true if it's the last iteration
+                                hasProposals = true;
+                            }
+                            currentBlock = []; // Reset block if fascia is unknown
+                            continue; // Skip to next shift
+                        }
 
-                        if (currentBlock.length === 0 || 
-                            (currentShift.fascia === currentBlock[currentBlock.length - 1].fascia && currentShift.fascia !== 'Sconosciuta' && isConsecutive)) {
+                        // Check for date continuity and same fascia for building a block
+                        const prevShift = currentBlock.length > 0 ? currentBlock[currentBlock.length - 1] : null;
+                        const isConsecutiveAndSameFascia = prevShift && 
+                                                           currentShift.fascia === prevShift.fascia &&
+                                                           (new Date(currentShift.date).getTime() - new Date(prevShift.date).getTime() === 24 * 60 * 60 * 1000);
+
+                        if (!prevShift || isConsecutiveAndSameFascia) {
                             currentBlock.push(currentShift);
                         } else {
-                            // Process the previous block if it meets the criteria
+                            // Process the previous block if it meets the criteria (>= 3 shifts)
                             if (currentBlock.length >= 3) {
-                                analyzeBlockForProposal(person, currentBlock, calendarNeeds);
+                                analyzeBlockForProposal(person, currentBlock, calendarNeeds, i === shifts.length -1);
                                 hasProposals = true;
                             }
                             // Start a new block
                             currentBlock = [currentShift];
                         }
                     }
-                    // Process the last block if it meets the criteria
+                    // After the loop, process any remaining block
                     if (currentBlock.length >= 3) {
-                        analyzeBlockForProposal(person, currentBlock, calendarNeeds);
+                        analyzeBlockForProposal(person, currentBlock, calendarNeeds, true); // Always true for the last block
                         hasProposals = true;
                     }
                 }
 
                 if (!hasProposals) {
-                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessuna proposta di cambio fascia trovata per i turni e il calendario attuale.</p>';
+                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessuna proposta di cambio fascia trovata per i turni e il calendario attuale. Assicurati che ci siano blocchi di 3 o più turni consecutivi dello stesso tipo (Presto/Tardi) e una necessità opposta nel calendario.</p>';
                 }
 
                 // Add event listeners to the new "Genera Email" buttons in proposals
@@ -1419,45 +1415,48 @@ Produzione ferroviaria – Condotta dei treni e manovra
             }
 
             function analyzeBlockForProposal(person, block, calendarNeeds) {
-                const blockFascia = block[0].fascia; // Fascia of the block
-                const proposalType = ''; // 'TardiToPresto' or 'PrestoToTardi'
-                let targetFasciaInCalendar = ''; // 'early' or 'late' (calendar's terms)
-
-                if (blockFascia === 'Tardi') {
-                    // If macchinista has Tardi block, check for Presto need in calendar
-                    targetFasciaInCalendar = 'early';
-                } else if (blockFascia === 'Presto') {
-                    // If macchinista has Presto block, check for Tardi need in calendar
-                    targetFasciaInCalendar = 'late';
-                } else {
-                    return; // No proposal for 'Sconosciuta' or 'Medio' blocks for now
-                }
+                const blockFascia = block[0].fascia; // Fascia of the entire block
+                let needsInCalendar = {}; // To store calendar needs (early, medium, late)
+                
+                // Convert calendar needs keys to match our fascia names for easier comparison
+                const calendarShiftTypeMap = { 'early': 'Presto', 'medium': 'Medio', 'late': 'Tardi' };
 
                 block.forEach(shiftInBlock => {
                     const date = shiftInBlock.date; // YYYY-MM-DD
                     const calendarNeedForDate = calendarNeeds[date];
 
-                    if (calendarNeedForDate && calendarNeedForDate[targetFasciaInCalendar] > 0) {
-                        // Found a need in the calendar that matches the inversion opportunity!
-                        const originalFasciaItalian = blockFascia;
-                        const proposedFasciaItalian = (blockFascia === 'Tardi' ? 'Presto' : 'Tardi');
-                        const calendarNeedQuantity = calendarNeedForDate[targetFasciaInCalendar];
+                    if (calendarNeedForDate) {
+                        if (blockFascia === 'Tardi' && calendarNeedForDate.early > 0) {
+                            addProposal(person, shiftInBlock, 'Tardi', 'Presto', `Necessità di ${calendarNeedForDate.early} turni Presto nel calendario.`);
+                        } else if (blockFascia === 'Presto' && calendarNeedForDate.late > 0) {
+                             addProposal(person, shiftInBlock, 'Presto', 'Tardi', `Necessità di ${calendarNeedForDate.late} turni Tardi nel calendario.`);
+                        }
+                    }
+                });
+            }
 
-                        const proposalHtml = `
-                            <div class="proposal-block type-${blockFascia.toLowerCase()}">
-                                <h4>Proposta di Cambio Fascia: ${person.surname} ${person.name}</h4>
-                                <p><strong>Data:</strong> ${new Date(shiftInBlock.date).toLocaleDateString('it-IT')}</p>
-                                <p><strong>Turno attuale:</strong> ${shiftInBlock.number} (${originalFasciaItalian}) - ${shiftInBlock.start} - ${shiftInBlock.end}</p>
-                                <p><strong>Proposta:</strong> Cambio a turno ${proposedFasciaItalian}.</p>
-                                <p><strong>Motivo:</strong> Necessità di ${proposedFasciaItalian} nel calendario (mancano ${calendarNeedQuantity}).</p>
-                                <button class="generate-fascia-email-btn mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                                    data-email="${person.email}"
-                                    data-subject="${encodeURIComponent(`Proposta di cambio turno per ${new Date(shiftInBlock.date).toLocaleDateString('it-IT')}`)}"
-                                    data-body="${encodeURIComponent(`Buongiorno ${person.name},
+            function addProposal(person, shift, originalFascia, proposedFascia, reason) {
+                // To avoid duplicate proposals for the same day/person/shift combination if called multiple times in a block
+                const proposalId = `${person.matricola}-${shift.date}-${shift.number}-${proposedFascia}`;
+                if (document.getElementById(proposalId)) {
+                    return; // Already added this specific proposal
+                }
+
+                const proposalHtml = `
+                    <div id="${proposalId}" class="proposal-block type-${originalFascia.toLowerCase()}">
+                        <h4>Proposta di Cambio Fascia: ${person.surname} ${person.name}</h4>
+                        <p><strong>Data:</strong> ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+                        <p><strong>Turno attuale:</strong> ${shift.number} (${originalFascia}) - ${shift.start} - ${shift.end}</p>
+                        <p><strong>Proposta:</strong> Cambio a turno ${proposedFascia}.</p>
+                        <p><strong>Motivo:</strong> ${reason}</p>
+                        <button class="generate-fascia-email-btn mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            data-email="${person.email}"
+                            data-subject="${encodeURIComponent(`Proposta di cambio turno per ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}`)}"
+                            data-body="${encodeURIComponent(`Buongiorno ${person.name},
 
 la informiamo che è stata identificata un'opportunità per un cambio di fascia oraria nel suo piano di servizio.
-Per il giorno ${new Date(shiftInBlock.date).toLocaleDateString('it-IT')}, il suo turno attuale ${shiftInBlock.number} in fascia ${originalFasciaItalian} (${shiftInBlock.start} - ${shiftInBlock.end}) potrebbe essere scambiato con un turno in fascia ${proposedFasciaItalian}.
-Questo è dovuto a una necessità di ${proposedFasciaItalian} nel calendario (mancano ${calendarNeedQuantity} turni di questo tipo).
+Per il giorno ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric'})}, il suo turno attuale ${shift.number} in fascia ${originalFascia} (${shift.start} - ${shift.end}) potrebbe essere scambiato con un turno in fascia ${proposedFascia}.
+Questo è dovuto a ${reason.toLowerCase()}
 
 Se interessato/a a questa possibilità, la preghiamo di rispondere a questa email o contattare la ripartizione del personale.
 
@@ -1470,12 +1469,11 @@ P-O-BP-ZFR-MSD-EIN
 Ferrovie Federali Svizzere – FFS
 Produzione ferroviaria – Condotta dei treni e manovra
 6500 Bellinzona
-                                `)}">Genera Email</button>
-                            </div>
-                        `;
-                        fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
-                    }
-                });
+                        `)}">Genera Email</button>
+                    </div>
+                `;
+                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
+                console.log(`Proposta aggiunta per ${person.name} il ${shift.date}: da ${originalFascia} a ${proposedFascia}.`);
             }
 
 
@@ -1486,20 +1484,16 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
                 const organizedShifts = parseAndOrganizeShiftDataForFascia(rawData);
-                // Display the initial report in a modal
                 openModal(() => generateOrganizedShiftsReportForFascia(organizedShifts), 'Turni Organizzati per Fascia Oraria');
                 
-                // Then, after the modal closes or in parallel, generate proposals in pane6
-                // (Using a slight delay to ensure modal is handled first, though it's not strictly necessary)
-                setTimeout(() => {
-                    generateSwapProposals(organizedShifts);
-                }, 100); 
+                // This will run AFTER the modal is closed or at least opened.
+                // The proposals are generated and displayed directly in pane6.
+                generateSwapProposals(organizedShifts);
             });
 
 
         } catch (error) {
             console.error("ERRORE FATALE in initializeApp:", error);
-            // Display a critical error message to the user if the app fails to initialize
             document.body.innerHTML = `<div style="padding:2rem; text-align:center; background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 0.5rem; margin: 2rem;">
                 <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Errore Critico</h1>
                 <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p>
