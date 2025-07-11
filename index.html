@@ -7,7 +7,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+e-NQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,7 @@
         .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
         .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
         .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAAAUVORK5CYII='); }
-        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAsQYgugAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
+        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
         .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
         .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
@@ -205,7 +205,7 @@
                         </div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
                              <div id="swap-blocks-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
-                             </div>
+                                 </div>
                              <div class="pt-4 border-t">
                                 <button id="add-new-swap-block-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold">
                                     + Aggiungi Blocco Cambio
@@ -314,27 +314,27 @@
                 availability: 'Disponibilità'
             };
             const typeColors = {
-                need: '#ef4444',      // red-500
-                leave: '#22c55e',      // green-500
+                need: '#ef4444',     // red-500
+                leave: '#22c55e',     // green-500
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
             // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             // Aggiorna initialSizesH per bilanciare i 6 pannelli
-            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length);  
-            let horizontalSplitInstance = null;  
+            const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
+            let horizontalSplitInstance = null; 
 
             function initializeHorizontalSplit() {
                 if (horizontalSplitInstance) {
-                    horizontalSplitInstance.destroy();  
+                    horizontalSplitInstance.destroy(); 
                 }
-                horizontalSplitInstance = Split(paneElementsH, {  
-                    sizes: initialSizesH,  
-                    minSize: 60,  
-                    gutterSize: 10,  
-                    direction: 'horizontal',  
-                    cursor: 'col-resize'  
+                horizontalSplitInstance = Split(paneElementsH, { 
+                    sizes: initialSizesH, 
+                    minSize: 60, 
+                    gutterSize: 10, 
+                    direction: 'horizontal', 
+                    cursor: 'col-resize' 
                 });
             }
 
@@ -342,15 +342,15 @@
             
             const initialSizesV = [60, 40];
             let calendar = null;
-            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], {  
-                sizes: initialSizesV,  
-                minSize: 150,  
-                gutterSize: 10,  
-                direction: 'vertical',  
-                cursor: 'row-resize',  
-                onDragEnd: function() {  
-                    if(calendar) calendar.updateSize();  
-                }  
+            const verticalSplit = Split(['#top-split-pane', '#bottom-split-pane'], { 
+                sizes: initialSizesV, 
+                minSize: 150, 
+                gutterSize: 10, 
+                direction: 'vertical', 
+                cursor: 'row-resize', 
+                onDragEnd: function() { 
+                    if(calendar) calendar.updateSize(); 
+                } 
             });
             
             document.getElementById('top-split-pane').addEventListener('click', function(e) {
@@ -364,9 +364,9 @@
                     const isCollapsed = horizontalSplitInstance.getSizes()[paneIndex] < 5;
                     
                     if (isCollapsed) {
-                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length);  
+                        const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
                         horizontalSplitInstance.setSizes(defaultSizes);
-                        pane.style.display = 'flex';  
+                        pane.style.display = 'flex'; 
                     } else {
                         horizontalSplitInstance.collapse(paneIndex);
                     }
@@ -380,15 +380,15 @@
                             document.querySelector(selector).style.display = 'flex';
                         });
                     } else {
-                        document.querySelectorAll('.split-pane').forEach((p, i) => {  
-                            p.dataset.maximized = 'false';  
+                        document.querySelectorAll('.split-pane').forEach((p, i) => { 
+                            p.dataset.maximized = 'false'; 
                             if (i !== paneIndex) {
-                                p.style.display = 'none';  
+                                p.style.display = 'none'; 
                             }
                         });
-                        pane.style.display = 'flex';  
+                        pane.style.display = 'flex'; 
                         const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100;  
+                        newSizes[paneIndex] = 100; 
                         horizontalSplitInstance.setSizes(newSizes);
                         pane.dataset.maximized = 'true';
                     }
@@ -489,13 +489,13 @@
                     calendarEvents[existingEventIndex].extendedProps.quantity += quantity;
                     calendarEvents[existingEventIndex].title = newTitle(calendarEvents[existingEventIndex].extendedProps.quantity);
                 } else {
-                    calendarEvents.push({  
-                        id: eventId,  
-                        title: newTitle(quantity),  
-                        start: date,  
-                        allDay: true,  
-                        color: typeColors[type] || '#808080',  
-                        extendedProps: { type, quantity, shift }  
+                    calendarEvents.push({ 
+                        id: eventId, 
+                        title: newTitle(quantity), 
+                        start: date, 
+                        allDay: true, 
+                        color: typeColors[type] || '#808080', 
+                        extendedProps: { type, quantity, shift } 
                     });
                 }
                 saveAndRerender();
@@ -556,7 +556,7 @@
                     });
 
                     const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
-                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #e0e0e0;"><tr><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
+                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
                     const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
                     const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
                     const iconCellStyle = "padding: 8px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
@@ -612,8 +612,8 @@
                 
                 let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
                     <style>
-                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; }  
-                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; }  
+                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; } 
+                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; } 
                         .page-break-avoid { page-break-inside: avoid !important; }
                     </style>
                     <div>
@@ -678,17 +678,17 @@
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                     }
 
-                } catch (error) {  
-                    console.error("ERRORE in openModal:", error);  
-                    showToast(`Errore nell'apertura del report: ${error.message}.`);  
-                    reportModal.classList.add('hidden');  
-                    document.body.classList.remove('overflow-hidden');  
+                } catch (error) { 
+                    console.error("ERRORE in openModal:", error); 
+                    showToast(`Errore nell'apertura del report: ${error.message}.`); 
+                    reportModal.classList.add('hidden'); 
+                    document.body.classList.remove('overflow-hidden'); 
                 }
             }
 
-            function closeModal() {  
-                reportModal.classList.add('hidden');  
-                document.body.classList.remove('overflow-hidden');  
+            function closeModal() { 
+                reportModal.classList.add('hidden'); 
+                document.body.classList.remove('overflow-hidden'); 
                 // Hide the specific email button when any modal is closed
                 document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                 // Ensure the selection state is cleared visually when the modal closes
@@ -775,381 +775,655 @@
                     </div>`;
 
                 return { html: fullHtml };
-            }
-
-            function openModal(reportGenerator, title) {
-                try {
-                    const reportData = reportGenerator();
-                    if (!reportData) return;
-                    currentReportGenerator = reportGenerator;
-                    reportModalTitle.textContent = title;
-                    reportContent.innerHTML = reportData.html;
-                    reportModal.classList.remove('hidden');
-                    // Add a class to body to prevent scrolling when modal is open
-                    document.body.classList.add('overflow-hidden');
-
-                    // If it's the "Turni Organizzati" report, show the specific email button
-                    if (title === 'Turni Organizzati per Fascia Oraria') {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
-                        // Add event listeners to the new checkboxes within the modal AFTER it's rendered
-                        document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
-                            checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
-                        });
-
-                        document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
-                            masterCheckbox.addEventListener('change', function() {
-                                const macchinistaId = this.dataset.macchinistaId;
-                                const isChecked = this.checked;
-                                document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
-                                    shiftCheckbox.checked = isChecked;
-                                });
-                                updateGenerateSelectedShiftsButtonState();
-                            });
-                        });
-                        updateGenerateSelectedShiftsButtonState(); // Ensure its state is correct on open
-                    } else {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                    }
-
-                } catch (error) {  
-                    console.error("ERRORE in openModal:", error);  
-                    showToast(`Errore nell'apertura del report: ${error.message}.`);  
-                    reportModal.classList.add('hidden');  
-                    document.body.classList.remove('overflow-hidden');  
-                }
-            }
-
-            function closeModal() {  
-                reportModal.classList.add('hidden');  
-                document.body.classList.remove('overflow-hidden');  
-                // Hide the specific email button when any modal is closed
-                document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                // Ensure the selection state is cleared visually when the modal closes
-                if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
-                    document.querySelectorAll('.shift-select-checkbox').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.macchinista-select-all-checkbox').forEach(cb => cb.checked = false);
-                    // No need to call updateGenerateSelectedShiftsButtonState here as the button will be hidden
-                }
-            }
-
-            function generateUnifiedAnnouncementData() {
-                salvaTurni(depositoReportSelect.value);
-                salvaCongedi();
-
-                const startDateVal = document.getElementById('startDate').value;
-                const endDateVal = document.getElementById('endDate').value;
-
-                if (!startDateVal || !endDateVal) {
-                    showToast("Per favore, imposta un intervallo di date (Da/A).");
-                    return null;
-                }
-
-                const startDate = new Date(startDateVal + 'T00:00:00');
-                const endDate = new Date(endDateVal + 'T23:59:59');
-                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                
-                let turniHtml = '';
-                let hasTurni = false;
-
-                for (const deposito in turniPerDeposito) {
-                    if (turniPerDeposito.hasOwnProperty(deposito) && turniPerDeposito[deposito].length > 0) {
-                        const turniFiltrati = turniPerDeposito[deposito]
-                            .filter(t => {
-                                if (!t.data) return false;
-                                const turnoDate = new Date(t.data + 'T00:00:00');
-                                return turnoDate >= startDate && turnoDate <= endDate;
-                            })
-                            .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                        if (turniFiltrati.length > 0) {
-                            hasTurni = true;
-                            turniHtml += `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire - ${deposito}</h3>`;
-                            turniHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #eff6ff;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Numero</th><th style="padding: 8px;">Inizio</th><th style="padding: 8px;">Fine</th></tr></thead><tbody>`;
-                            turniFiltrati.forEach(t => {
-                                turniHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(t.data)}</td><td style="padding: 8px;">${t.numero || ''}</td><td style="padding: 8px;">${t.inizio || ''}</td><td style="padding: 8px;">${t.fine || ''}</td></tr>`;
-                            });
-                            turniHtml += `</tbody></table>`;
-                        }
-                    }
-                }
-                if (!hasTurni) {
-                    turniHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire</h3><p style="margin-top: 10px; font-style: italic;">Nessun turno da coprire per il periodo selezionato.</p>`;
-                }
-
-                let congediHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #059669; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Congedi da offrire</h3>`;
-                const congediFiltrati = congediDaOffrire
-                    .filter(c => {
-                        if (!c.data) return false;
-                        const congedoDate = new Date(c.data + 'T00:00:00');
-                        return congedoDate >= startDate && congedoDate <= endDate;
-                    })
-                    .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                if (congediFiltrati.length > 0) {
-                    congediHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #f0fdfa;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Fascia Oraria</th><th style="padding: 8px;">Quantità</th></tr></thead><tbody>`;
-                    congediFiltrati.forEach(c => {
-                        congediHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(c.data)}</td><td style="padding: 8px;">${c.fascia || ''}</td><td style="padding: 8px;">${c.quantita || ''}</td></tr>`;
-                    });
-                    congediHtml += `</tbody></table>`;
-                } else {
-                    congediHtml += `<p style="margin-top: 10px; font-style: italic;">Nessun congedo da offrire per il periodo selezionato.</p>`;
-                }
-
-                const fullHtml = `
-                    <div id="pdf-content" style="font-family: Arial, sans-serif; color: #333;">
-                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Annuncio Stato Effettivi</h2>
-                        <p style="text-align:center; font-size: 16px; margin-bottom: 20px; color: #555;">
-                            Periodo: <strong>${formatDate(startDateVal)}</strong> - <strong>${formatDate(endDateVal)}</strong>
-                        </p>
-                        ${turniHtml}
-                        ${congediHtml}
-                        <p style="margin-top:30px; font-size:12px;">Se interessati, siete pregati di inserire la richiesta in Sopre o contattare la ripartizione del personale.</p>
-                        <p style="font-size:12px;">Grazie per la collaborazione.</p>
-                    </div>`;
-
-                return { html: fullHtml };
-            }
-
-            function openModal(reportGenerator, title) {
-                try {
-                    const reportData = reportGenerator();
-                    if (!reportData) return;
-                    currentReportGenerator = reportGenerator;
-                    reportModalTitle.textContent = title;
-                    reportContent.innerHTML = reportData.html;
-                    reportModal.classList.remove('hidden');
-                    // Add a class to body to prevent scrolling when modal is open
-                    document.body.classList.add('overflow-hidden');
-
-                    // If it's the "Turni Organizzati" report, show the specific email button
-                    if (title === 'Turni Organizzati per Fascia Oraria') {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
-                        // Add event listeners to the new checkboxes within the modal AFTER it's rendered
-                        document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
-                            checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
-                        });
-
-                        document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
-                            masterCheckbox.addEventListener('change', function() {
-                                const macchinistaId = this.dataset.macchinistaId;
-                                const isChecked = this.checked;
-                                document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
-                                    shiftCheckbox.checked = isChecked;
-                                });
-                                updateGenerateSelectedShiftsButtonState();
-                            });
-                        });
-                        updateGenerateSelectedShiftsButtonState(); // Ensure its state is correct on open
-                    } else {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                    }
-
-                } catch (error) {  
-                    console.error("ERRORE in openModal:", error);  
-                    showToast(`Errore nell'apertura del report: ${error.message}.`);  
-                    reportModal.classList.add('hidden');  
-                    document.body.classList.remove('overflow-hidden');  
-                }
-            }
-
-            function closeModal() {  
-                reportModal.classList.add('hidden');  
-                document.body.classList.remove('overflow-hidden');  
-                // Hide the specific email button when any modal is closed
-                document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                // Ensure the selection state is cleared visually when the modal closes
-                if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
-                    document.querySelectorAll('.shift-select-checkbox').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.macchinista-select-all-checkbox').forEach(cb => cb.checked = false);
-                    // No need to call updateGenerateSelectedShiftsButtonState here as the button will be hidden
-                }
-            }
-
-            function generateUnifiedAnnouncementData() {
-                salvaTurni(depositoReportSelect.value);
-                salvaCongedi();
-
-                const startDateVal = document.getElementById('startDate').value;
-                const endDateVal = document.getElementById('endDate').value;
-
-                if (!startDateVal || !endDateVal) {
-                    showToast("Per favore, imposta un intervallo di date (Da/A).");
-                    return null;
-                }
-
-                const startDate = new Date(startDateVal + 'T00:00:00');
-                const endDate = new Date(endDateVal + 'T23:59:59');
-                const formatDate = (dateStr) => new Date(dateStr+'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                
-                let turniHtml = '';
-                let hasTurni = false;
-
-                for (const deposito in turniPerDeposito) {
-                    if (turniPerDeposito.hasOwnProperty(deposito) && turniPerDeposito[deposito].length > 0) {
-                        const turniFiltrati = turniPerDeposito[deposito]
-                            .filter(t => {
-                                if (!t.data) return false;
-                                const turnoDate = new Date(t.data + 'T00:00:00');
-                                return turnoDate >= startDate && turnoDate <= endDate;
-                            })
-                            .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                        if (turniFiltrati.length > 0) {
-                            hasTurni = true;
-                            turniHtml += `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire - ${deposito}</h3>`;
-                            turniHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #eff6ff;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Numero</th><th style="padding: 8px;">Inizio</th><th style="padding: 8px;">Fine</th></tr></thead><tbody>`;
-                            turniFiltrati.forEach(t => {
-                                turniHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(t.data)}</td><td style="padding: 8px;">${t.numero || ''}</td><td style="padding: 8px;">${t.inizio || ''}</td><td style="padding: 8px;">${t.fine || ''}</td></tr>`;
-                            });
-                            turniHtml += `</tbody></table>`;
-                        }
-                    }
-                }
-                if (!hasTurni) {
-                    turniHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Turni da coprire</h3><p style="margin-top: 10px; font-style: italic;">Nessun turno da coprire per il periodo selezionato.</p>`;
-                }
-
-                let congediHtml = `<h3 style="font-size: 16px; font-weight: bold; color: #059669; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">Congedi da offrire</h3>`;
-                const congediFiltrati = congediDaOffrire
-                    .filter(c => {
-                        if (!c.data) return false;
-                        const congedoDate = new Date(c.data + 'T00:00:00');
-                        return congedoDate >= startDate && congedoDate <= endDate;
-                    })
-                    .sort((a, b) => new Date(a.data) - new Date(b.data));
-
-                if (congediFiltrati.length > 0) {
-                    congediHtml += `<table style="width: 100%; border-collapse: collapse; font-size: 14px;"><thead style="text-align: left; background-color: #f0fdfa;"><tr><th style="padding: 8px;">Data</th><th style="padding: 8px;">Fascia Oraria</th><th style="padding: 8px;">Quantità</th></tr></thead><tbody>`;
-                    congediFiltrati.forEach(c => {
-                        congediHtml += `<tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 8px;">${formatDate(c.data)}</td><td style="padding: 8px;">${c.fascia || ''}</td><td style="padding: 8px;">${c.quantita || ''}</td></tr>`;
-                    });
-                    congediHtml += `</tbody></table>`;
-                } else {
-                    congediHtml += `<p style="margin-top: 10px; font-style: italic;">Nessun congedo da offrire per il periodo selezionato.</p>`;
-                }
-
-                const fullHtml = `
-                    <div id="pdf-content" style="font-family: Arial, sans-serif; color: #333;">
-                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 10px 0;">Annuncio Stato Effettivi</h2>
-                        <p style="text-align:center; font-size: 16px; margin-bottom: 20px; color: #555;">
-                            Periodo: <strong>${formatDate(startDateVal)}</strong> - <strong>${formatDate(endDateVal)}</strong>
-                        </p>
-                        ${turniHtml}
-                        ${congediHtml}
-                        <p style="margin-top:30px; font-size:12px;">Se interessati, siete pregati di inserire la richiesta in Sopre o contattare la ripartizione del personale.</p>
-                        <p style="font-size:12px;">Grazie per la collaborazione.</p>
-                    </div>`;
-
-                return { html: fullHtml };
-            }
-
-            function openModal(reportGenerator, title) {
-                try {
-                    const reportData = reportGenerator();
-                    if (!reportData) return;
-                    currentReportGenerator = reportGenerator;
-                    reportModalTitle.textContent = title;
-                    reportContent.innerHTML = reportData.html;
-                    reportModal.classList.remove('hidden');
-                    // Add a class to body to prevent scrolling when modal is open
-                    document.body.classList.add('overflow-hidden');
-
-                    // If it's the "Turni Organizzati" report, show the specific email button
-                    if (title === 'Turni Organizzati per Fascia Oraria') {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
-                        // Add event listeners to the new checkboxes within the modal AFTER it's rendered
-                        document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
-                            checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
-                        });
-
-                        document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
-                            masterCheckbox.addEventListener('change', function() {
-                                const macchinistaId = this.dataset.macchinistaId;
-                                const isChecked = this.checked;
-                                document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
-                                    shiftCheckbox.checked = isChecked;
-                                });
-                                updateGenerateSelectedShiftsButtonState();
-                            });
-                        });
-                        updateGenerateSelectedShiftsButtonState(); // Ensure its state is correct on open
-                    } else {
-                        document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                    }
-
-                } catch (error) {  
-                    console.error("ERRORE in openModal:", error);  
-                    showToast(`Errore nell'apertura del report: ${error.message}.`);  
-                    reportModal.classList.add('hidden');  
-                    document.body.classList.remove('overflow-hidden');  
-                }
-            }
-
-            function closeModal() {  
-                reportModal.classList.add('hidden');  
-                document.body.classList.remove('overflow-hidden');  
-                // Hide the specific email button when any modal is closed
-                document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
-                // Ensure the selection state is cleared visually when the modal closes
-                if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
-                    document.querySelectorAll('.shift-select-checkbox').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.macchinista-select-all-checkbox').forEach(cb => cb.checked = false);
-                    // No need to call updateGenerateSelectedShiftsButtonState here as the button will be hidden
-                }
             }
 
             // --- LISTENERS GENERALI ---
             generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
             generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            closeModalBtn.addEventListener('click', closeModal);  
-            openNewTabBtn.addEventListener('click', () => {  
-                if (!currentReportGenerator) return;  
-                const reportData = currentReportGenerator();  
-                if(!reportData) return;  
-                const newWindow = window.open();  
-                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);  
-                newWindow.document.close();  
+            closeModalBtn.addEventListener('click', closeModal); 
+            openNewTabBtn.addEventListener('click', () => { 
+                if (!currentReportGenerator) return; 
+                const reportData = currentReportGenerator(); 
+                if(!reportData) return; 
+                const newWindow = window.open(); 
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); 
+                newWindow.document.close(); 
             });
-            copyHtmlBtn.addEventListener('click', () => {  
-                const reportHtmlElement = document.getElementById('pdf-content');  
+            copyHtmlBtn.addEventListener('click', () => { 
+                const reportHtmlElement = document.getElementById('pdf-content'); 
                 if(!reportHtmlElement) { showToast('Contenuto del report non trovato.'); return; }
                 navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(
-                    () => showToast('Codice HTML copiato!'),  
+                    () => showToast('Codice HTML copiato!'), 
                     () => showToast('Erro durante la copia.')
-                );  
+                ); 
             });
+            // Original Send Email button for general reports
+            sendEmailBtn.addEventListener('click', function() { 
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
+                const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
+                window.location.href = `mailto:?subject=${subject}&body=${body}`; 
+            });
+
+
+            // Listeners per Pane 1 (Calendario)
+            entryForm.addEventListener('submit', function(e) { 
+                e.preventDefault(); 
+                const formData = new FormData(entryForm); 
+                addOrUpdateCalendarEvent( 
+                    formData.get('entryDate'), 
+                    formData.get('entryType'), 
+                    formData.get('shiftType'), 
+                    parseInt(formData.get('quantity'), 10) 
+                ); 
+            });
+            modalEntryForm.addEventListener('submit', function(e) { 
+                e.preventDefault(); 
+                const formData = new FormData(modalEntryForm); 
+                addOrUpdateCalendarEvent( 
+                    formData.get('entryDate'), 
+                    formData.get('entryType'), 
+                    formData.get('shiftType'), 
+                    parseInt(formData.get('quantity'), 10) 
+                ); 
+                addEventModal.classList.add('hidden'); 
+            });
+            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
             
-            // *** MODIFICA IMPORTANTE QUI: sendEmailBtn ora è condizionale ***
-            sendEmailBtn.addEventListener('click', function() {  
-                if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
-                    // Se siamo nel report "Turni Organizzati per Fascia Oraria",
-                    // simuliamo il click sul pulsante specifico per l'email "Ciao Vincenzo".
-                    // Questo garantisce che venga usata la logica di selezione.
-                    document.getElementById('generateSelectedShiftsEmailBtn').click();
-                } else {
-                    // Per tutti gli altri report, usa la logica predefinita (email semplice).
-                    const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");  
-                    const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti.");  
-                    window.location.href = `mailto:?subject=${subject}&body=${body}`;  
+            // Listeners per Pane 2 (Annuncio Effettivi)
+            depositoReportSelect.addEventListener('change', (e) => { 
+                salvaTurni(depositoPrecedente); 
+                const nd=e.target.value; 
+                caricaTurni(nd); 
+                depositoPrecedente=nd; 
+            });
+            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
+            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            
+            clearAllBtn.addEventListener('click', function() {
+                if (confirm("Sei sicuro di voler pulire tutti i dati per l'annuncio? Questa operazione non può essere annullata e non influisce sul calendario.")) {
+                    try {
+                        document.getElementById('startDate').value = '';
+                        document.getElementById('endDate').value = '';
+                        document.getElementById('quick-add-turno').value = '';
+                        Object.keys(turniPerDeposito).forEach(key => delete turniPerDeposito[key]);
+                        congediDaOffrire.length = 0;
+                        turniContainer.innerHTML = '';
+                        congediContainer.innerHTML = '';
+                        showToast('I dati per l\'annuncio sono stati puliti.');
+                    } catch (e) { console.error("Errore durante la pulizia dei dati annuncio:", e); showToast("Si è verificato un errore imprevisto."); }
                 }
             });
+
+            quickAddBtn.addEventListener('click', function() {
+                const text = quickAddTurnoInput.value;
+                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean); 
+                
+                const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
+                const timeRegex = /(\d{1,2}:\d{2})/;
+                const numberRegex = /(\d{3,4})/; 
+                
+                let dateStr = null;
+                let numero = null;
+                let inizio = null;
+                let fine = null;
+                let foundTimes = [];
+
+                for(let i = 0; i < columns.length; i++) {
+                    const col = columns[i].trim();
+                    if (dateRegex.test(col) && !dateStr) {
+                        dateStr = col;
+                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) { 
+                        numero = col;
+                    } else if (timeRegex.test(col)) {
+                        foundTimes.push(col);
+                    }
+                }
+
+                if (foundTimes.length >= 1) inizio = foundTimes[0];
+                if (foundTimes.length >= 2) fine = foundTimes[1];
+
+                if (!dateStr || !numero || !inizio || !fine) {
+                    showToast('Formato testo non valido. Impossibile estrarre data, numero o orari.');
+                    return;
+                }
+
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) { showToast('Formato data non valido (gg.mm.aaaa).'); return; }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+
+                let depotName = document.getElementById('depositoReport').value; 
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                for (const col of columns) {
+                    if (depotMap[col]) {
+                        depotName = depotMap[col];
+                        break;
+                    }
+                }
+
+                if (depositoReportSelect.value !== depotName) {
+                    depositoReportSelect.value = depotName;
+                    depositoReportSelect.dispatchEvent(new Event('change')); 
+                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
+                } else {
+                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
+                }
+                quickAddTurnoInput.value = '';
+                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
+            });
+
+            // Listeners per Pane 3 (Statistiche e Analisi)
+            analyzeBtn.addEventListener('click', function() { 
+                const text = pasteArea.value; 
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } 
+                let accepted = 0, pending = 0, rejected = 0; 
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; 
+                const lines = text.trim().split('\n'); 
+                const records = []; 
+                let currentRecordLines = []; 
+                lines.forEach((line, index) => { 
+                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; 
+                    if (isNewRecordStart && currentRecordLines.length > 0) { 
+                        records.push(currentRecordLines.join(' ')); 
+                        currentRecordLines = []; 
+                    } 
+                    currentRecordLines.push(line); 
+                }); 
+                if (currentRecordLines.length > 0) { 
+                    records.push(currentRecordLines.join(' ')); 
+                } 
+                records.forEach(record => { 
+                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); 
+                    if (hasTargetType) { 
+                        const recordLC = record.toLowerCase(); 
+                        if (recordLC.includes('annullato')) { } 
+                        else if (recordLC.includes('accordato')) { accepted++; } 
+                        else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } 
+                        else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } 
+                    } 
+                }); 
+                statsAcceptedInput.value = accepted; 
+                statsPendingInput.value = pending; 
+                statsRejectedInput.value = rejected; 
+                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); 
+            });
+            
+            // --- LOGICA PER ATTESA TURNO (PANE 5) ---
+            processStandbyBtn.addEventListener('click', function() { 
+                const text = standbyPasteArea.value; 
+                if (!text.trim()) { 
+                    showToast('Incolla il testo da elaborare.'); 
+                    return; 
+                } 
+                standbyResultsContainer.innerHTML = '';  
+                const lines = text.trim().split('\n'); 
+                
+                lines.forEach(line => { 
+                    if (line.trim().length === 0) return;  
+                    const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/); 
+                    const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+(?:\s+[A-Z][a-zÀ-ÿ']+){0,2})\s+(\d{6})/); 
+                    
+                    if (dateMatch && nameSurnameMatricolaMatch) { 
+                        const date = dateMatch[1]; 
+                        const fullName = nameSurnameMatricolaMatch[1];
+                        const nameParts = fullName.split(/\s+/).filter(Boolean); 
+                        const surname = nameParts[0];
+                        const name = nameParts.slice(1).join(' '); 
+                        const matricola = nameSurnameMatricolaMatch[2];
+
+                        const normalizeForEmail = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
+                        const emailAddress = `${normalizeForEmail(name)}.${normalizeForEmail(surname)}@sbb.ch`; 
+                        
+                        const subject = `Assegnazione turno del ${date}`;
+                        const emailBody = `Buongiorno ${name},
+
+vi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.
+Ringraziandovi per l'attenzione, porgiamo cordiali saluti.
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+                        const resultDiv = document.createElement('div'); 
+                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; 
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} (${matricola}) - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; 
+                        standbyResultsContainer.appendChild(resultDiv); 
+                    } else {
+                        console.warn('Skipping malformed or unrecognized standby line:', line);
+                        showToast(`Errore parsing riga attesa: "${line.substring(0, Math.min(line.length, 50))}..."`);
+                    }
+                }); 
+                standbyPasteArea.value = ''; 
+                if(standbyResultsContainer.children.length > 0){ 
+                    showToast('Lista elaborata!'); 
+                } else { 
+                    showToast('Nessun dato valido trovato nel testo.'); 
+                } 
+            });
+            standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
+
+            // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
+            const swapBlocksContainer = document.getElementById('swap-blocks-container');
+
+            function createSwapBlockHTML() {
+                return `
+                <div class="change-block border p-4 rounded-lg bg-white shadow-sm space-y-3 relative">
+                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Blocco">&times;</button>
+                    
+                    <h3 class="font-semibold text-lg text-gray-800 border-b pb-2">Gestione Cambio Macchinista</h3>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Dati Macchinista</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla dati: Cognome Nome Matricola..."></textarea>
+                            <button data-type="driver" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="driver-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Turno Originale (da stornare)</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno originale..."></textarea>
+                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="shift-original-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Motivo dello storno</label>
+                        <input type="text" class="motivo-input form-input-box w-full mt-1" placeholder="Es: Necessità di servizio, cambio programma...">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-700">Turno Nuovo (da assegnare)</label>
+                        <div class="flex gap-2 mt-1">
+                            <textarea class="parser-input form-input-box w-full" rows="2" placeholder="Incolla riga turno nuovo..."></textarea>
+                            <button data-type="shift" class="process-paste-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-center">Elabora</button>
+                        </div>
+                        <div class="shift-new-info parsed-info p-2 mt-2 rounded-md text-sm"></div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button class="generate-change-email-btn w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 font-semibold">Genera Email di Avviso</button>
+                    </div>
+                </div>`;
+            }
+            
+            function addNewChangeBlock() {
+                const blockHTML = createSwapBlockHTML();
+                swapBlocksContainer.insertAdjacentHTML('beforeend', blockHTML);
+            }
+            
+            document.getElementById('add-new-swap-block-btn').addEventListener('click', addNewChangeBlock);
+            // Add one block by default on load for Gestione Cambi
+            addNewChangeBlock();
+
+
+            function parseDriverInfo(text) {
+                const match = text.match(/\b([A-Z][a-zÀ-ÿ']+)\s+([A-Z][a-zÀ-ÿ']+)\s+(\d{6})/);
+                if (match) {
+                    const surname = match[1];
+                    const name = match[2];
+                    const matricola = match[3];
+                    const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                    const email = `${normalize(name)}.${normalize(surname)}@sbb.ch`;
+                    return { name, surname, matricola, email };
+                }
+                return null;
+            }
+
+            function parseShiftInfo(text) {
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean);
+                if (columns.length < 4) return null;
+
+                const dateMatch = columns[0].match(/(\d{2}\.\d{2}\.\d{4})/);
+                const date = dateMatch ? dateMatch[1] : null;
+                const number = columns[1] || null;
+                const depot = columns.find(c => c === 'BEL' || c === 'CHI') || null;
+                const times = columns.filter(c => /^\d{1,2}:\d{2}$/.test(c.trim()));
+                const start = times.length > 0 ? times[0] : null;
+                
+                const startIndex = columns.findIndex(c => c.trim() === start);
+                let end = null;
+                if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
+                     end = columns[startIndex + 1].trim();
+                } else if (times.length > 1) {
+                     end = times[1]; 
+                }
+
+                if (date && number && depot && start && end) {
+                    return { date, number, depot, start, end };
+                }
+                return null;
+            }
+            
+            swapBlocksContainer.addEventListener('click', function(e) {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const parentBlock = e.target.closest('.change-block');
+                if (!parentBlock) return;
+
+                // Handle Remove Button
+                if (button.classList.contains('remove-change-block-btn')) {
+                    if (confirm('Sei sicuro di voler rimuovere questo blocco?')) {
+                        parentBlock.remove();
+                    }
+                    return;
+                }
+
+                // Handle Process Button
+                if (button.classList.contains('process-paste-btn')) {
+                    const type = button.dataset.type;
+                    const textarea = button.previousElementSibling;
+                    const text = textarea.value;
+                    const infoDiv = textarea.parentElement.nextElementSibling;
+                    
+                    if (!text.trim()) {
+                        showToast("Incolla del testo prima di elaborare.");
+                        return;
+                    }
+
+                    let parsedData = null;
+                    let displayText = '<p class="text-red-500">Dati non validi o formato non riconosciuto.</p>';
+
+                    if (type === 'driver') {
+                        parsedData = parseDriverInfo(text);
+                        if (parsedData) {
+                            displayText = `<strong>Macch:</strong> ${parsedData.surname} ${parsedData.name} (${parsedData.matricola})<br><strong>Email:</strong> ${parsedData.email}`;
+                        }
+                    } else if (type === 'shift') {
+                        parsedData = parseShiftInfo(text);
+                           if (parsedData) {
+                            displayText = `<strong>Turno:</strong> ${parsedData.number} del ${parsedData.date}<br><strong>Orario:</strong> ${parsedData.start} - ${parsedData.end} (${parsedData.depot})`;
+                        }
+                    }
+                    
+                    infoDiv.innerHTML = displayText;
+                    if (parsedData) {
+                        infoDiv.dataset.parsed = JSON.stringify(parsedData);
+                        infoDiv.classList.remove('invalid');
+                        infoDiv.classList.add('valid');
+                    } else {
+                           delete infoDiv.dataset.parsed;
+                           infoDiv.classList.remove('valid');
+                           infoDiv.classList.add('invalid');
+                    }
+                    return;
+                }
+
+                // Handle Generate Email Button
+                if (button.classList.contains('generate-change-email-btn')) {
+                    const driverInfoDiv = parentBlock.querySelector('.driver-info');
+                    const originalShiftInfoDiv = parentBlock.querySelector('.shift-original-info');
+                    const newShiftInfoDiv = parentBlock.querySelector('.shift-new-info');
+                    const motivoInput = parentBlock.querySelector('.motivo-input');
+
+                    const allDivs = [driverInfoDiv, originalShiftInfoDiv, newShiftInfoDiv];
+                    let allValid = true;
+
+                    allDivs.forEach(div => {
+                        if (!div.dataset.parsed) {
+                            div.classList.add('invalid');
+                            allValid = false;
+                        } else {
+                             div.classList.remove('invalid');
+                        }
+                    });
+                    
+                    let motivo = motivoInput.value.trim();
+                    if(!motivo){
+                        motivo = "necessità"; // Default reason
+                    }
+
+                    if (!allValid) {
+                        showToast("Elaborare correttamente tutti i campi prima di generare l'email.");
+                        return;
+                    }
+
+                    const driver = JSON.parse(driverInfoDiv.dataset.parsed);
+                    const s_orig = JSON.parse(originalShiftInfoDiv.dataset.parsed);
+                    const s_new = JSON.parse(newShiftInfoDiv.dataset.parsed);
+
+                    const subject = `Modifica piano di servizio del ${s_orig.date}`;
+                    
+                    const body = `Buongiorno ${driver.name},
+
+la informiamo che è stata apportata una modifica al suo piano di servizio.
+Il turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.
+In sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.
+
+La preghiamo di prenderne nota.
+
+Cordiali saluti,
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+
+                    window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                }
+            });
+
+            // --- LOGICA PER NUOVO PANELLO: CAMBIO FASCIA ORARIA (PANE 6) ---
+            const shiftDataPasteAreaForFascia = document.getElementById('shift-data-paste-area');
+            const processShiftDataBtnForFascia = document.getElementById('process-shift-data-btn');
+            const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
+            const generateSelectedShiftsEmailBtn = document.getElementById('generateSelectedShiftsEmailBtn');
+
+
+            function calculateFascia(startTime, endTime) {
+                const parseTime = (timeStr) => {
+                    const [hours, minutes] = timeStr.split(':').map(Number);
+                    const date = new Date(2000, 0, 1); 
+                    date.setHours(hours, minutes, 0, 0);
+                    return date;
+                };
+
+                const start = parseTime(startTime);
+                let end = parseTime(endTime);
+
+                if (end.getTime() < start.getTime()) {
+                    end.setDate(end.getDate() + 1); 
+                }
+                
+                const F_START_MIN = parseTime('02:00'); 
+                const F_START_MAX = parseTime('05:59'); 
+                const F_END_MAX = parseTime('15:00');   
+
+                const M_START_MIN = parseTime('06:00'); 
+                const M_START_MAX = parseTime('11:59'); 
+                const M_END_MAX = parseTime('17:00');   
+
+                const T_START_MIN_DAY = parseTime('12:00'); 
+                const OVERNIGHT_START_MIN = parseTime('00:00'); 
+                const OVERNIGHT_END_MAX = parseTime('06:00');   
+
+                // Presto: starts between 02:00 and 05:59, ends by 15:00
+                if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
+                    return 'Presto';
+                } 
+                // Medio: starts between 06:00 and 11:59, ends by 17:00
+                else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
+                    return 'Medio';
+                } 
+                // Tardi: starts from 12:00 onwards OR is a night shift (starts between 00:00 and 01:59 and ends next morning by 06:00)
+                // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
+                // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
+                // A shift is Tardi if:
+                // 1. It starts at or after 12:00 (midday)
+                // OR
+                // 2. It's an overnight shift: starts between 00:00 and 01:59 AND ends after starting time AND ends by 06:00 next day
+                // OR
+                // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
+                else if (start >= T_START_MIN_DAY || 
+                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
+                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) 
+                {
+                    return 'Tardi';
+                }
+                
+                return 'Sconosciuta'; 
+            }
+
+            function parseAndOrganizeShiftDataForFascia(text) {
+                const lines = text.trim().split('\n');
+                const organizedData = {}; 
+
+                lines.forEach(line => {
+                    try { 
+                        // Robust regex:
+                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
+                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
+                        // \s+(\S+) : Shift Number (any non-whitespace characters)
+                        // \s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}) : Start Time & End Time (HH:MM)
+                        // (?:.*?(\d{6}))? : Optional Matricola (6 digits) anywhere after times
+                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/);
+                        
+                        if (match) { 
+                            const surname = match[1];
+                            const name = match[2];
+                            const dateStr = match[3];
+                            const shiftNumber = match[4];
+                            const startTime = match[5];
+                            const endTime = match[6];
+                            let matricola = match[7] || null; 
+
+                            if (!matricola) { 
+                                const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
+                                matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
+                            }
+
+                            const [day, month, year] = dateStr.split('.');
+                            const isoDate = `${year}-${month}-${day}`;
+
+                            const fascia = calculateFascia(startTime, endTime);
+                            const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
+                            const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
+
+                            const macchinistaKey = matricola; 
+                            if (!organizedData[macchinistaKey]) {
+                                organizedData[macchinistaKey] = {
+                                    name: name,
+                                    surname: surname,
+                                    matricola: matricola,
+                                    email: email,
+                                    shifts: []
+                                };
+                            }
+                            organizedData[macchinistaKey].shifts.push({
+                                date: isoDate, 
+                                number: shiftNumber,
+                                start: startTime,
+                                end: endTime,
+                                fascia: fascia,
+                                originalLine: line 
+                            });
+                        } else {
+                            console.warn('Skipping malformed or unrecognized line in Cambio Fascia Oraria:', line);
+                            showToast(`Attenzione: Riga non riconosciuta in Cambio Fascia: "${line.substring(0, Math.min(line.length, 50))}..."`);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing line in Cambio Fascia Oraria:', line, e);
+                        showToast(`Errore grave durante l'analisi di una riga: "${line.substring(0, Math.min(line.length, 50))}..."`);
+                    }
+                });
+
+                for (const key in organizedData) {
+                    organizedData[key].shifts.sort((a, b) => new Date(a.date) - new Date(b.date));
+                }
+                return organizedData;
+            }
+            
+            // Function to generate the HTML for the interactive report in the modal
+            function generateInteractiveShiftReportHtml(organizedData) {
+                let html = `
+                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin-bottom:20px;">Turni Organizzati per Fascia Oraria (da dati incollati)</h2>
+                `;
+                
+                if (Object.keys(organizedData).length === 0) {
+                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
+                    return html; 
+                }
+
+                for (const macchinistaKey in organizedData) {
+                    const person = organizedData[macchinistaKey];
+                    html += `
+                        <div class="modal-shift-row">
+                            <input type="checkbox" class="macchinista-select-all-checkbox" data-macchinista-id="${person.matricola}">
+                            <div class="modal-shift-info">
+                                <span>${person.surname} ${person.name} (${person.matricola || 'N/A'}) - ${person.email}</span>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th> <th>Data</th>
+                                            <th>Numero Turno</th>
+                                            <th>Inizio</th>
+                                            <th>Fine</th>
+                                            <th>Fascia Oraria</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                    `;
+                    person.shifts.forEach(shift => {
+                        const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        let fasciaClass = '';
+                        switch(shift.fascia) {
+                            case 'Presto': fasciaClass = 'fascia-presto'; break;
+                            case 'Medio': fasciaClass = 'fascia-medio'; break;
+                            case 'Tardi': fasciaClass = 'fascia-tardi'; break;
+                            default: fasciaClass = 'fascia-sconosciuta';
+                        }
+                        html += `
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="shift-select-checkbox"
+                                        data-macchinista-id="${person.matricola}"
+                                        data-macchinista-name="${person.name}"
+                                        data-macchinista-surname="${person.surname}"
+                                        data-macchinista-email="${person.email}"
+                                        data-date="${shift.date}"
+                                        data-shift-number="${shift.number}"
+                                        data-start-time="${shift.start}"
+                                        data-end-time="${shift.end}"
+                                        data-fascia="${shift.fascia}">
+                                </td>
+                                <td>${formattedDate}</td>
+                                <td>${shift.number}</td>
+                                <td>${shift.start}</td>
+                                <td>${shift.end}</td>
+                                <td class="${fasciaClass}">${shift.fascia}</td>
+                            </tr>
+                        `;
+                    });
+                    html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return html; 
+            }
 
             // Function to update the state of the "Genera Email Selezionati" button
             function updateGenerateSelectedShiftsButtonState() {
                 const selectedCheckboxes = document.querySelectorAll('#reportModal .shift-select-checkbox:checked');
                 if (selectedCheckboxes.length > 0) {
                     generateSelectedShiftsEmailBtn.classList.remove('hidden');
-                    // Rendo il pulsante 'Invia Email' generico hidden quando ho selezioni
-                    sendEmailBtn.classList.add('hidden'); 
                 } else {
                     generateSelectedShiftsEmailBtn.classList.add('hidden');
-                    // Rendo il pulsante 'Invia Email' generico visibile quando non ho selezioni
-                    sendEmailBtn.classList.remove('hidden');
                 }
             }
 
             // Function to generate email for selected shifts directly from the modal report
-            // This function is still tied to the 'Genera Email Selezionati' button
             generateSelectedShiftsEmailBtn.addEventListener('click', function() {
                 const selectedShiftsData = [];
                 document.querySelectorAll('#reportModal .shift-select-checkbox:checked').forEach(checkbox => {
@@ -1172,11 +1446,10 @@
                 }
 
                 let emailBody = "";
-                let uniqueRecipients = new Set();
+                let uniqueRecipients = new Set(); 
                 
-                // Define the main recipient as per your example
-                const mainRecipientName = "Vincenzo";
-                const mainRecipientEmail = "vincenzo.cartulano@sbb.ch"; // Assicurati che questo sia l'indirizzo email corretto per Vincenzo
+                const mainRecipientName = "Vincenzo"; 
+                const mainRecipientEmail = ""; // If you have Vincenzo's email, put it here. E.g., "vincenzo.rossi@sbb.ch"
                 if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
 
                 // Start email body as per your example screenshot
@@ -1189,12 +1462,12 @@
                     emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
                     // Add macchinista email to CC if not the main recipient
                     if (shift.macchinistaEmail && shift.macchinistaEmail !== mainRecipientEmail) {
-                        uniqueRecipients.add(shift.macchinistaEmail);
+                         uniqueRecipients.add(shift.macchinistaEmail);
                     }
                 });
 
                 emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
-                emailBody += `Cordiali saluti,\n\n`; // Added an extra newline for spacing as in example
+                emailBody += `Cordiali saluti,\n`;
                 emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
                 emailBody += `Ferrovie Federali Svizzere – FFS\n`;
                 emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
@@ -1204,21 +1477,25 @@
                 const subject = "Verifica Modifica Fascia Oraria Turni";
                 
                 // Construct mailto link
-                const toEmails = [mainRecipientEmail].filter(Boolean).join(',');  
-                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(',');  
+                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); 
+                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(','); 
 
                 let mailtoLink = `mailto:${toEmails}`;
+                const params = [];
                 if (ccEmails) {
-                    mailtoLink += `?cc=${encodeURIComponent(ccEmails)}`;
+                    params.push(`cc=${encodeURIComponent(ccEmails)}`);
                 }
-                mailtoLink += `${(toEmails || ccEmails) ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                params.push(`subject=${encodeURIComponent(subject)}`);
+                params.push(`body=${encodeURIComponent(emailBody)}`);
+
+                mailtoLink += (params.length > 0 ? '?' : '') + params.join('&');
                 
                 window.location.href = mailtoLink;
             });
 
             // Event listener for the main button in Pane 6
             processShiftDataBtnForFascia.addEventListener('click', function() {
-                const rawData = shiftDataPasteAreaForFascia.value;
+                const rawData = shiftDataPasteAreaForFasecia.value; // Corrected ID: Fascia -> Fascia
                 if (!rawData.trim()) {
                     showToast("Incolla i dati dei turni prima di organizzare.");
                     return;
@@ -1227,18 +1504,16 @@
                 
                 // Set the report modal content and open it
                 reportModalTitle.textContent = 'Turni Organizzati per Fascia Oraria';
-                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts);  
+                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts); 
                 reportModal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
 
                 // Clear existing proposals in pane6 and the set of added proposals
-                // NOTE: 'addedProposals' and 'generateSwapProposals' are not defined in the provided code snippet.
-                // If you intend to use them, ensure they are defined globally or within the appropriate scope.
-                // For now, I'm commenting them out to avoid errors if they don't exist.
-                // fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
-                // addedProposals.clear(); 
+                fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
+                addedProposals.clear();
 
-                // generateSwapProposals(organizedShifts);  
+                // Generate and display proposals in pane6 (this is the automatic block detection logic)
+                generateSwapProposals(organizedShifts); 
             });
 
 
@@ -1246,7 +1521,7 @@
             console.error("ERRORE FATALE in initializeApp:", error);
             document.body.innerHTML = `<div style="padding:2rem; text-align:center; background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 0.5rem; margin: 2rem;">
                 <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Errore Critico</h1>
-                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p>
+                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'application.</p>
                 <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">Dettagli tecnici: ${error.message}</p>
                 <p style="color: #ef4444; font-size: 0.875rem;">Si prega di segnalare questo errore all'amministratore.</p>
             </div>`;
