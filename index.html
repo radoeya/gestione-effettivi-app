@@ -589,7 +589,7 @@
                     document.body.classList.add('overflow-hidden');
                 } catch (error) { 
                     console.error("ERRORE in openModal:", error); 
-                    showToast(`Errore: ${error.message}.`); 
+                    showToast(`Errore nell'apertura del report: ${error.message}.`); 
                     reportModal.classList.add('hidden'); // Ensure modal is hidden on error
                     document.body.classList.remove('overflow-hidden'); // Ensure scrolling is re-enabled
                 }
@@ -677,6 +677,230 @@
 
                 return { html: fullHtml };
             }
+
+            // --- LISTENERS GENERALI ---
+            generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
+            generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
+            closeModalBtn.addEventListener('click', closeModal); // Questo listener è cruciale e deve funzionare sempre
+            openNewTabBtn.addEventListener('click', () => { 
+                if (!currentReportGenerator) return; 
+                const reportData = currentReportGenerator(); 
+                if(!reportData) return; 
+                const newWindow = window.open(); 
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`); 
+                newWindow.document.close(); 
+            });
+            copyHtmlBtn.addEventListener('click', () => { 
+                const reportHtmlElement = document.getElementById('pdf-content'); 
+                if(!reportHtmlElement) { showToast('Contenuto del report non trovato.'); return; }
+                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(
+                    () => showToast('Codice HTML copiato!'), 
+                    () => showToast('Errore durante la copia.')
+                ); 
+            });
+            sendEmailBtn.addEventListener('click', function() { 
+                const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
+                const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
+                window.location.href = `mailto:?subject=${subject}&body=${body}`; 
+            });
+
+            // Listeners per Pane 1 (Calendario)
+            entryForm.addEventListener('submit', function(e) { 
+                e.preventDefault(); 
+                const formData = new FormData(entryForm); 
+                addOrUpdateCalendarEvent( 
+                    formData.get('entryDate'), 
+                    formData.get('entryType'), 
+                    formData.get('shiftType'), 
+                    parseInt(formData.get('quantity'), 10) 
+                ); 
+            });
+            modalEntryForm.addEventListener('submit', function(e) { 
+                e.preventDefault(); 
+                const formData = new FormData(modalEntryForm); 
+                addOrUpdateCalendarEvent( 
+                    formData.get('entryDate'), 
+                    formData.get('entryType'), 
+                    formData.get('shiftType'), 
+                    parseInt(formData.get('quantity'), 10) 
+                ); 
+                addEventModal.classList.add('hidden'); 
+            });
+            closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
+            
+            // Listeners per Pane 2 (Annuncio Effettivi)
+            depositoReportSelect.addEventListener('change', (e) => { 
+                salvaTurni(depositoPrecedente); 
+                const nd=e.target.value; 
+                caricaTurni(nd); 
+                depositoPrecedente=nd; 
+            });
+            addTurnoBtn.addEventListener('click', () => creaRigaTurno());
+            addCongedoBtn.addEventListener('click', () => creaRigaCongedo());
+            
+            clearAllBtn.addEventListener('click', function() {
+                if (confirm("Sei sicuro di voler pulire tutti i dati per l'annuncio? Questa operazione non può essere annullata e non influisce sul calendario.")) {
+                    try {
+                        document.getElementById('startDate').value = '';
+                        document.getElementById('endDate').value = '';
+                        document.getElementById('quick-add-turno').value = '';
+                        Object.keys(turniPerDeposito).forEach(key => delete turniPerDeposito[key]);
+                        congediDaOffrire.length = 0;
+                        turniContainer.innerHTML = '';
+                        congediContainer.innerHTML = '';
+                        showToast('I dati per l\'annuncio sono stati puliti.');
+                    } catch (e) { console.error("Errore durante la pulizia dei dati annuncio:", e); showToast("Si è verificato un errore imprevisto."); }
+                }
+            });
+
+            quickAddBtn.addEventListener('click', function() {
+                const text = quickAddTurnoInput.value;
+                if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean); // Split by 2 or more spaces or tab
+                
+                const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
+                const timeRegex = /(\d{1,2}:\d{2})/;
+                const numberRegex = /(\d{3,4})/; 
+                
+                let dateStr = null;
+                let numero = null;
+                let inizio = null;
+                let fine = null;
+                let foundTimes = [];
+
+                for(let i = 0; i < columns.length; i++) {
+                    const col = columns[i].trim();
+                    if (dateRegex.test(col) && !dateStr) {
+                        dateStr = col;
+                    } else if (numberRegex.test(col) && !numero && !timeRegex.test(col) && col.length >= 3 && col.length <= 4) { 
+                        numero = col;
+                    } else if (timeRegex.test(col)) {
+                        foundTimes.push(col);
+                    }
+                }
+
+                if (foundTimes.length >= 1) inizio = foundTimes[0];
+                if (foundTimes.length >= 2) fine = foundTimes[1];
+
+                if (!dateStr || !numero || !inizio || !fine) {
+                    showToast('Formato testo non valido. Impossibile estrarre data, numero o orari.');
+                    return;
+                }
+
+                const dateParts = dateStr.split('.');
+                if (dateParts.length !== 3) { showToast('Formato data non valido (gg.mm.aaaa).'); return; }
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+
+                let depotName = document.getElementById('depositoReport').value; 
+                const depotMap = { 'CHI': 'Chiasso P', 'BEL': 'Bellinzona P' };
+                for (const col of columns) {
+                    if (depotMap[col]) {
+                        depotName = depotMap[col];
+                        break;
+                    }
+                }
+
+                if (depositoReportSelect.value !== depotName) {
+                    depositoReportSelect.value = depotName;
+                    depositoReportSelect.dispatchEvent(new Event('change')); 
+                    setTimeout(() => { creaRigaTurno({ data: formattedDate, numero, inizio, fine }); }, 100);
+                } else {
+                    creaRigaTurno({ data: formattedDate, numero, inizio, fine });
+                }
+                quickAddTurnoInput.value = '';
+                showToast(`Turno ${numero} aggiunto a ${depotName}!`);
+            });
+
+            // Listeners per Pane 3 (Statistiche e Analisi)
+            analyzeBtn.addEventListener('click', function() { 
+                const text = pasteArea.value; 
+                if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; } 
+                let accepted = 0, pending = 0, rejected = 0; 
+                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3']; 
+                const lines = text.trim().split('\n'); 
+                const records = []; 
+                let currentRecordLines = []; 
+                lines.forEach((line, index) => { 
+                    const isNewRecordStart = /\b\d{5,6}\b/.test(line) && index > 0; 
+                    if (isNewRecordStart && currentRecordLines.length > 0) { 
+                        records.push(currentRecordLines.join(' ')); 
+                        currentRecordLines = []; 
+                    } 
+                    currentRecordLines.push(line); 
+                }); 
+                if (currentRecordLines.length > 0) { 
+                    records.push(currentRecordLines.join(' ')); 
+                } 
+                records.forEach(record => { 
+                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record)); 
+                    if (hasTargetType) { 
+                        const recordLC = record.toLowerCase(); 
+                        if (recordLC.includes('annullato')) { } 
+                        else if (recordLC.includes('accordato')) { accepted++; } 
+                        else if (recordLC.includes('in lavorazione') || recordLC.includes('aperto')) { pending++; } 
+                        else if (recordLC.includes('respinto') || recordLC.includes('rifiutato')) { rejected++; } 
+                    } 
+                }); 
+                statsAcceptedInput.value = accepted; 
+                statsPendingInput.value = pending; 
+                statsRejectedInput.value = rejected; 
+                showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`); 
+            });
+            
+            // --- LOGICA PER ATTESA TURNO (PANE 5) ---
+            processStandbyBtn.addEventListener('click', function() { 
+                const text = standbyPasteArea.value; 
+                if (!text.trim()) { 
+                    showToast('Incolla il testo da elaborare.'); 
+                    return; 
+                } 
+                standbyResultsContainer.innerHTML = '';  
+                const lines = text.trim().split('\n'); 
+                
+                lines.forEach(line => { 
+                    if (line.trim().length === 0) return;  
+                    // More robust regex for date, surname, name, and matricola anywhere in the line
+                    const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/); 
+                    const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+\s+[A-Z][a-zÀ-ÿ']+)\s+(\d{6})/); 
+                    
+                    if (dateMatch && nameSurnameMatricolaMatch) { 
+                        const date = dateMatch[1]; 
+                        const fullName = nameSurnameMatricolaMatch[1];
+                        const [surname, name] = fullName.split(/\s+/).filter(Boolean); // Split full name into surname and name
+                        const matricola = nameSurnameMatricolaMatch[2];
+
+                        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
+                        const emailAddress = `${normalize(name)}.${normalize(surname)}@sbb.ch`; 
+                        
+                        const subject = `Assegnazione turno del ${date}`;
+                        const emailBody = `Buongiorno ${name},
+
+vi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.
+Ringraziandovi per l'attenzione, porgiamo cordiali saluti.
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
+                        const resultDiv = document.createElement('div'); 
+                        resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center'; 
+                        resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} (${matricola}) - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`; 
+                        standbyResultsContainer.appendChild(resultDiv); 
+                    } else {
+                        console.warn('Skipping malformed or unrecognized standby line:', line);
+                        showToast(`Errore parsing riga attesa: "${line.substring(0, Math.min(line.length, 50))}..."`);
+                    }
+                }); 
+                standbyPasteArea.value = ''; 
+                if(standbyResultsContainer.children.length > 0){ 
+                    showToast('Lista elaborata!'); 
+                } else { 
+                    showToast('Nessun dato valido trovato nel testo.'); 
+                } 
+            });
+            standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
             // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
             const swapBlocksContainer = document.getElementById('swap-blocks-container');
@@ -903,6 +1127,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 let end = parseTime(endTime);
 
                 // Adjust end time for overnight shifts. If end time is earlier than start time, it means it's the next day.
+                // This is crucial for correct fascia calculation across midnight.
                 if (end.getTime() < start.getTime()) {
                     end.setDate(end.getDate() + 1); // Increment day to make comparison valid
                 }
@@ -916,23 +1141,36 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const M_END_MAX = parseTime('17:00');   
 
                 const T_START_MIN = parseTime('12:00'); 
-                const T_END_MAX_OVERNIGHT = parseTime('06:00'); // For shifts ending early next morning
+                // Tardi "finisce a notte", quindi l'end time non è una limitazione per la classificazione Tardi,
+                // ma un turno Tardi può anche iniziare prima delle 02:00 e sconfinare.
+                // Quindi, se non è Presto o Medio, e inizia da 12:00 o è un turno di notte che termina a max 06:00 del giorno dopo.
+                const OVERNIGHT_END_MAX = parseTime('06:00'); // End time limit for a "Tardi/Nacht" shift
 
-                // Presto: starts between 02:00 and 05:59, ends by 15:00
+                // Check for Presto: Starts 02:00-05:59 AND ends by 15:00
                 if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
                     return 'Presto';
                 } 
-                // Medio: starts between 06:00 and 11:59, ends by 17:00
+                // Check for Medio: Starts 06:00-11:59 AND ends by 17:00
                 else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
                 } 
-                // Tardi: starts from 12:00 onwards OR is an overnight shift (starts late, crosses midnight, ends early next day)
-                // The overnight check needs to be careful: if start is, say, 23:00 and end is 06:00 (next day)
-                else if (start >= T_START_MIN || (start >= parseTime('00:00') && start < F_START_MIN && end > start && end <= T_END_MAX_OVERNIGHT)) {
-                    return 'Tardi';
+                // Check for Tardi: Starts from 12:00 onwards OR is an overnight shift
+                // An overnight shift typically starts late the previous day and ends early the next.
+                // `end >= start` after adjustment means it's the same day or next day after midnight.
+                else if (start >= T_START_MIN || (start < F_START_MIN && end.getDate() > start.getDate() && end <= (new Date(start).setDate(start.getDate()+1) && OVERNIGHT_END_MAX)) ) {
+                    // This `end <= (new Date(start).setDate(start.getDate()+1) && OVERNIGHT_END_MAX)` is a complex way to check across midnight.
+                    // A simpler way for Tardi: if it doesn't fit Presto/Medio, it's Tardi.
+                    // Or, if it starts from 12:00 (midday) OR starts before 2:00 AM AND ends on the next day by 6:00 AM (typical night shift)
+                    const endPlusOneDay = new Date(start);
+                    endPlusOneDay.setDate(start.getDate() + 1);
+                    endPlusOneDay.setHours(OVERNIGHT_END_MAX.getHours(), OVERNIGHT_END_MAX.getMinutes(), 0, 0);
+
+                    if (start >= T_START_MIN || (start < F_START_MIN && end <= endPlusOneDay && end.getDate() > start.getDate())) {
+                        return 'Tardi';
+                    }
                 }
                 
-                return 'Sconosciuta'; // Fallback for times not matching defined fascias
+                return 'Sconosciuta'; 
             }
 
             function parseAndOrganizeShiftDataForFascia(text) {
@@ -940,57 +1178,64 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const organizedData = {}; 
 
                 lines.forEach(line => {
-                    // Robust regex to capture: Surname, Name, Date, Shift Number, Start Time, End Time
-                    // It looks for non-space characters for name/surname, then date, then shift number, then two times.
-                    const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})/);
-                    
-                    if (match) { 
-                        const surname = match[1];
-                        const name = match[2];
-                        const dateStr = match[3];
-                        const shiftNumber = match[4];
-                        const startTime = match[5];
-                        const endTime = match[6];
+                    try { // Added try-catch for individual line parsing
+                        // Robust regex:
+                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
+                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
+                        // \s+(\S+) : Shift Number (any non-whitespace characters)
+                        // \s+(\d{1,2}:\d{2}) : Start Time (HH:MM)
+                        // \s+(\d{1,2}:\d{2}) : End Time (HH:MM)
+                        // .*?(\d{6})? : Optional Matricola (6 digits) anywhere later in the line
+                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}).*?(\d{6})?/);
                         
-                        // Attempt to find matricola (6-digit number anywhere in the line)
-                        let matricolaMatch = line.match(/\b(\d{6})\b/);
-                        let matricola = matricolaMatch ? matricolaMatch[1] : null;
-                        
-                        if (!matricola) { 
-                            // Fallback: create a temporary one for grouping if not found
-                            const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
-                            matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
+                        if (match) { 
+                            const surname = match[1];
+                            const name = match[2];
+                            const dateStr = match[3];
+                            const shiftNumber = match[4];
+                            const startTime = match[5];
+                            const endTime = match[6];
+                            let matricola = match[7] || null; // Matched matricola, or null
+
+                            if (!matricola) { 
+                                // Fallback: generate a temporary one if not found
+                                const normalizePart = (str) => str.replace(/[^a-zA-Z]/g, '').substring(0, Math.min(str.length, 3)).toUpperCase();
+                                matricola = `${normalizePart(surname)}${normalizePart(name)}${Math.floor(Math.random() * 900) + 100}`; 
+                            }
+
+                            // Sanitize date string to YYYY-MM-DD for correct date object creation
+                            const [day, month, year] = dateStr.split('.');
+                            const isoDate = `${year}-${month}-${day}`;
+
+                            const fascia = calculateFascia(startTime, endTime);
+                            const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
+                            const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
+
+                            const macchinistaKey = matricola; 
+                            if (!organizedData[macchinistaKey]) {
+                                organizedData[macchinistaKey] = {
+                                    name: name,
+                                    surname: surname,
+                                    matricola: matricola,
+                                    email: email,
+                                    shifts: []
+                                };
+                            }
+                            organizedData[macchinistaKey].shifts.push({
+                                date: isoDate, // YYYY-MM-DD
+                                number: shiftNumber,
+                                start: startTime,
+                                end: endTime,
+                                fascia: fascia,
+                                originalLine: line 
+                            });
+                        } else {
+                            console.warn('Skipping malformed or unrecognized line in Cambio Fascia Oraria:', line);
+                            showToast(`Attenzione: Riga non riconosciuta in Cambio Fascia: "${line.substring(0, Math.min(line.length, 50))}..."`);
                         }
-
-                        // Sanitize date string to YYYY-MM-DD for correct date object creation
-                        const [day, month, year] = dateStr.split('.');
-                        const isoDate = `${year}-${month}-${day}`;
-
-                        const fascia = calculateFascia(startTime, endTime);
-                        const normalizeEmailPart = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); // Remove dots too for email
-                        const email = `${normalizeEmailPart(name)}.${normalizeEmailPart(surname)}@sbb.ch`;
-
-                        const macchinistaKey = matricola; 
-                        if (!organizedData[macchinistaKey]) {
-                            organizedData[macchinistaKey] = {
-                                name: name,
-                                surname: surname,
-                                matricola: matricola,
-                                email: email,
-                                shifts: []
-                            };
-                        }
-                        organizedData[macchinistaKey].shifts.push({
-                            date: isoDate, // YYYY-MM-DD
-                            number: shiftNumber,
-                            start: startTime,
-                            end: endTime,
-                            fascia: fascia,
-                            originalLine: line 
-                        });
-                    } else {
-                        console.warn('Skipping malformed or unrecognized line:', line);
-                        showToast(`Errore parsing riga: "${line.substring(0, Math.min(line.length, 50))}..."`);
+                    } catch (e) {
+                        console.error('Error parsing line in Cambio Fascia Oraria:', line, e);
+                        showToast(`Errore grave durante l'analisi di una riga: "${line.substring(0, Math.min(line.length, 50))}..."`);
                     }
                 });
 
@@ -1074,7 +1319,6 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
                 const organizedShifts = parseAndOrganizeShiftDataForFascia(rawData);
-                // The openModal function now correctly handles showing/hiding and preventing scroll
                 openModal(() => generateOrganizedShiftsReportForFascia(organizedShifts), 'Turni Organizzati per Fascia Oraria');
             });
 
