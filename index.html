@@ -920,52 +920,63 @@
             });
             
             function parseSVGAndAnalyzeShifts(svgText) {
-                const parser = new DOMParser();
-                const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-                if (svgDoc.querySelector("parsererror")) { throw new Error("File SVG non valido o malformato."); }
+                // 1. Renderizzare SVG in un div nascosto per calcolare le posizioni reali
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.visibility = 'hidden';
+                tempDiv.innerHTML = svgText;
+                document.body.appendChild(tempDiv);
 
-                const texts = Array.from(svgDoc.querySelectorAll('text'));
-                const yTolerance = 5;
+                const liveTexts = Array.from(tempDiv.querySelectorAll('svg text'));
+                const elementsWithBoxes = liveTexts.map(el => ({
+                    el: el,
+                    box: el.getBoundingClientRect(),
+                    content: el.textContent.trim()
+                }));
+                
+                document.body.removeChild(tempDiv); // Pulizia
+
+                // 2. Raggruppare per riga usando le coordinate reali
+                const yTolerance = 10; // Aumentiamo la tolleranza
                 const rows = new Map();
 
-                // Raggruppa elementi di testo per riga (coordinata Y)
-                texts.forEach(el => {
-                    const y = parseFloat(el.getAttribute('y'));
+                elementsWithBoxes.forEach(item => {
+                    const y = item.box.top;
                     let foundRow = false;
                     for (const [rowY, rowElements] of rows.entries()) {
                         if (Math.abs(y - rowY) < yTolerance) {
-                            rowElements.push(el);
+                            rowElements.push(item);
                             foundRow = true;
                             break;
                         }
                     }
-                    if (!foundRow) { rows.set(y, [el]); }
+                    if (!foundRow) { rows.set(y, [item]); }
                 });
 
                 const scheduleData = [];
                 const sortedRows = new Map([...rows.entries()].sort((a, b) => a[0] - b[0]));
                 
-                // Estrai dati da ogni riga
+                // 3. Estrarre i dati basandosi sul testo
                 for (const [, rowElements] of sortedRows.entries()) {
-                    const sortedTexts = rowElements.sort((a,b) => parseFloat(a.getAttribute('x')) - parseFloat(b.getAttribute('x')));
+                    const sortedTexts = rowElements.sort((a, b) => a.box.left - b.box.left);
                     if (sortedTexts.length < 2) continue;
                     
-                    const potentialName = sortedTexts[0].textContent.trim();
-                    if (!potentialName || !potentialName.includes(',')) continue;
+                    const potentialName = sortedTexts[0].content;
+                    if (!potentialName || !potentialName.includes(',')) continue; // Filtro per il nome
 
                     const colleagueShifts = [];
-                    sortedTexts.forEach(textEl => {
-                        const content = textEl.textContent.trim();
-                        // Cerca un numero di turno (3+ cifre) e due orari
-                        const shiftMatch = content.match(/\b(\d{3,})\b/);
-                        const timeMatches = content.match(/\d{1,2}:\d{2}/g);
+                    sortedTexts.forEach(item => {
+                        const content = item.content;
+                        const shiftMatch = content.match(/\b(\d{3,})\b/); // Cerca un numero di turno di 3+ cifre
+                        const timeMatches = content.match(/\d{1,2}:\d{2}/g); // Cerca tutti gli orari
 
                         if (shiftMatch && timeMatches && timeMatches.length >= 2) {
                             const start = timeMatches[0];
                             const end = timeMatches[1];
                             const startHour = parseInt(start.split(':')[0], 10);
                             let type = 'Medio';
-                            if(startHour < 7) type = 'Presto';
+                            if(startHour < 8) type = 'Presto'; // Regola modificata
                             else if(startHour >= 13) type = 'Tardi';
                             colleagueShifts.push({ start, end, type });
                         }
@@ -976,23 +987,23 @@
                     }
                 }
 
-                // Identifica i blocchi
+                // 4. Identificare i blocchi
                 const blocks = [];
                 scheduleData.forEach(person => {
                     if (person.shifts.length < 2) return;
                     
                     let currentBlock = [person.shifts[0]];
                     for (let i = 1; i < person.shifts.length; i++) {
-                        if (person.shifts[i].type === currentBlock[0].type) {
+                        if (person.shifts[i].type === currentBlock[0].type && currentBlock.length < 5) { // Limita a blocchi di max 5 (es. lun-ven)
                             currentBlock.push(person.shifts[i]);
                         } else {
-                            if (currentBlock.length >= 2) { 
+                            if (currentBlock.length >= 3) { // Un blocco è definito da almeno 3 turni
                                 blocks.push({ colleague: person.colleague, blockType: currentBlock[0].type, shifts: currentBlock });
                             }
                             currentBlock = [person.shifts[i]];
                         }
                     }
-                    if (currentBlock.length >= 2) {
+                    if (currentBlock.length >= 3) {
                         blocks.push({ colleague: person.colleague, blockType: currentBlock[0].type, shifts: currentBlock });
                     }
                 });
@@ -1001,7 +1012,7 @@
 
             function displayAnalysisResults(blocks) {
                 if (!blocks || blocks.length === 0) {
-                    svgResultsContainer.innerHTML = '<p class="text-center text-gray-700">Nessun blocco di turni consecutivo (min. 2) trovato nel file SVG.</p>';
+                    svgResultsContainer.innerHTML = '<p class="text-center text-gray-700">Nessun blocco di turni consecutivo (min. 3) trovato nel file SVG.</p>';
                     return;
                 }
                 
