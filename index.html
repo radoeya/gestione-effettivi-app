@@ -41,6 +41,7 @@
         .fascia-tardi { color: #9a3412; } /* orange-800 */
         .fascia-sconosciuta { color: #6b7280; font-style: italic; }
 
+        /* Styles for proposals block */
         .proposal-block {
             background-color: #ecfdf5; /* green-50 */
             border: 1px solid #34d399; /* green-400 */
@@ -69,6 +70,46 @@
         .proposal-block p {
             font-size: 0.875rem;
             color: #4b5563;
+        }
+        /* Styles for interactive report in modal */
+        .modal-shift-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+        }
+        .modal-shift-row:nth-child(odd) {
+            background-color: #ffffff; /* Alternate background for readability */
+        }
+        .modal-shift-row input[type="checkbox"] {
+            margin-right: 15px;
+            margin-top: 5px; /* Adjust vertical alignment */
+            transform: scale(1.2); /* Make checkbox slightly larger */
+            flex-shrink: 0;
+        }
+        .modal-shift-info {
+            flex-grow: 1;
+        }
+        .modal-shift-info span {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .modal-shift-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .modal-shift-info th, .modal-shift-info td {
+            padding: 4px 8px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        .modal-shift-info th {
+            background-color: #f3f4f6;
         }
     </style>
 </head>
@@ -240,7 +281,12 @@
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
                 <div class="flex justify-between items-center p-6 border-b"><h3 id="reportModalTitle" class="text-xl font-semibold">Report</h3><div class="flex items-center gap-4"><button id="openNewTabBtn" class="text-gray-400 hover:text-gray-600" title="Apri in nuova scheda"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></button><button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">X</button></div></div>
                 <div id="reportContent" class="p-6 overflow-y-auto bg-gray-50"></div>
-                <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3"><button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button><button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button><button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button></div>
+                <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3">
+                    <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button>
+                    <button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button>
+                    <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button>
+                    <button id="generateSelectedShiftsEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 hidden">Genera Email Selezionati</button>
+                </div>
             </div>
         </div>
         
@@ -276,14 +322,12 @@
             // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
             // Aggiorna initialSizesH per bilanciare i 6 pannelli
-            // Distribuire equamente le dimensioni iniziali per 6 pannelli
             const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
-            let horizontalSplitInstance = null; // Store the Split.js instance
+            let horizontalSplitInstance = null; 
 
-            // Function to re-initialize Split.js (useful after pane visibility changes, though not directly used for maximize/toggle here)
             function initializeHorizontalSplit() {
                 if (horizontalSplitInstance) {
-                    horizontalSplitInstance.destroy(); // Destroy previous instance if it exists
+                    horizontalSplitInstance.destroy(); 
                 }
                 horizontalSplitInstance = Split(paneElementsH, { 
                     sizes: initialSizesH, 
@@ -294,7 +338,6 @@
                 });
             }
 
-            // Call it initially
             initializeHorizontalSplit();
             
             const initialSizesV = [60, 40];
@@ -318,45 +361,38 @@
                 const pane = document.getElementById(`pane${paneIndex + 1}`);
 
                 if (action === 'toggle') {
-                    // Check if the pane is collapsed based on its current size (very small size indicates collapsed)
                     const isCollapsed = horizontalSplitInstance.getSizes()[paneIndex] < 5;
                     
                     if (isCollapsed) {
-                        // Restore to equal distribution
                         const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length); 
                         horizontalSplitInstance.setSizes(defaultSizes);
-                        pane.style.display = 'flex'; // Ensure it's visible if it was hidden
+                        pane.style.display = 'flex'; 
                     } else {
-                        // Collapse the pane
                         horizontalSplitInstance.collapse(paneIndex);
                     }
                 } else if (action === 'maximize') {
                     const isMaximized = pane.dataset.maximized === 'true';
                     if (isMaximized) {
-                        // Restore to default distribution
                         pane.dataset.maximized = 'false';
                         const defaultSizes = Array(paneElementsH.length).fill(100 / paneElementsH.length);
                         horizontalSplitInstance.setSizes(defaultSizes);
-                        // Ensure all panes are flex to be visible
                         paneElementsH.forEach(selector => {
                             document.querySelector(selector).style.display = 'flex';
                         });
                     } else {
-                        // Maximize clicked pane, hide others
                         document.querySelectorAll('.split-pane').forEach((p, i) => { 
-                            p.dataset.maximized = 'false'; // Reset all
+                            p.dataset.maximized = 'false'; 
                             if (i !== paneIndex) {
-                                p.style.display = 'none'; // Hide other panes
+                                p.style.display = 'none'; 
                             }
                         });
-                        pane.style.display = 'flex'; // Ensure target pane is visible
+                        pane.style.display = 'flex'; 
                         const newSizes = Array(paneElementsH.length).fill(0);
-                        newSizes[paneIndex] = 100; // Give 100% to the maximized pane
+                        newSizes[paneIndex] = 100; 
                         horizontalSplitInstance.setSizes(newSizes);
                         pane.dataset.maximized = 'true';
                     }
                 }
-                // Update calendar size after split changes
                 if(calendar) calendar.updateSize();
             });
 
@@ -364,7 +400,7 @@
             const clearAllBtn = document.getElementById('clearAllBtn');
             const openNewTabBtn = document.getElementById('openNewTabBtn');
             const copyHtmlBtn = document.getElementById('copyHtmlBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
+            const sendEmailBtn = document.getElementById('sendEmailBtn'); // This is the old send email button, not for selected shifts
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
@@ -618,17 +654,34 @@
                     reportModal.classList.remove('hidden');
                     // Add a class to body to prevent scrolling when modal is open
                     document.body.classList.add('overflow-hidden');
+
+                    // If it's the "Turni Organizzati" report, show the specific email button
+                    if (title === 'Turni Organizzati per Fascia Oraria') {
+                        document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
+                        updateEmailButtonState(); // Ensure its state is correct on open
+                    } else {
+                        document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
+                    }
+
                 } catch (error) { 
                     console.error("ERRORE in openModal:", error); 
                     showToast(`Errore nell'apertura del report: ${error.message}.`); 
-                    reportModal.classList.add('hidden'); // Ensure modal is hidden on error
-                    document.body.classList.remove('overflow-hidden'); // Ensure scrolling is re-enabled
+                    reportModal.classList.add('hidden'); 
+                    document.body.classList.remove('overflow-hidden'); 
                 }
             }
 
             function closeModal() { 
                 reportModal.classList.add('hidden'); 
-                document.body.classList.remove('overflow-hidden'); // Restore body scrolling
+                document.body.classList.remove('overflow-hidden'); 
+                // Hide the specific email button when any modal is closed
+                document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
+                // Ensure the selection state is cleared visually when the modal closes
+                if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
+                    document.querySelectorAll('.shift-checkbox').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.macchinista-checkbox').forEach(cb => cb.checked = false);
+                    updateEmailButtonState();
+                }
             }
 
             function generateUnifiedAnnouncementData() {
@@ -712,7 +765,7 @@
             // --- LISTENERS GENERALI ---
             generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
             generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
-            closeModalBtn.addEventListener('click', closeModal); // Questo listener è cruciale e deve funzionare sempre
+            closeModalBtn.addEventListener('click', closeModal); 
             openNewTabBtn.addEventListener('click', () => { 
                 if (!currentReportGenerator) return; 
                 const reportData = currentReportGenerator(); 
@@ -729,11 +782,13 @@
                     () => showToast('Erro durante la copia.')
                 ); 
             });
-            sendEmailBtn.addEventListener('click', function() { 
+            // Old Send Email button (for general reports)
+            document.querySelector('#reportModal .flex.justify-end.items-center.p-6.border-t button:nth-child(2)').addEventListener('click', function() { 
                 const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
                 const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
                 window.location.href = `mailto:?subject=${subject}&body=${body}`; 
             });
+
 
             // Listeners per Pane 1 (Calendario)
             entryForm.addEventListener('submit', function(e) { 
@@ -787,7 +842,7 @@
             quickAddBtn.addEventListener('click', function() {
                 const text = quickAddTurnoInput.value;
                 if (!text.trim()) { showToast('Incolla del testo prima di aggiungere.'); return; }
-                const columns = text.split(/\s{2,}|\t/).filter(Boolean); // Split by 2 or more spaces or tab
+                const columns = text.split(/\s{2,}|\t/).filter(Boolean); 
                 
                 const dateRegex = /(\d{2}\.\d{2}\.\d{4})/;
                 const timeRegex = /(\d{1,2}:\d{2})/;
@@ -890,21 +945,17 @@
                 
                 lines.forEach(line => { 
                     if (line.trim().length === 0) return;  
-                    // More robust regex for date, surname, name, and matricola anywhere in the line
                     const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/); 
-                    // Matches words starting with capital letters for surname and name, followed by 6 digits
                     const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+(?:\s+[A-Z][a-zÀ-ÿ']+){0,2})\s+(\d{6})/); 
                     
                     if (dateMatch && nameSurnameMatricolaMatch) { 
                         const date = dateMatch[1]; 
                         const fullName = nameSurnameMatricolaMatch[1];
-                        // Split full name more robustly, handling potential middle names or multiple spaces
                         const nameParts = fullName.split(/\s+/).filter(Boolean); 
                         const surname = nameParts[0];
-                        const name = nameParts.slice(1).join(' '); // Reconstruct name in case of middle names
+                        const name = nameParts.slice(1).join(' '); 
                         const matricola = nameSurnameMatricolaMatch[2];
 
-                        // Normalize for email: remove diacritics, spaces, dots, then to lowercase
                         const normalizeForEmail = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s\.]/g, ''); 
                         const emailAddress = `${normalizeForEmail(name)}.${normalizeForEmail(surname)}@sbb.ch`; 
                         
@@ -1149,6 +1200,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
             const shiftDataPasteAreaForFascia = document.getElementById('shift-data-paste-area');
             const processShiftDataBtnForFascia = document.getElementById('process-shift-data-btn');
             const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
+            const generateSelectedShiftsEmailBtn = document.getElementById('generateSelectedShiftsEmailBtn');
+
 
             function calculateFascia(startTime, endTime) {
                 const parseTime = (timeStr) => {
@@ -1161,12 +1214,10 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const start = parseTime(startTime);
                 let end = parseTime(endTime);
 
-                // If end time is earlier than start time, it's an overnight shift. Adjust end date.
                 if (end.getTime() < start.getTime()) {
                     end.setDate(end.getDate() + 1); 
                 }
                 
-                // Define fascia time boundaries
                 const F_START_MIN = parseTime('02:00'); 
                 const F_START_MAX = parseTime('05:59'); 
                 const F_END_MAX = parseTime('15:00');   
@@ -1175,9 +1226,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const M_START_MAX = parseTime('11:59'); 
                 const M_END_MAX = parseTime('17:00');   
 
-                const T_START_MIN_DAY = parseTime('12:00'); // Day portion of Tardi
-                const T_START_MIN_NIGHT = parseTime('00:00'); // Night portion of Tardi (starts before 2am)
-                const T_END_MAX_NIGHT = parseTime('06:00');   // End of night shift (next day)
+                const T_START_MIN_DAY = parseTime('12:00'); 
+                const OVERNIGHT_START_MIN = parseTime('00:00'); 
+                const OVERNIGHT_END_MAX = parseTime('06:00');   
 
                 // Presto: starts between 02:00 and 05:59, ends by 15:00
                 if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
@@ -1187,11 +1238,18 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
                 } 
-                // Tardi: starts from 12:00 onwards OR is a night shift (starts before 02:00 and ends by 06:00 next day)
+                // Tardi: starts from 12:00 onwards OR is a night shift (starts between 00:00 and 01:59 and ends next morning by 06:00)
                 // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
-                else if (start >= T_START_MIN_DAY || 
-                         (start >= T_START_MIN_NIGHT && start < F_START_MIN && end.getTime() > start.getTime() && end <= T_END_MAX_NIGHT) ||
-                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) // Catching late-ending Medio-like shifts as Tardi
+                // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
+                // A shift is Tardi if:
+                // 1. It starts from 12:00 (midday) onwards (e.g., 14:39-23:30)
+                // OR
+                // 2. It's an overnight shift: starts before 06:00 (e.g. 00:30, 03:29) AND ends after starting time AND ends by 06:00 next day
+                // OR
+                // 3. It starts in the "Medio" range but extends beyond the "Medio" end time (e.g., 11:48-21:11)
+                else if (start >= T_START_MIN_DAY || // Starts at or after 12:00 (midday)
+                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) || // Night shifts 00:00-01:59 ending by 06:00 next day
+                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) // Medio-like start, but late end
                 {
                     return 'Tardi';
                 }
@@ -1205,11 +1263,13 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
                 lines.forEach(line => {
                     try { 
-                        // Updated regex for better parsing:
-                        // - Uses \S+ for name parts to allow for complex names
-                        // - Specifically looks for DD.MM.YYYY, HH:MM, and HH:MM
-                        // - Uses (?:.*?)(\d{6})? for optional 6-digit matricola anywhere after times
-                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}).*?(\d{6})?/);
+                        // Robust regex:
+                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
+                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
+                        // \s+(\S+) : Shift Number (any non-whitespace characters)
+                        // \s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}) : Start Time & End Time (HH:MM)
+                        // (?:.*?(\d{6}))? : Optional Matricola (6 digits) anywhere after times
+                        const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/);
                         
                         if (match) { 
                             const surname = match[1];
@@ -1243,7 +1303,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                 };
                             }
                             organizedData[macchinistaKey].shifts.push({
-                                date: isoDate, // YYYY-MM-DD
+                                date: isoDate, 
                                 number: shiftNumber,
                                 start: startTime,
                                 end: endTime,
@@ -1266,42 +1326,35 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 return organizedData;
             }
             
-            function generateOrganizedShiftsReportForFascia(organizedData) {
+            // Function to generate the HTML for the interactive report in the modal
+            function generateInteractiveShiftReportHtml(organizedData) {
                 let html = `
-                    <style>
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        .person-header-fascia { background-color: #d1e7dd; font-weight: bold; padding: 10px; margin-top: 20px; border: 1px solid #a3e635; border-bottom: none; }
-                        .fascia-presto { color: #1e40af; } /* blue-700 */
-                        .fascia-medio { color: #065f46; } /* green-800 */
-                        .fascia-tardi { color: #9a3412; } /* orange-800 */
-                        .fascia-sconosciuta { color: #6b7280; font-style: italic; }
-                    </style>
                     <h2 style="text-align:center;font-size:20px;font-weight:bold;margin-bottom:20px;">Turni Organizzati per Fascia Oraria (da dati incollati)</h2>
                 `;
                 
                 if (Object.keys(organizedData).length === 0) {
                     html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
-                    return { html: html };
+                    return html; // Return raw HTML, openModal wraps it
                 }
 
                 for (const macchinistaKey in organizedData) {
                     const person = organizedData[macchinistaKey];
                     html += `
-                        <div class="person-block" style="margin-bottom: 30px; page-break-inside: avoid;">
-                            <h3 class="person-header-fascia">${person.surname} ${person.name} (${person.matricola || 'N/A'}) - ${person.email}</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Numero Turno</th>
-                                        <th>Inizio</th>
-                                        <th>Fine</th>
-                                        <th>Fascia Oraria</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <div class="modal-shift-row">
+                            <input type="checkbox" class="macchinista-select-all-checkbox" data-macchinista-id="${person.matricola}">
+                            <div class="modal-shift-info">
+                                <span>${person.surname} ${person.name} (${person.matricola || 'N/A'}) - ${person.email}</span>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th> <th>Data</th>
+                                            <th>Numero Turno</th>
+                                            <th>Inizio</th>
+                                            <th>Fine</th>
+                                            <th>Fascia Oraria</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                     `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -1314,6 +1367,18 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         }
                         html += `
                             <tr>
+                                <td>
+                                    <input type="checkbox" class="shift-select-checkbox"
+                                        data-macchinista-id="${person.matricola}"
+                                        data-macchinista-name="${person.name}"
+                                        data-macchinista-surname="${person.surname}"
+                                        data-macchinista-email="${person.email}"
+                                        data-date="${shift.date}"
+                                        data-shift-number="${shift.number}"
+                                        data-start-time="${shift.start}"
+                                        data-end-time="${shift.end}"
+                                        data-fascia="${shift.fascia}">
+                                </td>
                                 <td>${formattedDate}</td>
                                 <td>${shift.number}</td>
                                 <td>${shift.start}</td>
@@ -1323,158 +1388,93 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         `;
                     });
                     html += `
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     `;
                 }
 
-                return { html: html };
+                return html; // Return raw HTML, openModal wraps it
             }
 
-            // Function to generate and display swap proposals within pane6
-            function generateSwapProposals(organizedShiftsData) {
-                fasciaCambiPropostiContainer.innerHTML = '<h4 class="text-md font-semibold text-gray-700">Risultati delle Proposte:</h4>'; // Clear previous proposals and add a sub-heading
-                addedProposals.clear(); // Clear the set of added proposals
-                let hasProposals = false;
-
-                const calendarNeeds = {}; // Aggregate needs from the calendar for easier lookup
-                calendarEvents.forEach(event => {
-                    if (event.extendedProps && event.extendedProps.type === 'need') {
-                        const date = event.start; // YYYY-MM-DD
-                        const shiftType = event.extendedProps.shift; // 'early', 'medium', 'late'
-                        const quantity = event.extendedProps.quantity;
-
-                        if (!calendarNeeds[date]) {
-                            calendarNeeds[date] = { early: 0, medium: 0, late: 0 };
-                        }
-                        calendarNeeds[date][shiftType] += quantity;
-                    }
-                });
-                console.log("Calendar Needs:", calendarNeeds); 
-                
-                for (const macchinistaKey in organizedShiftsData) {
-                    const person = organizedShiftsData[macchinistaKey];
-                    const shifts = person.shifts;
-
-                    let currentBlock = [];
-                    for (let i = 0; i < shifts.length; i++) {
-                        const currentShift = shifts[i];
-                        
-                        // If fascia is unknown, reset block and skip
-                        if (currentShift.fascia === 'Sconosciuta') {
-                            if (currentBlock.length >= 3) {
-                                analyzeBlockForProposal(person, currentBlock, calendarNeeds);
-                                hasProposals = true;
-                            }
-                            currentBlock = []; 
-                            continue;
-                        }
-
-                        const prevShift = currentBlock.length > 0 ? currentBlock[currentBlock.length - 1] : null;
-                        
-                        // Check for consecutive dates
-                        const currentDateObj = new Date(currentShift.date);
-                        const prevDateObj = prevShift ? new Date(prevShift.date) : null;
-                        const isConsecutiveDate = prevShift && (currentDateObj.getTime() - prevDateObj.getTime() === 24 * 60 * 60 * 1000);
-
-                        // If it's a new block start OR not consecutive OR fascia changed
-                        if (!prevShift || !isConsecutiveDate || currentShift.fascia !== prevShift.fascia) {
-                            if (currentBlock.length >= 3) {
-                                analyzeBlockForProposal(person, currentBlock, calendarNeeds);
-                                hasProposals = true;
-                            }
-                            currentBlock = [currentShift]; // Start a new block
-                        } else {
-                            currentBlock.push(currentShift); // Add to current block
-                        }
-                    }
-                    // After loop, process the last accumulated block
-                    if (currentBlock.length >= 3) {
-                        analyzeBlockForProposal(person, currentBlock, calendarNeeds);
-                        hasProposals = true;
-                    }
+            // Function to update the state of the "Genera Email Selezionati" button
+            function updateGenerateSelectedShiftsButtonState() {
+                const selectedCheckboxes = document.querySelectorAll('#reportModal .shift-select-checkbox:checked');
+                if (selectedCheckboxes.length > 0) {
+                    generateSelectedShiftsEmailBtn.classList.remove('hidden');
+                } else {
+                    generateSelectedShiftsEmailBtn.classList.add('hidden');
                 }
+            }
 
-                if (!hasProposals) {
-                    fasciaCambiPropostiContainer.innerHTML += '<p class="text-gray-500 text-sm">Nessuna proposta di cambio fascia trovata per i turni e il calendario attuale. Assicurati che ci siano blocchi di 3 o più turni consecutivi dello stesso tipo (Presto/Tardi) e una necessità opposta nel calendario.</p>';
-                }
-
-                fasciaCambiPropostiContainer.querySelectorAll('.generate-fascia-email-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const email = button.dataset.email;
-                        const subject = button.dataset.subject;
-                        const body = button.dataset.body;
-                        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            // Function to generate email for selected shifts directly from the modal report
+            generateSelectedShiftsEmailBtn.addEventListener('click', function() {
+                const selectedShiftsData = [];
+                document.querySelectorAll('#reportModal .shift-select-checkbox:checked').forEach(checkbox => {
+                    selectedShiftsData.push({
+                        macchinistaId: checkbox.dataset.macchinistaId,
+                        macchinistaName: checkbox.dataset.macchinistaName,
+                        macchinistaSurname: checkbox.dataset.macchinistaSurname,
+                        macchinistaEmail: checkbox.dataset.macchinistaEmail,
+                        date: checkbox.dataset.date,
+                        shiftNumber: checkbox.dataset.shiftNumber,
+                        startTime: checkbox.dataset.startTime,
+                        endTime: checkbox.dataset.endTime,
+                        fascia: checkbox.dataset.fascia
                     });
                 });
-            }
 
-            function analyzeBlockForProposal(person, block, calendarNeeds) {
-                const blockFascia = block[0].fascia; 
-                console.log(`Analyzing block for ${person.name} ${person.surname}, Fascia: ${blockFascia}, Length: ${block.length}`); 
-
-                block.forEach(shiftInBlock => {
-                    const date = shiftInBlock.date; 
-                    const calendarNeedForDate = calendarNeeds[date];
-                    console.log(`  Checking date ${date}: Calendar needs:`, calendarNeedForDate); 
-
-                    if (calendarNeedForDate) {
-                        if (blockFascia === 'Tardi' && calendarNeedForDate.early > 0) {
-                            addProposal(person, shiftInBlock, 'Tardi', 'Presto', `Necessità di ${calendarNeedForDate.early} turni Presto nel calendario.`);
-                        } else if (blockFascia === 'Presto' && calendarNeedForDate.late > 0) {
-                             addProposal(person, shiftInBlock, 'Presto', 'Tardi', `Necessità di ${calendarNeedForDate.late} turni Tardi nel calendario.`);
-                        }
-                    }
-                });
-            }
-
-            // Function to add a proposal to the display (prevents duplicates)
-            const addedProposals = new Set(); 
-
-            function addProposal(person, shift, originalFascia, proposedFascia, reason) {
-                const proposalId = `${person.matricola}-${shift.date}-${shift.number}-${proposedFascia}`;
-                if (addedProposals.has(proposalId)) {
-                    console.log(`Skipping duplicate proposal: ${proposalId}`); 
-                    return; 
+                if (selectedShiftsData.length === 0) {
+                    showToast("Seleziona almeno un turno per generare l'email.");
+                    return;
                 }
-                addedProposals.add(proposalId); 
 
-                const proposalHtml = `
-                    <div id="${proposalId}" class="proposal-block type-${originalFascia.toLowerCase()}">
-                        <h4>Proposta di Cambio Fascia: ${person.surname} ${person.name}</h4>
-                        <p><strong>Data:</strong> ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
-                        <p><strong>Turno attuale:</strong> ${shift.number} (${originalFascia}) - ${shift.start} - ${shift.end}</p>
-                        <p><strong>Proposta:</strong> Cambio a turno ${proposedFascia}.</p>
-                        <p><strong>Motivo:</strong> ${reason}</p>
-                        <button class="generate-fascia-email-btn mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                            data-email="${person.email}"
-                            data-subject="${encodeURIComponent(`Proposta di cambio turno per ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}`)}"
-                            data-body="${encodeURIComponent(`Buongiorno ${person.name},
+                // Group by macchinista
+                const groupedByPerson = {};
+                selectedShiftsData.forEach(shift => {
+                    if (!groupedByPerson[shift.macchinistaId]) {
+                        groupedByPerson[shift.macchinistaId] = {
+                            name: shift.macchinistaName,
+                            surname: shift.macchinistaSurname,
+                            email: shift.macchinistaEmail,
+                            shifts: []
+                        };
+                    }
+                    groupedByPerson[shift.macchinistaId].shifts.push(shift);
+                });
 
-la informiamo che è stata identificata un'opportunità per un cambio di fascia oraria nel suo piano di servizio.
-Per il giorno ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric'})}, il suo turno attuale ${shift.number} in fascia ${originalFascia} (${shift.start} - ${shift.end}) potrebbe essere scambiato con un turno in fascia ${proposedFascia}.
-Questo è dovuto a ${reason.toLowerCase()}
+                let emailSubject = "Proposta Cambi Turni - ";
+                let emailBody = "Buongiorno,\n\n";
 
-Se interessato/a a questa possibilità, la preghiamo di rispondere a questa email o contattare la ripartizione del personale.
+                const personKeys = Object.keys(groupedByPerson);
+                if (personKeys.length === 1) {
+                    const person = groupedByPerson[personKeys[0]];
+                    emailSubject += `${person.name} ${person.surname}`;
+                    emailBody += `Per il collaboratore ${person.name} ${person.surname}, sono stati selezionati i seguenti turni per una potenziale modifica:\n\n`;
+                    person.shifts.forEach(shift => {
+                        emailBody += `  - Data: ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}, Turno: ${shift.shiftNumber}, Fascia: ${shift.fascia}, Orario: ${shift.startTime}-${shift.endTime}\n`;
+                    });
+                } else {
+                    emailSubject += `Diversi Collaboratori`;
+                    emailBody += `Sono stati selezionati turni per diversi collaboratori:\n\n`;
+                    personKeys.forEach(key => {
+                        const person = groupedByPerson[key];
+                        emailBody += `--- ${person.name} ${person.surname} ---\n`;
+                        person.shifts.forEach(shift => {
+                            emailBody += `  - Data: ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}, Turno: ${shift.shiftNumber}, Fascia: ${shift.fascia}, Orario: ${shift.startTime}-${shift.endTime}\n`;
+                        });
+                        emailBody += "\n";
+                    });
+                }
+                
+                emailBody += "\nSi prega di voler verificare la possibilità di effettuare un cambio di fascia oraria per questi turni, in base alle esigenze del servizio e del calendario.\n\n";
+                emailBody += "Restiamo a disposizione per chiarimenti.\n\nCordiali saluti.\n\nRipartizione del Personale\n";
 
-Grazie per la sua disponibilità.
+                window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            });
 
-Cordiali saluti,
-
-Ripartizione del Personale
-P-O-BP-ZFR-MSD-EIN
-Ferrovie Federali Svizzere – FFS
-Produzione ferroviaria – Condotta dei treni e manovra
-6500 Bellinzona
-                        `)}">Genera Email</button>
-                    </div>
-                `;
-                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
-                console.log(`Proposta aggiunta per ${person.name} il ${shift.date}: da ${originalFascia} a ${proposedFascia}.`);
-            }
-
-
+            // Event listener for the main button in Pane 6
             processShiftDataBtnForFascia.addEventListener('click', function() {
                 const rawData = shiftDataPasteAreaForFascia.value;
                 if (!rawData.trim()) {
@@ -1482,16 +1482,37 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
                 const organizedShifts = parseAndOrganizeShiftDataForFascia(rawData);
-                openModal(() => generateOrganizedShiftsReportForFascia(organizedShifts), 'Turni Organizzati per Fascia Oraria');
                 
-                // Clear existing proposals and the set of added proposals before generating new ones
-                fasciaCambiPropostiContainer.innerHTML = '';
+                // Set the report modal content and open it
+                reportModalTitle.textContent = 'Turni Organizzati per Fascia Oraria';
+                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts); // Use the new interactive HTML generator
+                reportModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+
+                // Add event listeners to the checkboxes within the modal AFTER it's rendered
+                document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
+                });
+
+                document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
+                    masterCheckbox.addEventListener('change', function() {
+                        const macchinistaId = this.dataset.macchinistaId;
+                        const isChecked = this.checked;
+                        document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
+                            shiftCheckbox.checked = isChecked;
+                        });
+                        updateGenerateSelectedShiftsButtonState();
+                    });
+                });
+
+                updateGenerateSelectedShiftsButtonState(); // Initialize button state on modal open
+
+                // Clear previous proposals in pane6 and the set of added proposals
+                fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
                 addedProposals.clear();
 
-                // Generate and display proposals directly in pane6 after processing data
-                // It's important that this runs after the modal is handled, or at least concurrently without blocking.
-                // Since openModal doesn't block, this will run immediately after.
-                generateSwapProposals(organizedShifts);
+                // Generate and display proposals in pane6 (this is the automatic block detection logic)
+                generateSwapProposals(organizedShifts); 
             });
 
 
