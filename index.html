@@ -1445,9 +1445,26 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
 
+                // Group by macchinista (though for this email format, it's a flat list)
+                const groupedShifts = {}; // Not strictly needed for this email format but kept for consistency
+                selectedShiftsData.forEach(shift => {
+                    const personKey = `${shift.macchinistaName} ${shift.macchinistaSurname}`;
+                    if (!groupedShifts[personKey]) {
+                        groupedShifts[personKey] = {
+                            name: shift.macchinistaName,
+                            surname: shift.macchinistaSurname,
+                            email: shift.macchinistaEmail,
+                            shifts: []
+                        };
+                    }
+                    groupedShifts[personKey].shifts.push(shift);
+                });
+
                 let emailBody = "";
                 let uniqueRecipients = new Set(); 
                 
+                // Assuming the email is primarily addressed to "Vincenzo" as per your example.
+                // You can make this dynamic if "Vincenzo" is selected elsewhere.
                 const mainRecipientName = "Vincenzo"; 
                 const mainRecipientEmail = ""; // If you have Vincenzo's email, put it here. E.g., "vincenzo.rossi@sbb.ch"
                 if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
@@ -1481,21 +1498,17 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(','); 
 
                 let mailtoLink = `mailto:${toEmails}`;
-                const params = [];
                 if (ccEmails) {
-                    params.push(`cc=${encodeURIComponent(ccEmails)}`);
+                    mailtoLink += `?cc=${encodeURIComponent(ccEmails)}`;
                 }
-                params.push(`subject=${encodeURIComponent(subject)}`);
-                params.push(`body=${encodeURIComponent(emailBody)}`);
-
-                mailtoLink += (params.length > 0 ? '?' : '') + params.join('&');
+                mailtoLink += `${(toEmails || ccEmails) ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
                 
                 window.location.href = mailtoLink;
             });
 
             // Event listener for the main button in Pane 6
             processShiftDataBtnForFascia.addEventListener('click', function() {
-                const rawData = shiftDataPasteAreaForFasecia.value; // Corrected ID: Fascia -> Fascia
+                const rawData = shiftDataPasteAreaForFascia.value;
                 if (!rawData.trim()) {
                     showToast("Incolla i dati dei turni prima di organizzare.");
                     return;
@@ -1521,7 +1534,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
             console.error("ERRORE FATALE in initializeApp:", error);
             document.body.innerHTML = `<div style="padding:2rem; text-align:center; background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 0.5rem; margin: 2rem;">
                 <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Errore Critico</h1>
-                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'application.</p>
+                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p>
                 <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">Dettagli tecnici: ${error.message}</p>
                 <p style="color: #ef4444; font-size: 0.875rem;">Si prega di segnalare questo errore all'amministratore.</p>
             </div>`;
