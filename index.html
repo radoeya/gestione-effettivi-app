@@ -658,7 +658,22 @@
                     // If it's the "Turni Organizzati" report, show the specific email button
                     if (title === 'Turni Organizzati per Fascia Oraria') {
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
-                        updateEmailButtonState(); // Ensure its state is correct on open
+                        // Add event listeners to the new checkboxes within the modal AFTER it's rendered
+                        document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
+                            checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
+                        });
+
+                        document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
+                            masterCheckbox.addEventListener('change', function() {
+                                const macchinistaId = this.dataset.macchinistaId;
+                                const isChecked = this.checked;
+                                document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
+                                    shiftCheckbox.checked = isChecked;
+                                });
+                                updateGenerateSelectedShiftsButtonState();
+                            });
+                        });
+                        updateGenerateSelectedShiftsButtonState(); // Ensure its state is correct on open
                     } else {
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                     }
@@ -678,9 +693,9 @@
                 document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                 // Ensure the selection state is cleared visually when the modal closes
                 if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
-                    document.querySelectorAll('.shift-checkbox').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.macchinista-checkbox').forEach(cb => cb.checked = false);
-                    updateEmailButtonState();
+                    document.querySelectorAll('.shift-select-checkbox').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.macchinista-select-all-checkbox').forEach(cb => cb.checked = false);
+                    // No need to call updateGenerateSelectedShiftsButtonState here as the button will be hidden
                 }
             }
 
@@ -783,7 +798,7 @@
                 ); 
             });
             // Old Send Email button (for general reports)
-            document.querySelector('#reportModal .flex.justify-end.items-center.p-6.border-t button:nth-child(2)').addEventListener('click', function() { 
+            document.getElementById('sendEmailBtn').addEventListener('click', function() { // Ensure correct ID
                 const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi"); 
                 const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti."); 
                 window.location.href = `mailto:?subject=${subject}&body=${body}`; 
@@ -1242,14 +1257,14 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
                 // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
                 // A shift is Tardi if:
-                // 1. It starts from 12:00 (midday) onwards (e.g., 14:39-23:30)
+                // 1. It starts at or after 12:00 (midday)
                 // OR
-                // 2. It's an overnight shift: starts before 06:00 (e.g. 00:30, 03:29) AND ends after starting time AND ends by 06:00 next day
+                // 2. It's an overnight shift: starts between 00:00 and 01:59 AND ends after starting time AND ends by 06:00 next day
                 // OR
-                // 3. It starts in the "Medio" range but extends beyond the "Medio" end time (e.g., 11:48-21:11)
-                else if (start >= T_START_MIN_DAY || // Starts at or after 12:00 (midday)
-                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) || // Night shifts 00:00-01:59 ending by 06:00 next day
-                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) // Medio-like start, but late end
+                // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
+                else if (start >= T_START_MIN_DAY || 
+                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
+                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) 
                 {
                     return 'Tardi';
                 }
@@ -1334,7 +1349,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 
                 if (Object.keys(organizedData).length === 0) {
                     html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
-                    return html; // Return raw HTML, openModal wraps it
+                    return html; 
                 }
 
                 for (const macchinistaKey in organizedData) {
@@ -1395,7 +1410,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     `;
                 }
 
-                return html; // Return raw HTML, openModal wraps it
+                return html; 
             }
 
             // Function to update the state of the "Genera Email Selezionati" button
@@ -1431,47 +1446,66 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 }
 
                 // Group by macchinista
-                const groupedByPerson = {};
+                const groupedShifts = {};
                 selectedShiftsData.forEach(shift => {
-                    if (!groupedByPerson[shift.macchinistaId]) {
-                        groupedByPerson[shift.macchinistaId] = {
+                    if (!groupedShifts[shift.macchinistaId]) {
+                        groupedShifts[shift.macchinistaId] = {
                             name: shift.macchinistaName,
                             surname: shift.macchinistaSurname,
                             email: shift.macchinistaEmail,
                             shifts: []
                         };
                     }
-                    groupedByPerson[shift.macchinistaId].shifts.push(shift);
+                    groupedShifts[shift.macchinistaId].shifts.push(shift);
                 });
 
-                let emailSubject = "Proposta Cambi Turni - ";
-                let emailBody = "Buongiorno,\n\n";
+                let emailBody = "";
+                let uniqueRecipients = new Set(); // To store unique email addresses for 'To' field
 
-                const personKeys = Object.keys(groupedByPerson);
-                if (personKeys.length === 1) {
-                    const person = groupedByPerson[personKeys[0]];
-                    emailSubject += `${person.name} ${person.surname}`;
-                    emailBody += `Per il collaboratore ${person.name} ${person.surname}, sono stati selezionati i seguenti turni per una potenziale modifica:\n\n`;
-                    person.shifts.forEach(shift => {
-                        emailBody += `  - Data: ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}, Turno: ${shift.shiftNumber}, Fascia: ${shift.fascia}, Orario: ${shift.startTime}-${shift.endTime}\n`;
-                    });
-                } else {
-                    emailSubject += `Diversi Collaboratori`;
-                    emailBody += `Sono stati selezionati turni per diversi collaboratori:\n\n`;
-                    personKeys.forEach(key => {
-                        const person = groupedByPerson[key];
-                        emailBody += `--- ${person.name} ${person.surname} ---\n`;
-                        person.shifts.forEach(shift => {
-                            emailBody += `  - Data: ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT')}, Turno: ${shift.shiftNumber}, Fascia: ${shift.fascia}, Orario: ${shift.startTime}-${shift.endTime}\n`;
-                        });
-                        emailBody += "\n";
-                    });
-                }
+                // Assuming the email is primarily for Vincenzo (as per your example)
+                // You can add a default recipient here or let the user fill it.
+                // For now, let's assume one main recipient and CC the macchinisti involved.
+                const mainRecipientName = "Vincenzo"; // Replace with actual name if dynamic
+                const mainRecipientEmail = ""; // Add Vincenzo's email if fixed. If not, it will be empty and user fills.
+                if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
+
+                let shiftsListHtml = "";
+
+                // Sort selected shifts by date for cleaner email list
+                selectedShiftsData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                selectedShiftsData.forEach(shift => {
+                    const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    // Format like: • Data: 16/08/2025 - Turno: 107 - Fascia: Presto - Orario: 05:44-14:49
+                    shiftsListHtml += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
+                    // Add macchinista email to CC
+                    if (shift.macchinistaEmail) uniqueRecipients.add(shift.macchinistaEmail);
+                });
+
+                emailBody += `Buongiorno ${mainRecipientName},\n\n`;
+                emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
+                emailBody += shiftsListHtml;
+                emailBody += `\nRimaniamo a disposizione per eventuali chiarimenti.\n\n`;
+                emailBody += `Cordiali saluti,\n`;
+                emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
+                emailBody += `Ferrovie Federali Svizzere – FFS\n`;
+                emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
+                emailBody += `6500 Bellinzona\n`;
+
+
+                const subject = "Verifica Modifica Fascia Oraria Turni";
                 
-                emailBody += "\nSi prega di voler verificare la possibilità di effettuare un cambio di fascia oraria per questi turni, in base alle esigenze del servizio e del calendario.\n\n";
-                emailBody += "Restiamo a disposizione per chiarimenti.\n\nCordiali saluti.\n\nRipartizione del Personale\n";
+                // Construct mailto link, adding all unique emails to CC
+                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); // Only main recipient if exists
+                const ccEmails = Array.from(uniqueRecipients).filter(email => email !== mainRecipientEmail).join(','); // All other selected macchinisti
 
-                window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                let mailtoLink = `mailto:${toEmails}`;
+                if (ccEmails) {
+                    mailtoLink += `?cc=${encodeURIComponent(ccEmails)}`;
+                }
+                mailtoLink += `${ccEmails ? '&' : '?' }subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                
+                window.location.href = mailtoLink;
             });
 
             // Event listener for the main button in Pane 6
@@ -1485,29 +1519,11 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 
                 // Set the report modal content and open it
                 reportModalTitle.textContent = 'Turni Organizzati per Fascia Oraria';
-                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts); // Use the new interactive HTML generator
+                reportContent.innerHTML = generateInteractiveShiftReportHtml(organizedShifts); 
                 reportModal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
 
-                // Add event listeners to the checkboxes within the modal AFTER it's rendered
-                document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
-                });
-
-                document.querySelectorAll('#reportModal .macchinista-select-all-checkbox').forEach(masterCheckbox => {
-                    masterCheckbox.addEventListener('change', function() {
-                        const macchinistaId = this.dataset.macchinistaId;
-                        const isChecked = this.checked;
-                        document.querySelectorAll(`#reportModal .shift-select-checkbox[data-macchinista-id="${macchinistaId}"]`).forEach(shiftCheckbox => {
-                            shiftCheckbox.checked = isChecked;
-                        });
-                        updateGenerateSelectedShiftsButtonState();
-                    });
-                });
-
-                updateGenerateSelectedShiftsButtonState(); // Initialize button state on modal open
-
-                // Clear previous proposals in pane6 and the set of added proposals
+                // Clear existing proposals in pane6 and the set of added proposals
                 fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
                 addedProposals.clear();
 
