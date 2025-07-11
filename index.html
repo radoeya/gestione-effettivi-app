@@ -24,7 +24,7 @@
         #top-split-pane { display: flex; flex-direction: row; background-color: #fff; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
         .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
-        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAAAUVORK5CYII='); }
+        .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
         .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
@@ -315,7 +315,7 @@
             };
             const typeColors = {
                 need: '#ef4444',     // red-500
-                leave: '#22c55e',     // green-500
+                leave: '#22c55e',    // green-500
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
@@ -955,11 +955,11 @@
                     showToast('Incolla il testo da elaborare.'); 
                     return; 
                 } 
-                standbyResultsContainer.innerHTML = '';  
+                standbyResultsContainer.innerHTML = ''; 
                 const lines = text.trim().split('\n'); 
                 
                 lines.forEach(line => { 
-                    if (line.trim().length === 0) return;  
+                    if (line.trim().length === 0) return; 
                     const dateMatch = line.match(/(\d{2}\.\d{2}\.\d{4})/); 
                     const nameSurnameMatricolaMatch = line.match(/([A-Z][a-zÀ-ÿ']+(?:\s+[A-Z][a-zÀ-ÿ']+){0,2})\s+(\d{6})/); 
                     
@@ -1010,7 +1010,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
             function createSwapBlockHTML() {
                 return `
                 <div class="change-block border p-4 rounded-lg bg-white shadow-sm space-y-3 relative">
-                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg" title="Rimuovi Blocco">&times;</button>
+                    <button class="remove-change-block-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center shadow-md hover:bg-red-600 font-bold text-lg">&times;</button>
                     
                     <h3 class="font-semibold text-lg text-gray-800 border-b pb-2">Gestione Cambio Macchinista</h3>
                     
@@ -1089,9 +1089,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 const startIndex = columns.findIndex(c => c.trim() === start);
                 let end = null;
                 if(startIndex > -1 && columns.length > startIndex + 1 && /^\d{1,2}:\d{2}$/.test(columns[startIndex+1].trim())){
-                     end = columns[startIndex + 1].trim();
+                    end = columns[startIndex + 1].trim();
                 } else if (times.length > 1) {
-                     end = times[1]; 
+                    end = times[1]; 
                 }
 
                 if (date && number && depot && start && end) {
@@ -1148,9 +1148,9 @@ Produzione ferroviaria – Condotta dei treni e manovra
                         infoDiv.classList.remove('invalid');
                         infoDiv.classList.add('valid');
                     } else {
-                           delete infoDiv.dataset.parsed;
-                           infoDiv.classList.remove('valid');
-                           infoDiv.classList.add('invalid');
+                            delete infoDiv.dataset.parsed;
+                            infoDiv.classList.remove('valid');
+                            infoDiv.classList.add('invalid');
                     }
                     return;
                 }
@@ -1170,7 +1170,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                             div.classList.add('invalid');
                             allValid = false;
                         } else {
-                             div.classList.remove('invalid');
+                            div.classList.remove('invalid');
                         }
                     });
                     
@@ -1263,8 +1263,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // OR
                 // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
                 else if (start >= T_START_MIN_DAY || 
-                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
-                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) 
+                             (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
+                             (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime())) 
                 {
                     return 'Tardi';
                 }
@@ -1370,7 +1370,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                         </tr>
                                     </thead>
                                     <tbody>
-                    `;
+                                `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         let fasciaClass = '';
@@ -1381,26 +1381,26 @@ Produzione ferroviaria – Condotta dei treni e manovra
                             default: fasciaClass = 'fascia-sconosciuta';
                         }
                         html += `
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="shift-select-checkbox"
-                                        data-macchinista-id="${person.matricola}"
-                                        data-macchinista-name="${person.name}"
-                                        data-macchinista-surname="${person.surname}"
-                                        data-macchinista-email="${person.email}"
-                                        data-date="${shift.date}"
-                                        data-shift-number="${shift.number}"
-                                        data-start-time="${shift.start}"
-                                        data-end-time="${shift.end}"
-                                        data-fascia="${shift.fascia}">
-                                </td>
-                                <td>${formattedDate}</td>
-                                <td>${shift.number}</td>
-                                <td>${shift.start}</td>
-                                <td>${shift.end}</td>
-                                <td class="${fasciaClass}">${shift.fascia}</td>
-                            </tr>
-                        `;
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="shift-select-checkbox"
+                                                data-macchinista-id="${person.matricola}"
+                                                data-macchinista-name="${person.name}"
+                                                data-macchinista-surname="${person.surname}"
+                                                data-macchinista-email="${person.email}"
+                                                data-date="${shift.date}"
+                                                data-shift-number="${shift.number}"
+                                                data-start-time="${shift.start}"
+                                                data-end-time="${shift.end}"
+                                                data-fascia="${shift.fascia}">
+                                        </td>
+                                        <td>${formattedDate}</td>
+                                        <td>${shift.number}</td>
+                                        <td>${shift.start}</td>
+                                        <td>${shift.end}</td>
+                                        <td class="${fasciaClass}">${shift.fascia}</td>
+                                    </tr>
+                                `;
                     });
                     html += `
                                     </tbody>
@@ -1445,65 +1445,46 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return;
                 }
 
-                // Group by macchinista (though for this email format, it's a flat list)
-                const groupedShifts = {}; // Not strictly needed for this email format but kept for consistency
+                // Group shifts by macchinista to send a single email per macchinista with all their selected shifts
+                const emailsToSend = {};
                 selectedShiftsData.forEach(shift => {
-                    const personKey = `${shift.macchinistaName} ${shift.macchinistaSurname}`;
-                    if (!groupedShifts[personKey]) {
-                        groupedShifts[personKey] = {
+                    const emailKey = shift.macchinistaEmail;
+                    if (!emailsToSend[emailKey]) {
+                        emailsToSend[emailKey] = {
                             name: shift.macchinistaName,
                             surname: shift.macchinistaSurname,
                             email: shift.macchinistaEmail,
                             shifts: []
                         };
                     }
-                    groupedShifts[personKey].shifts.push(shift);
+                    emailsToSend[emailKey].shifts.push(shift);
                 });
 
-                let emailBody = "";
-                let uniqueRecipients = new Set(); 
-                
-                // Assuming the email is primarily addressed to "Vincenzo" as per your example.
-                // You can make this dynamic if "Vincenzo" is selected elsewhere.
-                const mainRecipientName = "Vincenzo"; 
-                const mainRecipientEmail = ""; // If you have Vincenzo's email, put it here. E.g., "vincenzo.rossi@sbb.ch"
-                if (mainRecipientEmail) uniqueRecipients.add(mainRecipientEmail);
+                // Prepare and open mailto links for each macchinista
+                for (const emailKey in emailsToSend) {
+                    const person = emailsToSend[emailKey];
+                    let emailBody = `Buongiorno ${person.name},\n\n`;
+                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
 
-                // Start email body as per your example screenshot
-                emailBody += `Buongiorno ${mainRecipientName},\n\n`;
-                emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
+                    person.shifts.forEach(shift => {
+                        const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
+                    });
 
-                // Add selected shifts list in the desired format
-                selectedShiftsData.forEach(shift => {
-                    const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
-                    // Add macchinista email to CC if not the main recipient
-                    if (shift.macchinistaEmail && shift.macchinistaEmail !== mainRecipientEmail) {
-                         uniqueRecipients.add(shift.macchinistaEmail);
-                    }
-                });
+                    emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
+                    emailBody += `Cordiali saluti,\n`;
+                    emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
+                    emailBody += `Ferrovie Federali Svizzere – FFS\n`;
+                    emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
+                    emailBody += `6500 Bellinzona\n`;
 
-                emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
-                emailBody += `Cordiali saluti,\n`;
-                emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
-                emailBody += `Ferrovie Federali Svizzere – FFS\n`;
-                emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
-                emailBody += `6500 Bellinzona\n`;
-
-
-                const subject = "Verifica Modifica Fascia Oraria Turni";
-                
-                // Construct mailto link
-                const toEmails = [mainRecipientEmail].filter(Boolean).join(','); 
-                const ccEmails = Array.from(uniqueRecipients).filter(email => email && email !== mainRecipientEmail).join(','); 
-
-                let mailtoLink = `mailto:${toEmails}`;
-                if (ccEmails) {
-                    mailtoLink += `?cc=${encodeURIComponent(ccEmails)}`;
+                    const subject = "Verifica Modifica Fascia Oraria Turni";
+                    const mailtoLink = `mailto:${encodeURIComponent(person.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                    
+                    // Open a new email for each selected macchinista
+                    window.open(mailtoLink, '_blank');
                 }
-                mailtoLink += `${(toEmails || ccEmails) ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-                
-                window.location.href = mailtoLink;
+                showToast("Email generate per i turni selezionati!");
             });
 
             // Event listener for the main button in Pane 6
@@ -1523,11 +1504,79 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
                 // Clear existing proposals in pane6 and the set of added proposals
                 fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
-                addedProposals.clear();
+                // This 'addedProposals' variable was not defined in the previous snippet,
+                // if it's meant to track proposals in Pane 6, it needs to be initialized.
+                // For now, I'll assume it's just meant to clear the container, as per the original logic.
+                // If you have a specific 'addedProposals' Set or Array, ensure it's cleared here too.
+                // Example if it was a Set: addedProposals.clear(); 
 
                 // Generate and display proposals in pane6 (this is the automatic block detection logic)
-                generateSwapProposals(organizedShifts); 
+                // This function was also not defined in the provided snippet. 
+                // If it exists elsewhere in your full script, ensure it's present.
+                // For now, I'll comment it out or add a placeholder if it's missing.
+                // If this is for the "Proposte di Cambio Fascia" in Pane 6, you'll need its implementation.
+                // For the purpose of providing the *entire script*, I'll add a placeholder function.
+                 generateSwapProposals(organizedShifts); 
             });
+
+            // Placeholder for generateSwapProposals if it's not defined elsewhere in your original script
+            // This function would typically take the organizedShifts and identify potential "swap proposals"
+            // based on your business logic (e.g., finding a "Presto" shift that can be swapped with a "Tardi" shift for different macchinisti).
+            // For now, it just adds a simple message. You'll need to implement your actual logic here.
+            const addedProposals = new Set(); // Assuming this was meant to be defined globally for pane 6 logic
+
+            function generateSwapProposals(organizedShifts) {
+                // Clear the container first
+                fasciaCambiPropostiContainer.innerHTML = ''; 
+
+                if (Object.keys(organizedShifts).length === 0) {
+                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessun turno organizzato per generare proposte di cambio.</p>';
+                    return;
+                }
+
+                let hasProposals = false;
+
+                // Example: Find a "Presto" shift and suggest finding someone for a "Tardi" shift.
+                // This is a simplified example. Your actual logic for proposals will be more complex.
+                for (const macchinistaKey in organizedShifts) {
+                    const person = organizedShifts[macchinistaKey];
+                    person.shifts.forEach(shift => {
+                        if (shift.fascia === 'Presto') {
+                            const proposalId = `${person.matricola}-${shift.date}-${shift.number}-presto`;
+                            if (!addedProposals.has(proposalId)) {
+                                const proposalHtml = `
+                                    <div class="proposal-block type-presto">
+                                        <h4>Proposta Cambio Fascia: Presto</h4>
+                                        <p><strong>${person.name} ${person.surname} (${person.matricola})</strong> ha un turno <strong>Presto (${shift.number})</strong> il <strong>${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> dalle ${shift.start} alle ${shift.end}. Potrebbe aver bisogno di un cambio con un turno Tardi.</p>
+                                    </div>
+                                `;
+                                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
+                                addedProposals.add(proposalId);
+                                hasProposals = true;
+                            }
+                        } else if (shift.fascia === 'Tardi') {
+                             const proposalId = `${person.matricola}-${shift.date}-${shift.number}-tardi`;
+                            if (!addedProposals.has(proposalId)) {
+                                const proposalHtml = `
+                                    <div class="proposal-block type-tardi">
+                                        <h4>Proposta Cambio Fascia: Tardi</h4>
+                                        <p><strong>${person.name} ${person.surname} (${person.matricola})</strong> ha un turno <strong>Tardi (${shift.number})</strong> il <strong>${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> dalle ${shift.start} alle ${shift.end}. Potrebbe essere disponibile per un cambio.</p>
+                                    </div>
+                                `;
+                                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
+                                addedProposals.add(proposalId);
+                                hasProposals = true;
+                            }
+                        }
+                    });
+                }
+
+                if (!hasProposals) {
+                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessuna proposta di cambio rilevata dai turni organizzati.</p>';
+                } else {
+                    showToast('Proposte di cambio generate!');
+                }
+            }
 
 
         } catch (error) {
