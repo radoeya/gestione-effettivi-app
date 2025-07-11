@@ -25,7 +25,7 @@
         .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
         .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
         .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
-        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
+        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUlEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
         .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
         .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
@@ -1456,6 +1456,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     if (!emailsToSend[emailKey]) {
                         emailsToSend[emailKey] = {
                             name: shift.macchinistaName,
+                            surname: shift.macchinistaSurname,
                             email: shift.macchinistaEmail,
                             shifts: []
                         };
@@ -1466,9 +1467,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // Prepare and open mailto links for each macchinista
                 for (const emailKey in emailsToSend) {
                     const person = emailsToSend[emailKey];
-                    // Updated email body as per the new example
                     let emailBody = `Buongiorno ${person.name},\n\n`;
-                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei tuoi seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
+                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
 
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -1476,7 +1476,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     });
 
                     emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
-                    emailBody += `Cordiali saluti,\n\n`;
+                    emailBody += `Cordiali saluti,\n`;
                     emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
                     emailBody += `Ferrovie Federali Svizzere – FFS\n`;
                     emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
@@ -1493,7 +1493,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
             // Event listener for the main button in Pane 6
             processShiftDataBtnForFascia.addEventListener('click', function() {
-                const rawData = shiftDataPasteAreaForFida.value;
+                const rawData = shiftDataPasteAreaForFascia.value;
                 if (!rawData.trim()) {
                     showToast("Incolla i dati dei turni prima di organizzare.");
                     return;
