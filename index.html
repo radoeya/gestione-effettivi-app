@@ -1468,7 +1468,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 for (const emailKey in emailsToSend) {
                     const person = emailsToSend[emailKey];
                     let emailBody = `Buongiorno ${person.name},\n\n`;
-                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio di consegne ed evitare situazioni di esubero o fluttuazioni:\n\n`;
+                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio ed evitare situazioni di esubero o fluttuazioni:\n\n`;
 
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
