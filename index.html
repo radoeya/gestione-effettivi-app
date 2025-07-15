@@ -25,7 +25,7 @@
         .split-pane { overflow-y: auto; overflow-x: hidden; padding: 1.25rem; }
         .gutter { background-color: #e5e7eb; background-repeat: no-repeat; background-position: 50%; }
         .gutter.gutter-horizontal { cursor: col-resize; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
-        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
+        .gutter.gutter-vertical { cursor: row-resize; height: 10px; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUlEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII='); }
         .pane-header { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
         .pane-controls button { background-color: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; }
         .form-input-box { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
@@ -205,7 +205,7 @@
                         </div>
                         <div class="pane-content flex-grow flex flex-col space-y-4">
                              <div id="swap-blocks-container" class="flex-grow space-y-4 overflow-y-auto pr-2">
-                                 </div>
+                                </div>
                              <div class="pt-4 border-t">
                                 <button id="add-new-swap-block-btn" class="w-full flex justify-center items-center py-3 px-4 border rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 font-semibold">
                                     + Aggiungi Blocco Cambio
@@ -530,208 +530,44 @@
                 turniSalvati.forEach(turno => creaRigaTurno(turno));
             }
 
-      function generateMonthlyReportData() {
-    const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            function generateMonthlyReportData() {
+                const formatDate = (d) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.need}"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
+                const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.leave}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
+                const availabilityIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.availability}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
 
-    const needIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.need}"/><line x1="15" y1="9" x2="9" y2="15" stroke="white" stroke-width="3"/><line x1="9" y1="9" x2="15" y2="15" stroke="white" stroke-width="3"/></svg>`;
-    const leaveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.leave}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
-    const availabilityIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${typeColors.availability}"/><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg>`;
-
-    const currentCalendarDate = calendar.getDate();
-    const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
-    const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
-    const filteredEvents = calendarEvents.filter(event => {
-        const d = new Date(event.start);
-        return d.getFullYear() === firstDate.getFullYear() && d.getMonth() === firstDate.getMonth();
-    });
-
-    let mainTableHtml = '';
-    if (filteredEvents.length === 0) {
-        mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`;
-    } else {
-        const groupedData = {};
-        filteredEvents.forEach(event => {
-            const date = event.start.split('T')[0];
-            if (!groupedData[date]) {
-                groupedData[date] = { needs: { early: 0, medium: 0, late: 0 }, leaves: { early: 0, medium: 0, late: 0 }, availabilities: { early: 0, medium: 0, late: 0 } };
-            }
-            const p = event.extendedProps;
-            if (p.type === 'need') { groupedData[date].needs[p.shift] += p.quantity; }
-            else if (p.type === 'leave') { groupedData[date].leaves[p.shift] += p.quantity; }
-            else if (p.type === 'availability') { groupedData[date].availabilities[p.shift] += p.quantity; }
-        });
-
-        const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
-        mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 10px;"><thead><tr style="background-color: #F0F0F0; font-weight: bold;"><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 3px 5px; border: 1px solid #999; width: 25px;"></th><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
-        const shiftSingular = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-        const shiftPlural = { early: 'Presti', medium: 'Medi', late: 'Tardi' };
-        const iconCellStyle = "padding: 3px 5px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
-        const cellStyle = "vertical-align: middle; padding: 3px 5px; border: 1px solid #ccc;";
-
-        for (const dateStr of sortedDates) {
-            const data = groupedData[dateStr];
-            const date = new Date(dateStr + 'T00:00:00');
-
-            const needParts = Object.entries(data.needs).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-            const leaveParts = Object.entries(data.leaves).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-            const availabilityParts = Object.entries(data.availabilities).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-
-            const rowsForDate = [];
-            if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
-            if (leaveParts.length > 0) rowsForDate.push({ icon: leaveIcon, text: `Congedi disponibili: ${leaveParts.join(' + ')}` });
-            if (availabilityParts.length > 0) rowsForDate.push({ icon: availabilityIcon, text: `Disponibilità: ${availabilityParts.join(' + ')}` });
-
-            if (rowsForDate.length > 0) {
-                const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
-                mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="${cellStyle}">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="${cellStyle}">${rowsForDate[0].text}</td></tr>`;
-                for (let i = 1; i < rowsForDate.length; i++) {
-                    mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="${cellStyle}">${rowsForDate[i].text}</td></tr>`;
-                }
-            }
-        }
-        mainTableHtml += `</tbody></table>`;
-    }
-
-    const stats = { approved: parseInt(statsAcceptedInput.value, 10) || 0, pending: parseInt(statsPendingInput.value, 10) || 0, rejected: parseInt(statsRejectedInput.value, 10) || 0 };
-    const totalRequests = stats.approved + stats.pending + stats.rejected;
-    let statsHtmlBlock = '';
-    if (totalRequests > 0) {
-         const percApproved = totalRequests > 0 ? ((stats.approved / totalRequests) * 100).toFixed(0) : 0;
-         const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
-         const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
-         statsHtmlBlock = `<div style="margin-top: 15px; width: 100%; page-break-inside: avoid;"><div style="width: 80%; margin: 0 auto;"><p style="font-weight: bold; margin-bottom: 4px; font-size: 10px; text-align:center;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#F0F0F0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div></div>`;
-    }
-    
-    let fullHtml = `<div id="pdf-content-wrapper" style="font-family: Arial, sans-serif; color: #333;">
-        <style>.summary-table{border-collapse:collapse;width:100%;font-size:9px;}.summary-table th,.summary-table td{border:1px solid #999;padding:2px 3px;text-align:center;}.page-break-avoid{page-break-inside:avoid !important;}body{margin:0;}*{box-sizing:border-box;}</style>
-        <h2 style="text-align:center;font-size:16px;font-weight:bold;margin:0 0 10px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
-        <table style="width:100%;margin-bottom:10px;font-size:11px;">
-            <tr><td style="padding:1px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="padding:1px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr>
-            <tr><td style="padding:1px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td><td style="padding:1px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr>
-            <tr><td style="padding:1px;"></td><td style="padding:1px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td></tr>
-        </table>
-        ${mainTableHtml}
-        <div class="page-break-avoid" style="margin-top: 10px;">
-            ${statsHtmlBlock}
-            <div style="margin-top: 10px; font-size: 9px;">
-                 <p style="margin: 5px 0;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value || 'Nessuna'}</p>
-                 <p style="margin: 5px 0;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
-                 <p style="margin: 5px 0;">Vi ringraziamo per la vostra collaborazione.</p>
-            </div>
-        </div>
-    </div>`;
-
-    return { html: fullHtml, mainTableHtml: mainTableHtml };
-}
-
-    let mainTableHtml = '';
-    if (filteredEvents.length === 0) {
-        mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`;
-    } else {
-        const groupedData = {};
-        filteredEvents.forEach(event => {
-            const date = event.start.split('T')[0];
-            if (!groupedData[date]) {
-                groupedData[date] = { needs: { early: 0, medium: 0, late: 0 }, leaves: { early: 0, medium: 0, late: 0 }, availabilities: { early: 0, medium: 0, late: 0 } };
-            }
-            const p = event.extendedProps;
-            if (p.type === 'need') { groupedData[date].needs[p.shift] += p.quantity; }
-            else if (p.type === 'leave') { groupedData[date].leaves[p.shift] += p.quantity; }
-            else if (p.type === 'availability') { groupedData[date].availabilities[p.shift] += p.quantity; }
-        });
-
-        const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
-        mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 10px;"><thead><tr style="background-color: #F0F0F0; font-weight: bold;"><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 3px 5px; border: 1px solid #999; width: 25px;"></th><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
-        const shiftSingular = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-        const shiftPlural = { early: 'Presti', medium: 'Medi', late: 'Tardi' };
-        const iconCellStyle = "padding: 3px 5px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
-        const cellStyle = "vertical-align: middle; padding: 3px 5px; border: 1px solid #ccc;";
-
-        for (const dateStr of sortedDates) {
-            const data = groupedData[dateStr];
-            const date = new Date(dateStr + 'T00:00:00');
-
-            const needParts = Object.entries(data.needs).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-            const leaveParts = Object.entries(data.leaves).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-            const availabilityParts = Object.entries(data.availabilities).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-
-            const rowsForDate = [];
-            if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
-            if (leaveParts.length > 0) rowsForDate.push({ icon: leaveIcon, text: `Congedi disponibili: ${leaveParts.join(' + ')}` });
-            if (availabilityParts.length > 0) rowsForDate.push({ icon: availabilityIcon, text: `Disponibilità: ${availabilityParts.join(' + ')}` });
-
-            if (rowsForDate.length > 0) {
-                const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
-                mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="${cellStyle}">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="${cellStyle}">${rowsForDate[0].text}</td></tr>`;
-                for (let i = 1; i < rowsForDate.length; i++) {
-                    mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="${cellStyle}">${rowsForDate[i].text}</td></tr>`;
-                }
-            }
-        }
-        mainTableHtml += `</tbody></table>`;
-    }
-
-    const stats = { approved: parseInt(statsAcceptedInput.value, 10) || 0, pending: parseInt(statsPendingInput.value, 10) || 0, rejected: parseInt(statsRejectedInput.value, 10) || 0 };
-    const totalRequests = stats.approved + stats.pending + stats.rejected;
-    let statsHtmlBlock = '';
-    if (totalRequests > 0) {
-         const percApproved = totalRequests > 0 ? ((stats.approved / totalRequests) * 100).toFixed(0) : 0;
-         const percPending = totalRequests > 0 ? ((stats.pending / totalRequests) * 100).toFixed(0) : 0;
-         const percRejected = totalRequests > 0 ? ((stats.rejected / totalRequests) * 100).toFixed(0) : 0;
-         statsHtmlBlock = `<div style="margin-top: 15px; width: 100%; page-break-inside: avoid;"><div style="width: 80%; margin: 0 auto;"><p style="font-weight: bold; margin-bottom: 4px; font-size: 10px; text-align:center;">Stato delle richieste dal personale</p><table class="summary-table"><thead style="background-color:#F0F0F0;"><tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr></thead><tbody><tr><td>${totalRequests}</td><td>${stats.approved}</td><td>${stats.rejected}</td><td>${stats.pending}</td></tr><tr><td>100%</td><td>${percApproved}%</td><td>${percRejected}%</td><td>${percPending}%</td></tr></tbody></table></div></div>`;
-    }
-    
-    let fullHtml = `<div id="pdf-content-wrapper" style="font-family: Arial, sans-serif; color: #333;">
-        <style>.summary-table{border-collapse:collapse;width:100%;font-size:9px;}.summary-table th,.summary-table td{border:1px solid #999;padding:2px 3px;text-align:center;}.page-break-avoid{page-break-inside:avoid !important;}body{margin:0;}*{box-sizing:border-box;}</style>
-        <h2 style="text-align:center;font-size:16px;font-weight:bold;margin:0 0 10px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
-        <table style="width:100%;margin-bottom:10px;font-size:11px;">
-            <tr><td style="padding:1px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td><td style="padding:1px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td></tr>
-            <tr><td style="padding:1px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td><td style="padding:1px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td></tr>
-            <tr><td style="padding:1px;"></td><td style="padding:1px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td></tr>
-        </table>
-        ${mainTableHtml}
-        <div class="page-break-avoid" style="margin-top: 10px;">
-            ${statsHtmlBlock}
-            <div style="margin-top: 10px; font-size: 9px;">
-                 <p style="margin: 5px 0;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value || 'Nessuna'}</p>
-                 <p style="margin: 5px 0;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
-                 <p style="margin: 5px 0;">Vi ringraziamo per la vostra collaborazione.</p>
-            </div>
-        </div>
-    </div>`;
-
-    return { html: fullHtml, mainTableHtml: mainTableHtml };
-}
-
+                const currentCalendarDate = calendar.getDate();
+                const firstDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
+                const lastDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
+                const filteredEvents = calendarEvents.filter(event => { const d=new Date(event.start); return d.getFullYear()===firstDate.getFullYear() && d.getMonth()===firstDate.getMonth(); });
+                
                 let mainTableHtml = '';
-                if (filteredEvents.length === 0) {
-                    mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`;
-                } else {
-                    const groupedData = {};
-                    filteredEvents.forEach(event => {
-                        const date = event.start.split('T')[0];
-                        if (!groupedData[date]) {
-                            groupedData[date] = { needs: { early: 0, medium: 0, late: 0 }, leaves: { early: 0, medium: 0, late: 0 }, availabilities: { early: 0, medium: 0, late: 0 } };
-                        }
-                        const p = event.extendedProps;
-                        if (p.type === 'need') { groupedData[date].needs[p.shift] += p.quantity; }
-                        else if (p.type === 'leave') { groupedData[date].leaves[p.shift] += p.quantity; }
-                        else if (p.type === 'availability') { groupedData[date].availabilities[p.shift] += p.quantity; }
+                if(filteredEvents.length===0){ mainTableHtml = `<div style="text-align:center; padding:20px;">Nessun evento per il mese selezionato.</div>`; }
+                else {
+                    const groupedData={};
+                    filteredEvents.forEach(event=>{
+                        const date=event.start.split('T')[0];
+                        if(!groupedData[date]){ groupedData[date] = {needs:{early:0,medium:0,late:0},leaves:{early:0,medium:0,late:0}, availabilities:{early:0,medium:0,late:0}}; }
+                        const p=event.extendedProps;
+                        if(p.type==='need'){ groupedData[date].needs[p.shift]+=p.quantity; }
+                        else if(p.type==='leave'){ groupedData[date].leaves[p.shift]+=p.quantity; }
+                        else if(p.type==='availability'){ groupedData[date].availabilities[p.shift]+=p.quantity; }
                     });
 
-                    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
-                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 10px;"><thead><tr style="background-color: #F0F0F0; font-weight: bold;"><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 3px 5px; border: 1px solid #999; width: 25px;"></th><th style="padding: 3px 5px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
-                    const shiftSingular = { early: 'Presto', medium: 'Medio', late: 'Tardi' };
-                    const shiftPlural = { early: 'Presti', medium: 'Medi', late: 'Tardi' };
-                    const iconCellStyle = "padding: 3px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
-
-                    for (const dateStr of sortedDates) {
+                    const sortedDates=Object.keys(groupedData).sort((a,b)=>new Date(a)-new Date(b));
+                    mainTableHtml = `<table style="width:100%; border-collapse: collapse; font-size: 14px;"><thead><tr style="background-color: #e0e0e0; font-weight: bold;"><th style="padding: 8px; border: 1px solid #999; text-align: left;">Data</th><th style="padding: 8px; border: 1px solid #999; width: 40px;"></th><th style="padding: 8px; border: 1px solid #999; text-align: left;">Dettaglio</th></tr></thead><tbody>`;
+                    const shiftSingular = {early:'Presto',medium:'Medio',late:'Tardi'};
+                    const shiftPlural = {early:'Presti',medium:'Medi',late:'Tardi'};
+                    const iconCellStyle = "padding: 8px; border: 1px solid #ccc; vertical-align: middle; text-align: center;";
+                    
+                    for(const dateStr of sortedDates){
                         const data = groupedData[dateStr];
-                        const date = new Date(dateStr + 'T00:00:00');
-
-                        const needParts = Object.entries(data.needs).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        const leaveParts = Object.entries(data.leaves).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
-                        const availabilityParts = Object.entries(data.availabilities).filter(([, q]) => q > 0).map(([k, v]) => `${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                        const date = new Date(dateStr+'T00:00:00');
+                        
+                        const needParts = Object.entries(data.needs).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                        const leaveParts = Object.entries(data.leaves).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
+                        const availabilityParts = Object.entries(data.availabilities).filter(([,q])=>q>0).map(([k,v])=>`${v} ${v > 1 ? shiftPlural[k] : shiftSingular[k]}`);
 
                         const rowsForDate = [];
                         if (needParts.length > 0) rowsForDate.push({ icon: needIcon, text: `Turni da coprire: ${needParts.join(' + ')}` });
@@ -740,16 +576,16 @@
 
                         if (rowsForDate.length > 0) {
                             const rowspan = rowsForDate.length > 1 ? `rowspan="${rowsForDate.length}"` : '';
-                            mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="vertical-align: middle; padding: 3px 5px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="padding: 3px 5px; border: 1px solid #ccc;">${rowsForDate[0].text}</td></tr>`;
+                            mainTableHtml += `<tr class="page-break-avoid"><td ${rowspan} style="vertical-align: middle; padding: 8px; border: 1px solid #ccc;">${formatDate(date)}</td><td style="${iconCellStyle}">${rowsForDate[0].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[0].text}</td></tr>`;
                             for (let i = 1; i < rowsForDate.length; i++) {
-                                mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="padding: 3px 5px; border: 1px solid #ccc;">${rowsForDate[i].text}</td></tr>`;
+                                mainTableHtml += `<tr class="page-break-avoid"><td style="${iconCellStyle}">${rowsForDate[i].icon}</td><td style="padding: 8px; border: 1px solid #ccc;">${rowsForDate[i].text}</td></tr>`;
                             }
                         }
                     }
                     mainTableHtml += `</tbody></table>`;
                 }
 
-                const stats = { approved: parseInt(statsAcceptedInput.value, 10) || 0, pending: parseInt(statsPendingInput.value, 10) || 0, rejected: parseInt(statsRejectedInput.value, 10) || 0 };
+                const stats = { approved: parseInt(statsAcceptedInput.value,10)||0, pending: parseInt(statsPendingInput.value,10)||0, rejected: parseInt(statsRejectedInput.value,10)||0 };
                 const totalRequests = stats.approved + stats.pending + stats.rejected;
                 let statsHtmlBlock = '';
 
@@ -758,11 +594,11 @@
                     const percPending = ((stats.pending / totalRequests) * 100).toFixed(0);
                     const percRejected = ((stats.rejected / totalRequests) * 100).toFixed(0);
                     statsHtmlBlock = `
-                        <div style="margin-top: 15px; width: 100%; page-break-inside: avoid;">
-                            <div style="width: 80%; margin: 0 auto;">
-                                <p style="font-weight: bold; margin-bottom: 4px; font-size: 10px; text-align:center;">Stato delle richieste dal personale</p>
+                        <div style="margin-top: 20px; width: 100%;">
+                            <div style="width: 60%; margin: 0 auto;">
+                                <p style="font-weight: bold; margin-bottom: 5px; font-size: 12px;">Stato delle richieste dal personale</p>
                                 <table class="summary-table">
-                                    <thead style="background-color:#F0F0F0;">
+                                    <thead style="background-color:#e0e0e0;">
                                         <tr><th>Totale</th><th>Accettate</th><th>Respinte</th><th>In sospeso</th></tr>
                                     </thead>
                                     <tbody>
@@ -774,52 +610,39 @@
                         </div>`;
                 }
                 
-                // --- NUOVA STRUTTURA HTML PER LAYOUT OMOGENEO ---
-                // Usa Flexbox per distribuire lo spazio.
-                // min-height: 270mm (un po' meno di A4 per sicurezza) fa sì che il contenitore occupi almeno una pagina.
-                // 'margin-top: auto' sul footer lo spinge in basso se c'è spazio.
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #333; min-height: 270mm; display: flex; flex-direction: column;">
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
                     <style>
-                        .summary-table { border-collapse: collapse; width: 100%; font-size: 9px; }
-                        .summary-table th, .summary-table td { border: 1px solid #999; padding: 2px 3px; text-align: center; }
+                        .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; }  
+                        .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; }  
                         .page-break-avoid { page-break-inside: avoid !important; }
-                        body { margin: 0; }
-                        * { box-sizing: border-box; }
                     </style>
-                    
                     <div>
-                        <h2 style="text-align:center;font-size:16px;font-weight:bold;margin:0 0 10px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
-                        <table style="width:100%;margin-bottom:10px;font-size:11px;">
+                        <h2 style="text-align:center;font-size:20px;font-weight:bold;margin:0 0 20px 0;">Stato degli effettivi: dal ${formatDate(firstDate)} al ${formatDate(lastDate)}</h2>
+                        <table style="width:100%;margin-bottom:20px;font-size:14px;border:none;">
                             <tr>
-                                <td style="padding:1px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
-                                <td style="padding:1px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
+                                <td style="border:none;padding:2px;"><strong>Deposito:</strong> ${document.getElementById('deposito').value}</td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
                             </tr>
                             <tr>
-                                <td style="padding:1px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
-                                <td style="padding:1px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
+                                <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
                             </tr>
                             <tr>
-                                <td style="padding:1px;"></td>
-                                <td style="padding:1px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
+                                <td style="border:none;padding:2px;"></td>
+                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
                             </tr>
                         </table>
-                        
-                        ${mainTableHtml}
                     </div>
-                    
-                    <div class="page-break-avoid" style="margin-top: auto;">
+                    <div style="flex-grow: 1;">${mainTableHtml}</div>
+                    <div class="page-break-avoid">
                         ${statsHtmlBlock}
-                        <div style="margin-top: 10px; font-size: 9px;">
-                             <p style="margin: 5px 0;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value || 'Nessuna'}</p>
-                             <p style="margin: 5px 0;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
-                             <p style="margin: 5px 0;">Vi ringraziamo per la vostra collaborazione.</p>
-                        </div>
+                        <p style="margin-top:15px;"><strong>Particolarità del mese:</strong> ${document.getElementById('particolarita').value}</p>
+                        <p style="margin-top:15px;font-size:12px;">Se desiderate prendere un giorno di congedo o dare la vostra disponibilità, anche in cambio di un congedo, siete pregati di inserire la richiesta in Sopre.<br>Eventualmente contattare: Distributore mensile, +41 51 285 11 11.</p>
+                        <p style="font-size:12px;">Vi ringraziamo per la vostra collaborazione.</p>
                     </div>
                 </div>`;
-
                 return { html: fullHtml };
             }
-
 
             function openModal(reportGenerator, title) {
                 try {
@@ -958,75 +781,21 @@
                 return { html: fullHtml };
             }
 
-           async function downloadPdf() {
-    if (!currentReportGenerator) {
-        showToast('Genera prima un report.');
-        return;
-    }
-
-    const reportData = currentReportGenerator();
-    if (!reportData || !reportData.html) {
-         showToast('Nessun dato da esportare.');
-         return;
-    }
-
-    // 1. Creare un elemento temporaneo per misurare l'altezza del contenuto base
-    const measurementDiv = document.createElement('div');
-    measurementDiv.style.position = 'absolute';
-    measurementDiv.style.left = '-9999px'; // Nascondilo fuori dallo schermo
-    measurementDiv.style.width = '190mm'; // Larghezza A4 (210mm) meno 20mm di margini
-    document.body.appendChild(measurementDiv);
-    
-    measurementDiv.innerHTML = reportData.html;
-    const contentHeightPx = measurementDiv.offsetHeight;
-    document.body.removeChild(measurementDiv);
-
-    // 2. Calcolare lo spazio rimanente e il padding extra per riga
-    const pageHeightPx = 1050; // Altezza A4 in pixel (circa 277mm a 96DPI), con un po' di margine
-    const remainingHeightPx = pageHeightPx - contentHeightPx;
-    const numberOfRows = (reportData.mainTableHtml.match(/<tr class="page-break-avoid"/g) || []).length;
-
-    let finalHtml = reportData.html;
-
-    // 3. Se c'è spazio sufficiente e ci sono righe, distribuisci lo spazio
-    if (remainingHeightPx > 10 && numberOfRows > 0) {
-        const extraPaddingPerSide = (remainingHeightPx / numberOfRows) / 2;
-        const baseVerticalPadding = 3; // Il padding verticale di base in px
-        const newVerticalPadding = baseVerticalPadding + extraPaddingPerSide;
-        
-        // Crea le stringhe di stile da sostituire
-        const oldCellStyle = 'padding: 3px 5px;';
-        const newCellStyle = `padding: ${newVerticalPadding.toFixed(2)}px 5px;`;
-        
-        // Sostituisci il padding in tutto l'HTML della tabella principale
-        const finalMainTableHtml = reportData.mainTableHtml.replace(new RegExp(oldCellStyle, 'g'), newCellStyle);
-        finalHtml = reportData.html.replace(reportData.mainTableHtml, finalMainTableHtml);
-    }
-    
-    // 4. Generare il PDF con l'HTML finale (adattato o originale)
-    const finalElementForPdf = document.createElement('div');
-    finalElementForPdf.innerHTML = finalHtml;
-
-    const filename = reportModalTitle.textContent.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
-    const options = {
-        margin: 10,
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { avoid: '.page-break-avoid' }
-    };
-
-    showToast('Generazione PDF in corso...');
-    await html2pdf().set(options).from(finalElementForPdf).save();
-}
-
-// Assicurati che il listener del pulsante chiami la nuova funzione
-downloadPdfBtn.addEventListener('click', downloadPdf);
+            // --- PDF DOWNLOAD FUNCTION ---
+            downloadPdfBtn.addEventListener('click', async function() {
+                const reportElement = document.getElementById('reportContent');
+                if (!reportElement || reportElement.innerHTML.trim() === '') {
+                    showToast('Nessun report da scaricare. Genera prima un report.');
+                    return;
+                }
 
                 const filename = reportModalTitle.textContent.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
 
                 try {
+                    // Temporarily hide elements that might interfere with PDF generation if needed
+                    // For example, if there are interactive elements or buttons within reportContent
+                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = 'none');
+
                     const options = {
                         margin: 10,
                         filename: filename,
@@ -1042,6 +811,9 @@ downloadPdfBtn.addEventListener('click', downloadPdf);
                 } catch (error) {
                     console.error('Errore durante la generazione del PDF:', error);
                     showToast('Errore durante il download del PDF.');
+                } finally {
+                    // Restore hidden elements if they were hidden
+                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = '');
                 }
             });
 
@@ -1532,8 +1304,8 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // OR
                 // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
                 else if (start >= T_START_MIN_DAY ||  
-                         (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
-                         (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime()))  
+                            (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
+                            (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime()))  
                 {
                     return 'Tardi';
                 }
@@ -1639,7 +1411,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                         </tr>
                                     </thead>
                                     <tbody>
-                        `;
+                                `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         let fasciaClass = '';
@@ -1650,26 +1422,26 @@ Produzione ferroviaria – Condotta dei treni e manovra
                             default: fasciaClass = 'fascia-sconosciuta';
                         }
                         html += `
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" class="shift-select-checkbox"
-                                                    data-macchinista-id="${person.matricola}"
-                                                    data-macchinista-name="${person.name}"
-                                                    data-macchinista-surname="${person.surname}"
-                                                    data-macchinista-email="${person.email}"
-                                                    data-date="${shift.date}"
-                                                    data-shift-number="${shift.number}"
-                                                    data-start-time="${shift.start}"
-                                                    data-end-time="${shift.end}"
-                                                    data-fascia="${shift.fascia}">
-                                            </td>
-                                            <td>${formattedDate}</td>
-                                            <td>${shift.number}</td>
-                                            <td>${shift.start}</td>
-                                            <td>${shift.end}</td>
-                                            <td class="${fasciaClass}">${shift.fascia}</td>
-                                        </tr>
-                                        `;
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="shift-select-checkbox"
+                                                        data-macchinista-id="${person.matricola}"
+                                                        data-macchinista-name="${person.name}"
+                                                        data-macchinista-surname="${person.surname}"
+                                                        data-macchinista-email="${person.email}"
+                                                        data-date="${shift.date}"
+                                                        data-shift-number="${shift.number}"
+                                                        data-start-time="${shift.start}"
+                                                        data-end-time="${shift.end}"
+                                                        data-fascia="${shift.fascia}">
+                                                </td>
+                                                <td>${formattedDate}</td>
+                                                <td>${shift.number}</td>
+                                                <td>${shift.start}</td>
+                                                <td>${shift.end}</td>
+                                                <td class="${fasciaClass}">${shift.fascia}</td>
+                                            </tr>
+                                            `;
                     });
                     html += `
                                     </tbody>
