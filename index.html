@@ -615,7 +615,7 @@
                         </div>`;
                 }
                 
-                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; border: 1px solid #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
+                let fullHtml = `<div id="pdf-content" style="font-family: Arial, sans-serif; color: #000; padding: 20px; display: flex; flex-direction: column; min-height: 98%;">
                     <style>
                         .summary-table { border-collapse: collapse; width: 100%; font-size: 11px; }  
                         .summary-table th, .summary-table td { border: 1px solid black; padding: 4px; text-align: center; }  
@@ -1416,7 +1416,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                         </tr>
                                     </thead>
                                     <tbody>
-                        `;
+                    `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         let fasciaClass = '';
