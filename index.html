@@ -34,20 +34,83 @@
         .parsed-info { min-height: 44px; border-width: 1px; border-color: #d1d5db; transition: all 0.2s ease-in-out; }
         .parsed-info.valid { border-color: #22c55e; background-color: #f0fdf4; }
         .parsed-info.invalid { border-color: #ef4444; background-color: #fef2f2; }
-        .fascia-presto { color: #1e40af; } .fascia-medio { color: #065f46; } .fascia-tardi { color: #9a3412; } .fascia-sconosciuta { color: #6b7280; font-style: italic; }
-        .proposal-block { background-color: #ecfdf5; border: 1px solid #34d399; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; position: relative; }
-        .proposal-block.type-presto { background-color: #e0f2fe; border-color: #60a5fa; }
-        .proposal-block.type-tardi { background-color: #fff7ed; border-color: #fb923c; }
-        .proposal-block h4 { font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; }
-        .proposal-block p { font-size: 0.875rem; color: #4b5563; }
-        .modal-shift-row { display: flex; align-items: flex-start; margin-bottom: 10px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 0.375rem; background-color: #f9fafb; }
-        .modal-shift-row:nth-child(odd) { background-color: #ffffff; }
-        .modal-shift-row input[type="checkbox"] { margin-right: 15px; margin-top: 5px; transform: scale(1.2); flex-shrink: 0; }
-        .modal-shift-info { flex-grow: 1; }
-        .modal-shift-info span { font-weight: 600; display: block; margin-bottom: 5px; }
-        .modal-shift-info table { width: 100%; border-collapse: collapse; }
-        .modal-shift-info th, .modal-shift-info td { padding: 4px 8px; border: 1px solid #e5e7eb; text-align: left; font-size: 0.875rem; }
-        .modal-shift-info th { background-color: #f3f4f6; }
+
+        /* Styles for Shift Fascia in new report */
+        .fascia-presto { color: #1e40af; } /* blue-700 */
+        .fascia-medio { color: #065f46; } /* green-800 */
+        .fascia-tardi { color: #9a3412; } /* orange-800 */
+        .fascia-sconosciuta { color: #6b7280; font-style: italic; }
+
+        /* Styles for proposals block */
+        .proposal-block {
+            background-color: #ecfdf5; /* green-50 */
+            border: 1px solid #34d399; /* green-400 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .proposal-block.type-presto {
+            background-color: #e0f2fe; /* blue-50 */
+            border-color: #60a5fa; /* blue-400 */
+        }
+
+        .proposal-block.type-tardi {
+            background-color: #fff7ed; /* orange-50 */
+            border-color: #fb923c; /* orange-400 */
+        }
+
+        .proposal-block h4 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .proposal-block p {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        /* Styles for interactive report in modal */
+        .modal-shift-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+        }
+        .modal-shift-row:nth-child(odd) {
+            background-color: #ffffff; /* Alternate background for readability */
+        }
+        .modal-shift-row input[type="checkbox"] {
+            margin-right: 15px;
+            margin-top: 5px; /* Adjust vertical alignment */
+            transform: scale(1.2); /* Make checkbox slightly larger */
+            flex-shrink: 0;
+        }
+        .modal-shift-info {
+            flex-grow: 1;
+        }
+        .modal-shift-info span {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .modal-shift-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .modal-shift-info th, .modal-shift-info td {
+            padding: 4px 8px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        .modal-shift-info th {
+            background-color: #f3f4f6;
+        }
     </style>
 </head>
 <body class="antialiased text-gray-800">
@@ -176,7 +239,7 @@
                         <div class="pane-content flex-grow flex flex-col space-y-4">
                             <div>
                                 <label for="shift-data-paste-area" class="block text-sm font-medium">Incolla Dati Turni Macchinista:</label>
-                                <textarea id="shift-data-paste-area" class="form-input-box w-full mt-1" rows="8" placeholder="Incolla qui le righe complete dei turni (es. Cognome	Nome	01.07.2025	..."></textarea>
+                                <textarea id="shift-data-paste-area" class="form-input-box w-full mt-1" rows="8" placeholder="Incolla qui le righe complete dei turni (es. Cerutti	Marco	01.07.2025	8001	14:39	23:30	8:51	8:39		01.07.2025 15:33:27..."></textarea>
                                 <button id="process-shift-data-btn" class="w-full flex justify-center items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold mt-2">Organizza Turni</button>
                             </div>
                             <hr class="my-4">
@@ -226,7 +289,7 @@
                 <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3">
                     <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button>
                     <button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button>
-                    <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Scarica PDF</button>
+                    <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button>
                     <button id="generateSelectedShiftsEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 hidden">Genera Email Selezionati</button>
                 </div>
             </div>
@@ -256,12 +319,14 @@
                 availability: 'Disponibilità'
             };
             const typeColors = {
-                need: '#ef4444',   // red-500
-                leave: '#22c55e',  // green-500
+                need: '#ef4444',    // red-500
+                leave: '#22c55e',   // green-500
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
+            // Aggiorna paneElementsH per includere il nuovo pane6
             const paneElementsH = ['#pane1', '#pane2', '#pane3', '#pane4', '#pane5', '#pane6'];
+            // Aggiorna initialSizesH per bilanciare i 6 pannelli
             const initialSizesH = Array(paneElementsH.length).fill(100 / paneElementsH.length);  
             let horizontalSplitInstance = null;  
 
@@ -340,7 +405,7 @@
             const clearAllBtn = document.getElementById('clearAllBtn');
             const openNewTabBtn = document.getElementById('openNewTabBtn');
             const copyHtmlBtn = document.getElementById('copyHtmlBtn');
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
+            const sendEmailBtn = document.getElementById('sendEmailBtn'); // This is the old send email button, not for selected shifts
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             document.getElementById('entryDate').value = new Date().toISOString().slice(0, 10);
@@ -564,7 +629,7 @@
                                 <td style="border:none;padding:2px;text-align:right;"><strong>Mancanza di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${needIcon}</span></td>
                             </tr>
                             <tr>
-                                <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Zurich' })}</td>
+                                <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
                                 <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
                             </tr>
                             <tr>
@@ -592,11 +657,14 @@
                     reportModalTitle.textContent = title;
                     reportContent.innerHTML = reportData.html;
                     reportModal.classList.remove('hidden');
+                    // Add a class to body to prevent scrolling when modal is open
                     document.body.classList.add('overflow-hidden');
 
+                    // If it's the "Turni Organizzati" report, show the specific email button
                     if (title === 'Turni Organizzati per Fascia Oraria') {
-                        document.getElementById('sendEmailBtn').classList.add('hidden');
+                        document.getElementById('sendEmailBtn').classList.add('hidden'); // Hide the general email button
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.remove('hidden');
+                        // Add event listeners to the new checkboxes within the modal AFTER it's rendered
                         document.querySelectorAll('#reportModal .shift-select-checkbox').forEach(checkbox => {
                             checkbox.addEventListener('change', updateGenerateSelectedShiftsButtonState);
                         });
@@ -611,11 +679,12 @@
                                 updateGenerateSelectedShiftsButtonState();
                             });
                         });
-                        updateGenerateSelectedShiftsButtonState();
+                        updateGenerateSelectedShiftsButtonState(); // Ensure its state is correct on open
                     } else {
-                        document.getElementById('sendEmailBtn').classList.remove('hidden');
+                        document.getElementById('sendEmailBtn').classList.remove('hidden'); // Show the general email button for other reports
                         document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
                     }
+
                 } catch (error) {  
                     console.error("ERRORE in openModal:", error);  
                     showToast(`Errore nell'apertura del report: ${error.message}.`);  
@@ -627,11 +696,15 @@
             function closeModal() {  
                 reportModal.classList.add('hidden');  
                 document.body.classList.remove('overflow-hidden');  
+                // Hide the specific email button when any modal is closed
                 document.getElementById('generateSelectedShiftsEmailBtn').classList.add('hidden');
+                // Ensure the general send email button is visible for next time (unless it's the special report)
                 document.getElementById('sendEmailBtn').classList.remove('hidden');  
+                // Ensure the selection state is cleared visually when the modal closes
                 if (reportModalTitle.textContent === 'Turni Organizzati per Fascia Oraria') {
                     document.querySelectorAll('.shift-select-checkbox').forEach(cb => cb.checked = false);
                     document.querySelectorAll('.macchinista-select-all-checkbox').forEach(cb => cb.checked = false);
+                    // No need to call updateGenerateSelectedShiftsButtonState here as the button will be hidden
                 }
             }
 
@@ -712,16 +785,22 @@
 
                 return { html: fullHtml };
             }
-            
-            // Pulsante di download del PDF nella finestra modale (standard, A4)
+
+            // --- PDF DOWNLOAD FUNCTION ---
             downloadPdfBtn.addEventListener('click', async function() {
-                const reportElement = reportContent.querySelector('#pdf-content') || reportContent;
+                const reportElement = document.getElementById('reportContent');
                 if (!reportElement || reportElement.innerHTML.trim() === '') {
                     showToast('Nessun report da scaricare. Genera prima un report.');
                     return;
                 }
+
                 const filename = reportModalTitle.textContent.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
+
                 try {
+                    // Temporarily hide elements that might interfere with PDF generation if needed
+                    // For example, if there are interactive elements or buttons within reportContent
+                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = 'none');
+
                     const options = {
                         margin: 10,
                         filename: filename,
@@ -730,156 +809,49 @@
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                         pagebreak: { avoid: '.page-break-avoid' }
                     };
-                    showToast('Generazione PDF standard in corso...');
+
                     await html2pdf().set(options).from(reportElement).save();
+                    showToast('PDF scaricato con successo!');
+
                 } catch (error) {
-                    console.error('Errore durante la generazione del PDF standard:', error);
+                    console.error('Errore durante la generazione del PDF:', error);
                     showToast('Errore durante il download del PDF.');
+                } finally {
+                    // Restore hidden elements if they were hidden
+                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = '');
                 }
             });
 
-            // --- NUOVA LOGICA PER APERTURA IN NUOVA SCHEDA CON DOWNLOAD PERSONALIZZATO ---
-            openNewTabBtn.addEventListener('click', () => {
-                if (!currentReportGenerator) return;
-                const reportData = currentReportGenerator();
-                if (!reportData) return;
-                
-                const newWindow = window.open();
-                if (!newWindow) {
-                    showToast("Impossibile aprire una nuova scheda. Controlla il blocco pop-up del browser.");
-                    return;
-                }
 
-                // Estrae solo gli stili dal contenuto del report
-                const styleMatch = reportData.html.match(/<style>([\s\S]*?)<\/style>/);
-                const reportStyles = styleMatch ? styleMatch[1] : '';
-
-                const newPageContent = `
-                    <!DOCTYPE html>
-                    <html lang="it">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>${reportModalTitle.textContent}</title>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"><\/script>
-                        <style>
-                            @media print {
-                                #controls { display: none !important; }
-                                body { margin: 0; background-color: #fff; }
-                                #report-container { box-shadow: none; margin: 0; max-width: 100%; }
-                            }
-                            body { 
-                                font-family: Arial, sans-serif; 
-                                margin: 0; 
-                                padding: 20px; 
-                                background-color: #f0f2f5; 
-                            }
-                            #controls {
-                                position: fixed; top: 10px; right: 10px; z-index: 1000;
-                                background: white; padding: 10px; border-radius: 8px;
-                                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                                display: flex; gap: 10px;
-                            }
-                            #download-btn, #print-btn {
-                                padding: 8px 16px; border: 1px solid #ccc; border-radius: 5px;
-                                background-color: #0d6efd; color: white; font-weight: bold;
-                                cursor: pointer; transition: background-color 0.3s;
-                                border-color: #0d6efd;
-                            }
-                            #download-btn:hover { background-color: #0b5ed7; }
-                            #print-btn { background-color: #6c757d; border-color: #6c757d;}
-                            #print-btn:hover { background-color: #5a6268; }
-                            #report-container {
-                                 margin: 20px auto; padding: 0; background: white;
-                                 max-width: 900px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                            }
-                            /* Stili estratti dal report originale */
-                            ${reportStyles}
-                        </style>
-                    </head>
-                    <body>
-                        <div id="controls">
-                            <button id="download-btn">Scarica PDF (Pagina Unica)</button>
-                            <button id="print-btn">Stampa</button>
-                        </div>
-                        
-                        <div id="report-container">
-                            ${reportData.html}
-                        </div>
-
-                        <script>
-                            document.getElementById('print-btn').addEventListener('click', () => { window.print(); });
-
-                            document.getElementById('download-btn').addEventListener('click', async () => {
-                                const button = document.getElementById('download-btn');
-                                button.textContent = 'Generazione in corso...';
-                                button.disabled = true;
-                                
-                                document.getElementById('controls').style.display = 'none';
-
-                                const reportElement = document.getElementById('report-container');
-                                const filename = document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_pagina_unica.pdf';
-
-                                try {
-                                    const a4WidthMm = 210;
-                                    const marginMm = 15;
-                                    const contentWidthMm = a4WidthMm - (marginMm * 2);
-                                    const elementPixelWidth = reportElement.offsetWidth;
-                                    const scale = contentWidthMm / elementPixelWidth;
-                                    const elementPixelHeight = reportElement.scrollHeight;
-                                    const pdfHeightMm = (elementPixelHeight * scale) + (marginMm * 2);
-
-                                    const options = {
-                                        margin: marginMm,
-                                        filename: filename,
-                                        image: { type: 'jpeg', quality: 0.98 },
-                                        html2canvas: { scale: 2, useCORS: true },
-                                        jsPDF: {
-                                            unit: 'mm',
-                                            format: [a4WidthMm, pdfHeightMm],
-                                            orientation: 'portrait'
-                                        }
-                                    };
-                                    
-                                    await html2pdf().set(options).from(reportElement).save();
-
-                                } catch (error) {
-                                    console.error('Errore durante la generazione del PDF:', error);
-                                    alert('Si è verificato un errore durante la generazione del PDF.');
-                                } finally {
-                                     button.textContent = 'Scarica PDF (Pagina Unica)';
-                                     button.disabled = false;
-                                     document.getElementById('controls').style.display = 'flex';
-                                }
-                            });
-                        <\/script>
-                    </body>
-                    </html>
-                `;
-
-                newWindow.document.write(newPageContent);
-                newWindow.document.close();
-            });
-
-
-            // --- LISTENERS GENERALI (e resto dello script originale) ---
+            // --- LISTENERS GENERALI ---
             generateReportBtn.addEventListener('click', () => openModal(generateMonthlyReportData, 'Report Stato Effettivi Mensile'));
             generateShortReportBtn.addEventListener('click', () => openModal(generateUnifiedAnnouncementData, 'Annuncio Stato Effettivi'));
             closeModalBtn.addEventListener('click', closeModal);  
-
+            openNewTabBtn.addEventListener('click', () => {  
+                if (!currentReportGenerator) return;  
+                const reportData = currentReportGenerator();  
+                if(!reportData) return;  
+                const newWindow = window.open();  
+                newWindow.document.write(`<html><head><title>${reportModalTitle.textContent}</title></head><body>${reportData.html}</body></html>`);  
+                newWindow.document.close();  
+            });
             copyHtmlBtn.addEventListener('click', () => {  
-                const reportHtmlElement = reportContent.querySelector('#pdf-content') || reportContent;
+                const reportHtmlElement = document.getElementById('pdf-content');  
                 if(!reportHtmlElement) { showToast('Contenuto del report non trovato.'); return; }
                 navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(
                     () => showToast('Codice HTML copiato!'),  
-                    () => showToast('Errore durante la copia.')
+                    () => showToast('Erro durante la copia.')
                 );  
             });
+            // Original Send Email button for general reports
             sendEmailBtn.addEventListener('click', function() {  
                 const subject = encodeURIComponent(reportModalTitle.textContent || "Report Effettivi");  
                 const body = encodeURIComponent("Buongiorno,\n\nIn allegato il report richiesto.\n\nCordiali saluti.");  
                 window.location.href = `mailto:?subject=${subject}&body=${body}`;  
             });
-            
+
+
+            // Listeners per Pane 1 (Calendario)
             entryForm.addEventListener('submit', function(e) {  
                 e.preventDefault();  
                 const formData = new FormData(entryForm);  
@@ -903,6 +875,7 @@
             });
             closeAddEventModalBtn.addEventListener('click', () => addEventModal.classList.add('hidden'));
             
+            // Listeners per Pane 2 (Annuncio Effettivi)
             depositoReportSelect.addEventListener('change', (e) => {  
                 salvaTurni(depositoPrecedente);  
                 const nd=e.target.value;  
@@ -985,6 +958,7 @@
                 showToast(`Turno ${numero} aggiunto a ${depotName}!`);
             });
 
+            // Listeners per Pane 3 (Statistiche e Analisi)
             analyzeBtn.addEventListener('click', function() {  
                 const text = pasteArea.value;  
                 if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }  
@@ -1020,6 +994,7 @@
                 showToast(`Analisi completata: ${accepted} Accettate, ${pending} in Sospeso, ${rejected} Respinte.`);  
             });
             
+            // --- LOGICA PER ATTESA TURNO (PANE 5) ---
             processStandbyBtn.addEventListener('click', function() {  
                 const text = standbyPasteArea.value;  
                 if (!text.trim()) {  
@@ -1046,7 +1021,17 @@
                         const emailAddress = `${normalizeForEmail(name)}.${normalizeForEmail(surname)}@sbb.ch`;  
                         
                         const subject = `Assegnazione turno del ${date}`;
-                        const emailBody = `Buongiorno ${name},\n\nvi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.\nRingraziandovi per l'attenzione, porgiamo cordiali saluti.\n\nRipartizione del Personale\nP-O-BP-ZFR-MSD-EIN\nFerrovie Federali Svizzere – FFS\nProduzione ferroviaria – Condotta dei treni e manovra\n6500 Bellinzona\n`;
+                        const emailBody = `Buongiorno ${name},
+
+vi scriviamo per informarti che l’assegnazione del turno previsto per il giorno ${date} verrà effettuata il giorno precedente, al fine di garantire una prestazione lavorativa da parte nostra, tenuto conto della situazione di esubero di personale prevista per quella data.
+Ringraziandovi per l'attenzione, porgiamo cordiali saluti.
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
                         const resultDiv = document.createElement('div');  
                         resultDiv.className = 'p-2 border rounded-lg bg-gray-50 flex justify-between items-center';  
                         resultDiv.innerHTML = `<span class="text-sm">${surname} ${name} (${matricola}) - ${date}</span><button class="send-standby-email-btn px-3 py-1 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700" data-email="${emailAddress}" data-subject="${encodeURIComponent(subject)}" data-body="${encodeURIComponent(emailBody)}">Invia Email</button>`;  
@@ -1065,6 +1050,7 @@
             });
             standbyResultsContainer.addEventListener('click', function(e){ if(e.target.classList.contains('send-standby-email-btn')) { const button = e.target; const email = button.dataset.email; const subject = button.dataset.subject; const body = button.dataset.body; window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; } });
 
+            // --- LOGICA PER GESTIONE CAMBI (PANE 4) ---
             const swapBlocksContainer = document.getElementById('swap-blocks-container');
 
             function createSwapBlockHTML() {
@@ -1118,6 +1104,7 @@
             }
             
             document.getElementById('add-new-swap-block-btn').addEventListener('click', addNewChangeBlock);
+            // Add one block by default on load for Gestione Cambi
             addNewChangeBlock();
 
 
@@ -1166,6 +1153,7 @@
                 const parentBlock = e.target.closest('.change-block');
                 if (!parentBlock) return;
 
+                // Handle Remove Button
                 if (button.classList.contains('remove-change-block-btn')) {
                     if (confirm('Sei sicuro di voler rimuovere questo blocco?')) {
                         parentBlock.remove();
@@ -1173,6 +1161,7 @@
                     return;
                 }
 
+                // Handle Process Button
                 if (button.classList.contains('process-paste-btn')) {
                     const type = button.dataset.type;
                     const textarea = button.previousElementSibling;
@@ -1205,13 +1194,14 @@
                         infoDiv.classList.remove('invalid');
                         infoDiv.classList.add('valid');
                     } else {
-                        delete infoDiv.dataset.parsed;
-                        infoDiv.classList.remove('valid');
-                        infoDiv.classList.add('invalid');
+                            delete infoDiv.dataset.parsed;
+                            infoDiv.classList.remove('valid');
+                            infoDiv.classList.add('invalid');
                     }
                     return;
                 }
 
+                // Handle Generate Email Button
                 if (button.classList.contains('generate-change-email-btn')) {
                     const driverInfoDiv = parentBlock.querySelector('.driver-info');
                     const originalShiftInfoDiv = parentBlock.querySelector('.shift-original-info');
@@ -1246,12 +1236,28 @@
 
                     const subject = `Modifica piano di servizio del ${s_orig.date}`;
                     
-                    const body = `Buongiorno ${driver.name},\n\nla informiamo che è stata apportata una modifica al suo piano di servizio.\nIl turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.\nIn sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.\n\nLa preghiamo di prenderne nota.\n\nCordiali saluti,\n\nRipartizione del Personale\nP-O-BP-ZFR-MSD-EIN\nFerrovie Federali Svizzere – FFS\nProduzione ferroviaria – Condotta dei treni e manovra\n6500 Bellinzona\n`;
+                    const body = `Buongiorno ${driver.name},
+
+la informiamo che è stata apportata una modifica al suo piano di servizio.
+Il turno n. ${s_orig.number} previsto per il giorno ${s_orig.date}, con orario ${s_orig.start} – ${s_orig.end}, è stato stornato per motivi di ${motivo}.
+In sostituzione, le è stato assegnato il turno n. ${s_new.number}, con data ${s_new.date} e orario ${s_new.start} – ${s_new.end}.
+
+La preghiamo di prenderne nota.
+
+Cordiali saluti,
+
+Ripartizione del Personale
+P-O-BP-ZFR-MSD-EIN
+Ferrovie Federali Svizzere – FFS
+Produzione ferroviaria – Condotta dei treni e manovra
+6500 Bellinzona
+`;
 
                     window.location.href = `mailto:${driver.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }
             });
 
+            // --- LOGICA PER NUOVO PANELLO: CAMBIO FASCIA ORARIA (PANE 6) ---
             const shiftDataPasteAreaForFascia = document.getElementById('shift-data-paste-area');
             const processShiftDataBtnForFascia = document.getElementById('process-shift-data-btn');
             const fasciaCambiPropostiContainer = document.getElementById('fascia-cambi-proposti-container');
@@ -1285,12 +1291,23 @@
                 const OVERNIGHT_START_MIN = parseTime('00:00');  
                 const OVERNIGHT_END_MAX = parseTime('06:00');  
 
+                // Presto: starts between 02:00 and 05:59, ends by 15:00
                 if (start >= F_START_MIN && start <= F_START_MAX && end <= F_END_MAX) {
                     return 'Presto';
                 }  
+                // Medio: starts between 06:00 and 11:59, ends by 17:00
                 else if (start >= M_START_MIN && start <= M_START_MAX && end <= M_END_MAX) {
                     return 'Medio';
                 }  
+                // Tardi: starts from 12:00 onwards OR is a night shift (starts between 00:00 and 01:59 and ends next morning by 06:00)
+                // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
+                // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
+                // A shift is Tardi if:
+                // 1. It starts at or after 12:00 (midday)
+                // OR
+                // 2. It's an overnight shift: starts between 00:00 and 01:59 AND ends after starting time AND ends by 06:00 next day
+                // OR
+                // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
                 else if (start >= T_START_MIN_DAY ||  
                          (start >= OVERNIGHT_START_MIN && start < F_START_MIN && end.getTime() > start.getTime() && end <= OVERNIGHT_END_MAX) ||
                          (start >= M_START_MIN && start <= M_START_MAX && end.getTime() > M_END_MAX.getTime()))  
@@ -1307,6 +1324,12 @@
 
                 lines.forEach(line => {
                     try {  
+                        // Robust regex:
+                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
+                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
+                        // \s+(\S+) : Shift Number (any non-whitespace characters)
+                        // \s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}) : Start Time & End Time (HH:MM)
+                        // (?:.*?(\d{6}))? : Optional Matricola (6 digits) anywhere after times
                         const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/);
                         
                         if (match) {  
@@ -1349,10 +1372,12 @@
                                 originalLine: line  
                             });
                         } else {
-                            console.warn('Skipping malformed or unrecognized line:', line);
+                            console.warn('Skipping malformed or unrecognized line in Cambio Fascia Oraria:', line);
+                            showToast(`Attenzione: Riga non riconosciuta in Cambio Fascia: "${line.substring(0, Math.min(line.length, 50))}..."`);
                         }
                     } catch (e) {
-                        console.error('Error parsing line:', line, e);
+                        console.error('Error parsing line in Cambio Fascia Oraria:', line, e);
+                        showToast(`Errore grave durante l'analisi di una riga: "${line.substring(0, Math.min(line.length, 50))}..."`);
                     }
                 });
 
@@ -1362,14 +1387,15 @@
                 return organizedData;
             }
             
+            // Function to generate the HTML for the interactive report in the modal
             function generateInteractiveShiftReportHtml(organizedData) {
                 let html = `
-                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin-bottom:20px;">Turni Organizzati per Fascia Oraria</h2>
+                    <h2 style="text-align:center;font-size:20px;font-weight:bold;margin-bottom:20px;">Turni Organizzati per Fascia Oraria (da dati incollati)</h2>
                 `;
                 
                 if (Object.keys(organizedData).length === 0) {
-                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato. Formato atteso: Cognome Nome DD.MM.YYYY Num HH:MM HH:MM</p>';
-                    return { html: html };
+                    html += '<p style="text-align:center; padding:20px;">Nessun dato valido elaborato dai dati incollati. Assicurati che il formato sia corretto: Cognome Nome DD.MM.YYYY NumeroTurno HH:MM HH:MM</p>';
+                    return { html: html }; // Return as an object for openModal
                 }
 
                 for (const macchinistaKey in organizedData) {
@@ -1390,10 +1416,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                    `;
+                        `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                        let fasciaClass = 'fascia-' + shift.fascia.toLowerCase();
+                        let fasciaClass = '';
+                        switch(shift.fascia) {
+                            case 'Presto': fasciaClass = 'fascia-presto'; break;
+                            case 'Medio': fasciaClass = 'fascia-medio'; break;
+                            case 'Tardi': fasciaClass = 'fascia-tardi'; break;
+                            default: fasciaClass = 'fascia-sconosciuta';
+                        }
                         html += `
                                         <tr>
                                             <td>
@@ -1423,53 +1455,85 @@
                         </div>
                     `;
                 }
-                return { html: html };
+
+                return { html: html };  // Return as an object for openModal
             }
 
+            // Function to update the state of the "Genera Email Selezionati" button
             function updateGenerateSelectedShiftsButtonState() {
                 const selectedCheckboxes = document.querySelectorAll('#reportModal .shift-select-checkbox:checked');
-                generateSelectedShiftsEmailBtn.style.display = selectedCheckboxes.length > 0 ? 'flex' : 'none';
+                if (selectedCheckboxes.length > 0) {
+                    generateSelectedShiftsEmailBtn.classList.remove('hidden');
+                } else {
+                    generateSelectedShiftsEmailBtn.classList.add('hidden');
+                }
             }
 
+            // Function to generate email for selected shifts directly from the modal report
             generateSelectedShiftsEmailBtn.addEventListener('click', function() {
                 const selectedShiftsData = [];
                 document.querySelectorAll('#reportModal .shift-select-checkbox:checked').forEach(checkbox => {
-                    selectedShiftsData.push(checkbox.dataset);
+                    selectedShiftsData.push({
+                        macchinistaId: checkbox.dataset.macchinistaId,
+                        macchinistaName: checkbox.dataset.macchinistaName,
+                        macchinistaSurname: checkbox.dataset.macchinistaSurname,
+                        macchinistaEmail: checkbox.dataset.macchinistaEmail,
+                        date: checkbox.dataset.date,
+                        shiftNumber: checkbox.dataset.shiftNumber,
+                        startTime: checkbox.dataset.startTime,
+                        endTime: checkbox.dataset.endTime,
+                        fascia: checkbox.dataset.fascia
+                    });
                 });
 
                 if (selectedShiftsData.length === 0) {
-                    showToast("Seleziona almeno un turno.");
+                    showToast("Seleziona almeno un turno per generare l'email.");
                     return;
                 }
 
+                // Group shifts by macchinista to send a single email per macchinista with all their selected shifts
                 const emailsToSend = {};
                 selectedShiftsData.forEach(shift => {
                     const emailKey = shift.macchinistaEmail;
                     if (!emailsToSend[emailKey]) {
                         emailsToSend[emailKey] = {
                             name: shift.macchinistaName,
+                            surname: shift.macchinistaSurname,
+                            email: shift.macchinistaEmail,
                             shifts: []
                         };
                     }
                     emailsToSend[emailKey].shifts.push(shift);
                 });
 
+                // Prepare and open mailto links for each macchinista
                 for (const emailKey in emailsToSend) {
                     const person = emailsToSend[emailKey];
                     let emailBody = `Buongiorno ${person.name},\n\n`;
-                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale:\n\n`;
+                    emailBody += `ti chiediamo gentilmente di verificare la possibilità di modificare la fascia oraria dei seguenti turni, al fine di ottimizzare la gestione del personale, garantire un corretto passaggio ed evitare situazioni di esubero o fluttuazioni:\n\n`;
+
                     person.shifts.forEach(shift => {
-                        const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-                        emailBody += `• ${formattedDate}: Turno ${shift.shiftNumber} (${shift.startTime}-${shift.endTime}), Fascia ${shift.fascia}\n`;
+                        const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        emailBody += `• Data: ${formattedDate} - Turno: ${shift.shiftNumber} - Fascia: ${shift.fascia} - Orario: ${shift.startTime}-${shift.endTime}\n`;
                     });
-                    emailBody += `\nCordiali saluti,\nLa Ripartizione del Personale`;
-                    
+
+                    emailBody += `\nRimariamo a disposizione per eventuali chiarimenti.\n\n`;
+                    emailBody += `Cordiali saluti,\n`;
+                    emailBody += `Ripartizione del personale – P-O-BP-ZFR-MSD-EIN\n`;
+                    emailBody += `Ferrovie Federali Svizzere – FFS\n`;
+                    emailBody += `Produzione ferroviaria – Condotta dei treni e manovra\n`;
+                    emailBody += `6500 Bellinzona\n`;
+
                     const subject = "Verifica Modifica Fascia Oraria Turni";
-                    const mailtoLink = `mailto:${emailKey}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                    const mailtoLink = `mailto:${encodeURIComponent(person.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+                    
+                    // Open a new email for each selected macchinista
                     window.open(mailtoLink, '_blank');
                 }
+                showToast("Email generate per i turni selezionati!");
             });
 
+            // Event listener for the main button in Pane 6
             processShiftDataBtnForFascia.addEventListener('click', function() {
                 const rawData = shiftDataPasteAreaForFascia.value;
                 if (!rawData.trim()) {
@@ -1477,42 +1541,92 @@
                     return;
                 }
                 const organizedShifts = parseAndOrganizeShiftDataForFascia(rawData);
+                
+                // Set the report modal content and open it
                 openModal(() => generateInteractiveShiftReportHtml(organizedShifts), 'Turni Organizzati per Fascia Oraria');
-                generateSwapProposals(organizedShifts);
+
+                // Clear existing proposals in pane6 and the set of added proposals
+                fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
+                // This 'addedProposals' variable was not defined in the previous snippet,
+                // if it's meant to track proposals in Pane 6, it needs to be initialized.
+                // For now, I'll assume it's just meant to clear the container, as per the original logic.
+                // If you have a specific 'addedProposals' Set or Array, ensure it's cleared here too.
+                // Example if it was a Set: addedProposals.clear();  
+
+                // Generate and display proposals in pane6 (this is the automatic block detection logic)
+                // This function was also not defined in the provided snippet.  
+                // If it exists elsewhere in your full script, ensure it's present.
+                // For the purpose of providing the *entire script*, I'll add a placeholder function.
+                generateSwapProposals(organizedShifts);  
             });
 
-            const addedProposals = new Set(); 
+            // Placeholder for generateSwapProposals if it's not defined elsewhere in your original script
+            // This function would typically take the organizedShifts and identify potential "swap proposals"
+            // based on your business logic (e.g., finding a "Presto" shift that can be swapped with a "Tardi" shift for different macchinisti).
+            // For now, it just adds a simple message. You'll need to implement your actual logic here.
+            const addedProposals = new Set(); // Assuming this was meant to be defined globally for pane 6 logic
+
             function generateSwapProposals(organizedShifts) {
+                // Clear the container first
                 fasciaCambiPropostiContainer.innerHTML = '';  
+
+                if (Object.keys(organizedShifts).length === 0) {
+                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessun turno organizzato per generare proposte di cambio.</p>';
+                    return;
+                }
+
                 let hasProposals = false;
+
+                // Example: Find a "Presto" shift and suggest finding someone for a "Tardi" shift.
+                // This is a simplified example. Your actual logic for proposals will be more complex.
                 for (const macchinistaKey in organizedShifts) {
                     const person = organizedShifts[macchinistaKey];
                     person.shifts.forEach(shift => {
-                        let proposalHtml = '';
-                        const proposalId = `${person.matricola}-${shift.date}-${shift.number}`;
-                        if (addedProposals.has(proposalId)) return;
-
                         if (shift.fascia === 'Presto') {
-                            proposalHtml = `<div class="proposal-block type-presto"><h4>Proposta Cambio Fascia: Presto</h4><p><strong>${person.name} ${person.surname}</strong> ha un turno <strong>Presto</strong> (${shift.number}) il ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}. Potrebbe aver bisogno di un cambio con un turno Tardi.</p></div>`;
+                            const proposalId = `${person.matricola}-${shift.date}-${shift.number}-presto`;
+                            if (!addedProposals.has(proposalId)) {
+                                const proposalHtml = `
+                                    <div class="proposal-block type-presto">
+                                        <h4>Proposta Cambio Fascia: Presto</h4>
+                                        <p><strong>${person.name} ${person.surname} (${person.matricola})</strong> ha un turno <strong>Presto (${shift.number})</strong> il <strong>${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> dalle ${shift.start} alle ${shift.end}. Potrebbe aver bisogno di un cambio con un turno Tardi.</p>
+                                    </div>
+                                `;
+                                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
+                                addedProposals.add(proposalId);
+                                hasProposals = true;
+                            }
                         } else if (shift.fascia === 'Tardi') {
-                             proposalHtml = `<div class="proposal-block type-tardi"><h4>Proposta Cambio Fascia: Tardi</h4><p><strong>${person.name} ${person.surname}</strong> ha un turno <strong>Tardi</strong> (${shift.number}) il ${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}. Potrebbe essere disponibile per un cambio.</p></div>`;
-                        }
-                        if(proposalHtml){
-                            fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
-                            addedProposals.add(proposalId);
-                            hasProposals = true;
+                               const proposalId = `${person.matricola}-${shift.date}-${shift.number}-tardi`;
+                            if (!addedProposals.has(proposalId)) {
+                                const proposalHtml = `
+                                    <div class="proposal-block type-tardi">
+                                        <h4>Proposta Cambio Fascia: Tardi</h4>
+                                        <p><strong>${person.name} ${person.surname} (${person.matricola})</strong> ha un turno <strong>Tardi (${shift.number})</strong> il <strong>${new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> dalle ${shift.start} alle ${shift.end}. Potrebbe essere disponibile per un cambio.</p>
+                                    </div>
+                                `;
+                                fasciaCambiPropostiContainer.insertAdjacentHTML('beforeend', proposalHtml);
+                                addedProposals.add(proposalId);
+                                hasProposals = true;
+                            }
                         }
                     });
                 }
+
                 if (!hasProposals) {
-                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessuna proposta di cambio rilevata.</p>';
+                    fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Nessuna proposta di cambio rilevata dai turni organizzati.</p>';
+                } else {
+                    showToast('Proposte di cambio generate!');
                 }
             }
+
+
         } catch (error) {
-            console.error("ERRORE FATALE:", error);
+            console.error("ERRORE FATALE in initializeApp:", error);
             document.body.innerHTML = `<div style="padding:2rem; text-align:center; background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 0.5rem; margin: 2rem;">
-                <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold;">Errore Critico</h1>
-                <p>Si è verificato un errore che impedisce il funzionamento dell'applicazione: ${error.message}</p>
+                <h1 style="color: #ef4444; font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Errore Critico</h1>
+                <p style="color: #ef4444; font-size: 1rem;">Si è verificato un errore che impedisce il funzionamento dell'applicazione.</p>
+                <p style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">Dettagli tecnici: ${error.message}</p>
+                <p style="color: #ef4444; font-size: 0.875rem;">Si prega di segnalare questo errore all'amministratore.</p>
             </div>`;
         }
     });
