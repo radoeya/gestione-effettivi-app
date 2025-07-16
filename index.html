@@ -289,7 +289,7 @@
                 <div class="flex justify-end items-center p-6 border-t bg-gray-100 rounded-b-2xl space-x-3">
                     <button id="copyHtmlBtn" class="flex items-center py-2 px-4 border rounded-lg">Copia HTML</button>
                     <button id="sendEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-teal-600 hover:bg-teal-700">Invia Email</button>
-                    <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600">Scarica PDF</button>
+                    <button id="downloadPdfBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-blue-600 hover:bg-blue-700">Scarica PDF</button>
                     <button id="generateSelectedShiftsEmailBtn" class="flex items-center py-2 px-4 border rounded-lg text-white bg-green-600 hover:bg-green-700 hidden">Genera Email Selezionati</button>
                 </div>
             </div>
@@ -319,8 +319,8 @@
                 availability: 'Disponibilità'
             };
             const typeColors = {
-                need: '#ef4444',    // red-500
-                leave: '#22c55e',   // green-500
+                need: '#ef4444',   // red-500
+                leave: '#22c55e',  // green-500
                 availability: '#4ade80' // green-400 (lighter green)
             };
 
@@ -788,7 +788,7 @@
 
             // --- PDF DOWNLOAD FUNCTION ---
             downloadPdfBtn.addEventListener('click', async function() {
-                const reportElement = document.getElementById('reportContent');
+                const reportElement = document.getElementById('reportContent').querySelector('#pdf-content') || document.getElementById('reportContent');
                 if (!reportElement || reportElement.innerHTML.trim() === '') {
                     showToast('Nessun report da scaricare. Genera prima un report.');
                     return;
@@ -797,28 +797,37 @@
                 const filename = reportModalTitle.textContent.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
 
                 try {
-                    // Temporarily hide elements that might interfere with PDF generation if needed
-                    // For example, if there are interactive elements or buttons within reportContent
-                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = 'none');
+                    // --- Logica per PDF a pagina singola ---
+                    const a4WidthMm = 210;
+                    const marginMm = 15;
+                    const contentWidthMm = a4WidthMm - (marginMm * 2);
+                    const elementPixelWidth = reportElement.offsetWidth;
+                    const scale = contentWidthMm / elementPixelWidth;
+                    const elementPixelHeight = reportElement.scrollHeight;
+                    const pdfHeightMm = (elementPixelHeight * scale) + (marginMm * 2);
 
                     const options = {
-                        margin: 10,
+                        margin: marginMm,
                         filename: filename,
                         image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2, useCORS: true },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                        pagebreak: { avoid: '.page-break-avoid' }
+                        html2canvas: { 
+                            scale: 2,
+                            useCORS: true 
+                        },
+                        jsPDF: {
+                            unit: 'mm',
+                            format: [a4WidthMm, pdfHeightMm],
+                            orientation: 'portrait'
+                        }
                     };
-
+                    // --- Fine logica custom ---
+                    
+                    showToast('Generazione PDF in corso...');
                     await html2pdf().set(options).from(reportElement).save();
-                    showToast('PDF scaricato con successo!');
-
+                    // showToast('PDF scaricato con successo!'); // La libreria mostra già un feedback
                 } catch (error) {
                     console.error('Errore durante la generazione del PDF:', error);
                     showToast('Errore durante il download del PDF.');
-                } finally {
-                    // Restore hidden elements if they were hidden
-                    // reportElement.querySelectorAll('button, input[type="checkbox"]').forEach(el => el.style.display = '');
                 }
             });
 
@@ -836,11 +845,11 @@
                 newWindow.document.close();  
             });
             copyHtmlBtn.addEventListener('click', () => {  
-                const reportHtmlElement = document.getElementById('pdf-content');  
+                const reportHtmlElement = reportContent.innerHTML;
                 if(!reportHtmlElement) { showToast('Contenuto del report non trovato.'); return; }
-                navigator.clipboard.writeText(reportHtmlElement.outerHTML).then(
+                navigator.clipboard.writeText(reportHtmlElement).then(
                     () => showToast('Codice HTML copiato!'),  
-                    () => showToast('Erro durante la copia.')
+                    () => showToast('Errore durante la copia.')
                 );  
             });
             // Original Send Email button for general reports
@@ -1300,12 +1309,6 @@ Produzione ferroviaria – Condotta dei treni e manovra
                     return 'Medio';
                 }  
                 // Tardi: starts from 12:00 onwards OR is a night shift (starts between 00:00 and 01:59 and ends next morning by 06:00)
-                // Also handles the `11:48 - 21:11` case from your example which should be Tardi.
-                // Refined logic for "Tardi" to correctly classify 11:48-21:11 as Tardi and handle overnight shifts explicitly.
-                // A shift is Tardi if:
-                // 1. It starts at or after 12:00 (midday)
-                // OR
-                // 2. It's an overnight shift: starts between 00:00 and 01:59 AND ends after starting time AND ends by 06:00 next day
                 // OR
                 // 3. It starts between 06:00 and 11:59 (Medio range) but extends beyond the Medio end time (17:00)
                 else if (start >= T_START_MIN_DAY ||  
@@ -1324,12 +1327,6 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
                 lines.forEach(line => {
                     try {  
-                        // Robust regex:
-                        // ^(\S+)\s+(\S+) : Cognome Nome (first two non-whitespace words)
-                        // \s+(\d{2}\.\d{2}\.\d{4}) : Date (DD.MM.YYYY)
-                        // \s+(\S+) : Shift Number (any non-whitespace characters)
-                        // \s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}) : Start Time & End Time (HH:MM)
-                        // (?:.*?(\d{6}))? : Optional Matricola (6 digits) anywhere after times
                         const match = line.match(/^(\S+)\s+(\S+)\s+(\d{2}\.\d{2}\.\d{4})\s+(\S+)\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})(?:.*?(\d{6}))?/);
                         
                         if (match) {  
@@ -1416,7 +1413,7 @@ Produzione ferroviaria – Condotta dei treni e manovra
                                         </tr>
                                     </thead>
                                     <tbody>
-                        `;
+                    `;
                     person.shifts.forEach(shift => {
                         const formattedDate = new Date(shift.date + 'T00:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         let fasciaClass = '';
@@ -1545,26 +1542,12 @@ Produzione ferroviaria – Condotta dei treni e manovra
                 // Set the report modal content and open it
                 openModal(() => generateInteractiveShiftReportHtml(organizedShifts), 'Turni Organizzati per Fascia Oraria');
 
-                // Clear existing proposals in pane6 and the set of added proposals
                 fasciaCambiPropostiContainer.innerHTML = '<p class="text-gray-500 text-sm">Organizza i turni per vedere le proposte di cambio.</p>'; // Reset message
-                // This 'addedProposals' variable was not defined in the previous snippet,
-                // if it's meant to track proposals in Pane 6, it needs to be initialized.
-                // For now, I'll assume it's just meant to clear the container, as per the original logic.
-                // If you have a specific 'addedProposals' Set or Array, ensure it's cleared here too.
-                // Example if it was a Set: addedProposals.clear();  
 
-                // Generate and display proposals in pane6 (this is the automatic block detection logic)
-                // This function was also not defined in the provided snippet.  
-                // If it exists elsewhere in your full script, ensure it's present.
-                // For the purpose of providing the *entire script*, I'll add a placeholder function.
                 generateSwapProposals(organizedShifts);  
             });
 
-            // Placeholder for generateSwapProposals if it's not defined elsewhere in your original script
-            // This function would typically take the organizedShifts and identify potential "swap proposals"
-            // based on your business logic (e.g., finding a "Presto" shift that can be swapped with a "Tardi" shift for different macchinisti).
-            // For now, it just adds a simple message. You'll need to implement your actual logic here.
-            const addedProposals = new Set(); // Assuming this was meant to be defined globally for pane 6 logic
+            const addedProposals = new Set(); 
 
             function generateSwapProposals(organizedShifts) {
                 // Clear the container first
@@ -1577,8 +1560,6 @@ Produzione ferroviaria – Condotta dei treni e manovra
 
                 let hasProposals = false;
 
-                // Example: Find a "Presto" shift and suggest finding someone for a "Tardi" shift.
-                // This is a simplified example. Your actual logic for proposals will be more complex.
                 for (const macchinistaKey in organizedShifts) {
                     const person = organizedShifts[macchinistaKey];
                     person.shifts.forEach(shift => {
