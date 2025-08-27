@@ -632,10 +632,7 @@
                                 <td style="border:none;padding:2px;"><strong>Situazione al:</strong> ${new Date().toLocaleDateString('it-IT', { timeZone: 'Europe/Zurich' })}</td>
                                 <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di congedi =</strong> <span style="display:inline-block; vertical-align:middle;">${leaveIcon}</span></td>
                             </tr>
-                            <tr>
-                                <td style="border:none;padding:2px;"></td>
-                                <td style="border:none;padding:2px;text-align:right;"><strong>Disponibilità di personale =</strong> <span style="display:inline-block; vertical-align:middle;">${availabilityIcon}</span></td>
-                            </tr>
+                            
                         </table>
                     </div>
                     <div style="flex-grow: 1;">${mainTableHtml}</div>
@@ -963,7 +960,11 @@
                 const text = pasteArea.value;  
                 if (!text.trim()) { showToast('Incolla il testo da analizzare.'); return; }  
                 let accepted = 0, pending = 0, rejected = 0;  
-                const targetTypes = ['CTV', 'CTS', 'TRP', 'RTV', 'ND2', 'ND3'];  
+                const targetMarkers = [
+  'CTV','CTS','TRP','RTV','ND2','ND3','RE','CTT','RTT',
+  'Spezialwunsch','Richiesta speciale','Richiesta',
+  'RequestTypeImg7','RequestTypeImg8','Arbeitsangebot'
+];
                 const lines = text.trim().split('\n');  
                 const records = [];  
                 let currentRecordLines = [];  
@@ -979,7 +980,9 @@
                     records.push(currentRecordLines.join(' '));  
                 }  
                 records.forEach(record => {  
-                    const hasTargetType = targetTypes.some(type => new RegExp(`\\b${type}\\b`, 'i').test(record));  
+                    const hasTargetType = targetMarkers.some(k =>
+  new RegExp(`\\b${k}\\b`, 'i').test(record)
+); 
                     if (hasTargetType) {  
                         const recordLC = record.toLowerCase();  
                         if (recordLC.includes('annullato')) { }  
